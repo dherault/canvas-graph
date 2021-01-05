@@ -6,6 +6,8 @@ import { batch, useDispatch, useSelector } from 'react-redux'
 import mousetrap from 'mousetrap'
 
 import Box from '@material-ui/core/Box'
+import Button from '@material-ui/core/Button'
+import Paper from '@material-ui/core/Paper'
 
 import { nodesMetadata } from '../configuration'
 import { getNodePosition } from '../helpers/getGraphItemPosition'
@@ -21,6 +23,7 @@ function Graph() {
   const edges = useSelector(s => s.edges)
   const movingEdge = useSelector(s => s.movingEdge)
   const mouse = useSelector(s => s.mouse)
+  const [isSidebarOpened, setIsSidebarOpened] = useState(true)
   const [isAddNodeDialogOpened, setIsAddNodeDialogOpened] = useState(false)
 
   const handleEscape = useCallback(() => {
@@ -37,8 +40,17 @@ function Graph() {
   useEffect(() => {
     mousetrap.bind('ctrl+space', () => setIsAddNodeDialogOpened(opened => !opened))
     mousetrap.bind('escape', handleEscape)
+    mousetrap.bind('tab', event => {
+      event.preventDefault()
 
-    return () => mousetrap.unbind('ctrl+space')
+      setIsSidebarOpened(opened => !opened)
+    })
+
+    return () => {
+      mousetrap.unbind('ctrl+space')
+      mousetrap.unbind('escape')
+      mousetrap.unbind('tab')
+    }
   }, [handleEscape])
 
   function handleCloseAddNodeDialog(event) {
@@ -133,6 +145,10 @@ function Graph() {
     }
   }
 
+  function handleReset() {
+    dispatch({ type: 'RESET' })
+  }
+
   return (
     <Box
       ref={backgroundRef}
@@ -141,6 +157,18 @@ function Graph() {
       onMouseMove={handleMouseMove}
       onClick={handleClick}
     >
+      <div className="Graph-toolbar x4 p-2">
+        <Button
+          onClick={handleReset}
+        >
+          Reset
+        </Button>
+      </div>
+      {isSidebarOpened && (
+        <Paper square className="Graph-sidebar">
+          Foo
+        </Paper>
+      )}
       {Object.values(nodes).map(node => (
         <Node
           key={node.id}

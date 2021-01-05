@@ -95,9 +95,7 @@ function Node({ node }) {
       onDrag={handleDrag}
       bounds="parent"
     >
-      <Paper
-        className="Node"
-      >
+      <Paper className="Node">
         <Typography className="Node-type pt-1 px-2">
           {node.type}
         </Typography>

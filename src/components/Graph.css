@@ -4,3 +4,19 @@
   position: relative;
   z-index: 1;
 }
+
+.Graph-sidebar {
+  width: 256px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 20;
+}
+
+.Graph-toolbar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 999;
+}
