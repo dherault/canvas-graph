@@ -1,0 +1,11 @@
+{
+  "extends": "dherault",
+  "rules": {
+    "no-unused-vars": "warn",
+    "no-empty": "warn",
+    "no-multiple-empty-lines": "warn",
+    "react/no-unescaped-entities": "off",
+    "jsx-a11y/anchor-is-valid": "off",
+    "jsx-a11y/alt-text": "off"
+  }
+}

@@ -1,0 +1,35 @@
+.Node {
+  position: absolute;
+  width: 128px;
+  height: 128px;
+  cursor: move;
+  z-index: 2;
+  user-select: none;
+}
+
+.Node-inputs {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+}
+
+.Node-outputs {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+.Node-connector {
+  cursor: pointer;
+}
+
+.Node-connector-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid lightskyblue;
+}
+
+.Node-connector-dot-filled {
+  background-color: lightskyblue;
+}
