@@ -127,8 +127,6 @@ function Graph() {
   }
 
   function handleClick(event) {
-    console.log('event', event.target === backgroundRef.current)
-
     // If we clicked on background and there is a moving edge
     if (event.target === backgroundRef.current && movingEdge) {
       setIsAddNodeDialogOpened(true)

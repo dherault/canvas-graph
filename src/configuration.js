@@ -62,7 +62,7 @@ export const nodesMetadata = {
     outputs: [
       {
         type: 'shape',
-        label: 'next',
+        label: 'shape',
       },
     ],
   },
