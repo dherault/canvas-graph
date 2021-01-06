@@ -77,14 +77,26 @@ function createNodeTree(node, state) {
   const drawTree = {
     node,
     children: [],
+    values: {},
   }
 
   state.edges
     .filter(edge => edge.outId === node.id)
     .forEach(edge => {
-      const childNode = state.data.nodes[edge.inId]
+      const childTree = createNodeTree(state.data.nodes[edge.inId], state)
 
-      drawTree.children.push(createNodeTree(childNode, state))
+      if (childTree.node.isValue) {
+        const io = node.inputs[edge.outIndex]
+
+        if (!drawTree.values[io.label]) {
+          drawTree.values[io.label] = []
+        }
+
+        drawTree.values[io.label].push(childTree.node.value)
+      }
+      else {
+        drawTree.children.push(childTree)
+      }
     })
 
   return drawTree

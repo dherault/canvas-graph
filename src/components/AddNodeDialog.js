@@ -29,7 +29,7 @@ function AddNodeDialog({ opened, onSubmit, onClose }) {
     Object.entries(nodesMetadata)
       .filter(predicate)
       .forEach(([type, metadata]) => {
-        (isIn ? metadata.inputs : metadata.output).forEach((inputOrOutput, ioIndex) => {
+        (isIn ? metadata.inputs : metadata.outputs).forEach((inputOrOutput, ioIndex) => {
           if (inputOrOutput.type === ioType) {
             possibilities.push({
               type,
@@ -52,6 +52,10 @@ function AddNodeDialog({ opened, onSubmit, onClose }) {
           id: Math.random(),
         })
       })
+  }
+
+  if (possibilities.length === 1) {
+    handleClick(possibilities[0])
   }
 
   function handleSubmit(event) {

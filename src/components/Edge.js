@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux'
 function Edge({ edge }) {
   const { inX, inY, outX, outY, inId, outId } = edge
   const { x, y } = useSelector(s => s.mouse)
+  const activeIds = useSelector(s => s.activeIds)
 
   let xa
   let ya
@@ -52,6 +53,7 @@ function Edge({ edge }) {
       style={{
         top: Math.min(ya, yb),
         left: Math.min(xa, xb),
+        zIndex: activeIds.includes(edge.id) ? 99 : 3,
       }}
     >
       <path

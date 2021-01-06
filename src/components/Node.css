@@ -1,22 +1,8 @@
 .Node {
   position: absolute;
   width: 128px;
-  height: 128px;
   cursor: move;
-  z-index: 2;
   user-select: none;
-}
-
-.Node-inputs {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-}
-
-.Node-outputs {
-  position: absolute;
-  right: 0;
-  bottom: 0;
 }
 
 .Node-connector {
@@ -32,4 +18,30 @@
 
 .Node-connector-dot-filled {
   background-color: lightskyblue;
+}
+
+.Node-input {
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  width: 94px;
+  height: 18px;
+  text-align: right;
+  color: white;
+  line-height: 0;
+  font-size: 12px;
+  margin-top: 2px;
+  outline: none;
+}
+
+.Node-color {
+  height: 22px;
+  width: 32px;
+}
+
+.Node-color-picker {
+  position: absolute;
+  top: 22px;
+  right: 0;
+  z-index: 99999;
 }

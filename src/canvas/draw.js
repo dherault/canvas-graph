@@ -1,19 +1,37 @@
 const nodeTypeToDraw = {
-  moveTo(_, state, innerState, node) {
+  moveTo(_, state, innerState, { values }) {
     if (!innerState.hasBegunPath) {
       _.beginPath()
 
       innerState.hasBegunPath = true
     }
 
-    _.moveTo(0, 0)
+    // console.log('values', values)
+    if (values.x && values.y) {
+      _.moveTo(values.x[0], values.y[0])
+    }
+    else {
+      innerState.abort = true
+    }
   },
-  lineTo(_, state, innerState, node) {
-    _.lineTo(100, 100)
+  lineTo(_, state, innerState, { values }) {
+    if (values.x && values.y) {
+      _.lineTo(values.x[0], values.y[0])
+    }
+    else {
+      innerState.abort = true
+    }
   },
-  endShape(_, state, innerState, node) {
+  endShape(_, state, innerState, { values }) {
+    if (values['stroke color']) {
+      _.strokeStyle = values['stroke color']
+    }
+
+    if (values['fill color']) {
+      _.fillStyle = values['fill color']
+    }
+
     _.closePath()
-    _.strokeStyle = 'lightblue'
     _.stroke()
   },
 }
@@ -25,14 +43,20 @@ function draw(_, state) {
   state.drawOrder.forEach(tree => {
     const innerState = {}
 
-    traverseTreeUp(tree, node => nodeTypeToDraw[node.type](_, state, innerState, node))
+    traverseTreeUp(tree, childTree => {
+      if (innerState.abort) return
+
+      nodeTypeToDraw[childTree.node.type](_, state, innerState, childTree)
+    })
   })
 }
 
 function traverseTreeUp(tree, fn) {
   if (tree.children.length) tree.children.forEach(childTree => traverseTreeUp(childTree, fn))
 
-  fn(tree.node)
+  if (!tree.node.isValue) {
+    fn(tree)
+  }
 }
 
 export default draw

@@ -13,3 +13,11 @@ body {
 #root {
   height: 100vh;
 }
+
+.flex-grow {
+  flex-grow: 1;
+}
+
+.w100 {
+  width: 100%;
+}

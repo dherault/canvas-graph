@@ -9,6 +9,7 @@ import mouse from './reducers/mouse'
 import nodes from './reducers/nodes'
 import edges from './reducers/edges'
 import movingEdge from './reducers/movingEdge'
+import activeIds from './reducers/activeIds'
 
 const persistConfig = {
   key: persistStorageKey,
@@ -21,6 +22,7 @@ const store = configureStore({
     nodes,
     edges,
     movingEdge,
+    activeIds,
   })),
 })
 

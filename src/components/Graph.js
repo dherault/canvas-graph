@@ -139,8 +139,8 @@ function Graph() {
   }
 
   function handleClick(event) {
-    // If we clicked on background and there is a moving edge
-    if (event.target === backgroundRef.current && movingEdge) {
+    // If there is a moving edge and we clicked on background or svg or edge path
+    if (movingEdge && (event.target === backgroundRef.current || event.target.tagName === 'svg' || event.target.tagName === 'path')) {
       setIsAddNodeDialogOpened(true)
     }
   }
