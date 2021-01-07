@@ -5,12 +5,14 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { batch, useDispatch, useSelector } from 'react-redux'
 import mousetrap from 'mousetrap'
 
+import { MapInteractionCSS } from 'react-map-interaction'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
 import Paper from '@material-ui/core/Paper'
 
 import { nodesMetadata } from '../configuration'
-import { getNodePosition } from '../helpers/getGraphItemPosition'
+import { getNodePosition, getNodePositionAgainstConnector } from '../helpers/getGraphItemPosition'
+import getRelativePosition from '../helpers/getRelativePosition'
 
 import AddNodeDialog from './AddNodeDialog'
 import Node from './Node'
@@ -23,8 +25,10 @@ function Graph() {
   const edges = useSelector(s => s.edges)
   const movingEdge = useSelector(s => s.movingEdge)
   const mouse = useSelector(s => s.mouse)
-  const [isSidebarOpened, setIsSidebarOpened] = useState(true)
+  const graphParameters = useSelector(s => s.graphParameters)
+  const [isSidebarOpened, setIsSidebarOpened] = useState(false)
   const [isAddNodeDialogOpened, setIsAddNodeDialogOpened] = useState(false)
+  const [isPanDisabled, setIsPanDisabled] = useState(false)
 
   const handleEscape = useCallback(() => {
     if (isAddNodeDialogOpened) return
@@ -37,7 +41,23 @@ function Graph() {
     }
   }, [isAddNodeDialogOpened, movingEdge, dispatch])
 
+  const handleResize = useCallback(() => {
+    const { innerWidth, innerHeight } = window
+    const width = innerWidth / graphParameters.minScale
+    const height = innerHeight / graphParameters.minScale
+
+    dispatch({
+      type: 'UPDATE_GRAPH_PARAMETERS',
+      payload: {
+        width,
+        height,
+      },
+    })
+  // eslint-disable-next-line
+  }, [dispatch])
+
   useEffect(() => {
+    window.addEventListener('resize', handleResize)
     mousetrap.bind('ctrl+space', () => setIsAddNodeDialogOpened(opened => !opened))
     mousetrap.bind('escape', handleEscape)
     mousetrap.bind('tab', event => {
@@ -47,11 +67,14 @@ function Graph() {
     })
 
     return () => {
+      window.removeEventListener('resize', handleResize)
       mousetrap.unbind('ctrl+space')
       mousetrap.unbind('escape')
       mousetrap.unbind('tab')
     }
-  }, [handleEscape])
+  }, [handleEscape, handleResize])
+
+  useEffect(handleResize, [handleResize])
 
   function handleCloseAddNodeDialog(event) {
     if (event) {
@@ -74,7 +97,7 @@ function Graph() {
           ...nodesMetadata[nodeType],
         }
 
-        Object.assign(node, getNodePosition(node, io, index, mouse))
+        Object.assign(node, getNodePositionAgainstConnector(node, io, index, mouse, graphParameters))
 
         dispatch({
           type: 'ADD_NODE',
@@ -86,19 +109,21 @@ function Graph() {
           ...movingEdge,
         }
 
+        const relativeMouse = getRelativePosition(mouse, graphParameters)
+
         if (io === 'in') {
           edge.outId = nodeId
           edge.outType = ioType
           edge.outIndex = index
-          edge.outX = mouse.x
-          edge.outY = mouse.y
+          edge.outX = relativeMouse.x
+          edge.outY = relativeMouse.y
         }
         else {
           edge.inId = nodeId
           edge.inType = ioType
           edge.inIndex = index
-          edge.inX = mouse.x
-          edge.inY = mouse.y
+          edge.inX = relativeMouse.x
+          edge.inY = relativeMouse.y
         }
 
         dispatch({
@@ -113,28 +138,36 @@ function Graph() {
       })
     }
     else {
+      const node = {
+        id: nodeId,
+        type: nodeType,
+        ...nodesMetadata[nodeType],
+      }
+
+      Object.assign(node, getNodePosition(node, mouse, graphParameters))
+
       dispatch({
         type: 'ADD_NODE',
-        payload: {
-          id: nodeId,
-          type: nodeType,
-          x: mouse.x,
-          y: mouse.y,
-          ...nodesMetadata[nodeType],
-        },
+        payload: node,
       })
     }
   }
 
   function handleMouseMove(event) {
-    if (!isAddNodeDialogOpened) {
-      dispatch({
-        type: 'MOUSE_MOVE',
-        payload: {
-          x: event.clientX,
-          y: event.clientY,
-        },
-      })
+    if (isAddNodeDialogOpened) return
+
+    dispatch({
+      type: 'MOUSE_MOVE',
+      payload: {
+        x: event.clientX,
+        y: event.clientY,
+      },
+    })
+  }
+
+  function handleMouseDown(event) {
+    if (isPanDisabled && event.target === backgroundRef.current) {
+      setIsPanDisabled(false)
     }
   }
 
@@ -145,21 +178,29 @@ function Graph() {
     }
   }
 
+  function handleScaleAndTranslationChange(params) {
+    dispatch({
+      type: 'UPDATE_GRAPH_PARAMETERS',
+      payload: params,
+    })
+  }
+
   function handleReset() {
     dispatch({ type: 'RESET' })
   }
 
   return (
-    <Box
-      ref={backgroundRef}
-      bgcolor="background.default"
-      className="Graph"
-      onMouseMove={handleMouseMove}
-      onClick={handleClick}
-    >
+    <>
       <div className="Graph-toolbar x4 p-2">
+        <pre className="p-1 mr-2" style={{ backgroundColor: 'white' }}>
+          {JSON.stringify(getRelativePosition(mouse, graphParameters))}
+        </pre>
+        <pre className="p-1 mr-2" style={{ backgroundColor: 'white' }}>
+          {(graphParameters.maxScale - graphParameters.scale) / (graphParameters.maxScale - graphParameters.minScale)}
+        </pre>
         <Button
           onClick={handleReset}
+          variant="contained"
         >
           Reset
         </Button>
@@ -169,24 +210,53 @@ function Graph() {
           Foo
         </Paper>
       )}
-      {Object.values(nodes).map(node => (
-        <Node
-          key={node.id}
-          node={node}
-        />
-      ))}
-      {[...Object.values(edges), movingEdge || {}].map(edge => (
-        <Edge
-          key={edge.id}
-          edge={edge}
-        />
-      ))}
-      <AddNodeDialog
-        opened={isAddNodeDialogOpened}
-        onSubmit={handleAddNode}
-        onClose={handleCloseAddNodeDialog}
-      />
-    </Box>
+      <MapInteractionCSS
+        value={graphParameters}
+        onChange={handleScaleAndTranslationChange}
+        disablePan={isPanDisabled}
+        minScale={graphParameters.minScale}
+        maxScale={graphParameters.maxScale}
+        // translationBounds={{
+        //   xMin: -(graphParameters.width - window.innerWidth) * (1 - (graphParameters.maxScale - graphParameters.scale) / (graphParameters.maxScale - graphParameters.minScale)),
+        //   yMin: -(graphParameters.height - window.innerHeight) * (1 - (graphParameters.maxScale - graphParameters.scale) / (graphParameters.maxScale - graphParameters.minScale)),
+        //   xMax: 0,
+        //   yMax: 0,
+        // }}
+      >
+        <Box
+          ref={backgroundRef}
+          bgcolor="background.default"
+          onMouseMove={handleMouseMove}
+          onMouseDown={handleMouseDown}
+          onClick={handleClick}
+          className="Graph"
+          style={{
+            width: graphParameters.width,
+            height: graphParameters.height,
+          }}
+        >
+          {Object.values(nodes).map(node => (
+            <Node
+              key={node.id}
+              node={node}
+              onDragStart={() => setIsPanDisabled(true)}
+              onDragEnd={() => setIsPanDisabled(false)}
+            />
+          ))}
+          {[...Object.values(edges), movingEdge || { id: 'moving-edge' }].map(edge => (
+            <Edge
+              key={edge.id}
+              edge={edge}
+            />
+          ))}
+          <AddNodeDialog
+            opened={isAddNodeDialogOpened}
+            onSubmit={handleAddNode}
+            onClose={handleCloseAddNodeDialog}
+          />
+        </Box>
+      </MapInteractionCSS>
+    </>
   )
 }
 

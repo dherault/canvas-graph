@@ -2,11 +2,15 @@ import './Edge.css'
 
 import { useSelector } from 'react-redux'
 
+import getRelativePosition from '../helpers/getRelativePosition'
+
 function Edge({ edge }) {
   const { inX, inY, outX, outY, inId, outId } = edge
-  const { x, y } = useSelector(s => s.mouse)
+  const mouse = useSelector(s => s.mouse)
   const activeIds = useSelector(s => s.activeIds)
+  const graphParameters = useSelector(s => s.graphParameters)
 
+  const { x, y } = getRelativePosition(mouse, graphParameters)
   let xa
   let ya
   let xb
@@ -43,12 +47,14 @@ function Edge({ edge }) {
   const y2 = diffY0 ? diffY : 0
 
   const viewX = Math.abs(diffX)
+  const viewY = Math.abs(diffY)
   const path = `M ${x1} ${y1}  Q ${x1 + (diffX0 ? 1 : -1) * viewX / 4} ${y1}, ${(x1 + x2) / 2} ${(y1 + y2) / 2} T ${x2} ${y2}`
 
   return (
     <svg
       width={viewX}
-      viewBox={`0 0 ${viewX} ${Math.abs(diffY)}`}
+      height={Math.max(2, viewY)}
+      viewBox={`0 0 ${viewX} ${viewY}`}
       className="Edge"
       style={{
         top: Math.min(ya, yb),
@@ -60,6 +66,7 @@ function Edge({ edge }) {
         d={path}
         stroke="lightskyblue"
         fill="transparent"
+        strokeWidth={1 / graphParameters.scale}
       />
     </svg>
   )

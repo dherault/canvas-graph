@@ -10,6 +10,7 @@ import nodes from './reducers/nodes'
 import edges from './reducers/edges'
 import movingEdge from './reducers/movingEdge'
 import activeIds from './reducers/activeIds'
+import graphParameters from './reducers/graphParameters'
 
 const persistConfig = {
   key: persistStorageKey,
@@ -23,6 +24,7 @@ const store = configureStore({
     edges,
     movingEdge,
     activeIds,
+    graphParameters,
   })),
 })
 

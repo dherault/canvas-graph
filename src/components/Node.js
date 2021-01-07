@@ -13,8 +13,9 @@ import { getEdgePosition } from '../helpers/getGraphItemPosition'
 
 const connectorRadius = 6
 
-function Node({ node }) {
+function Node({ node, onDragStart, onDragEnd }) {
   const dispatch = useDispatch()
+  const graphParameters = useSelector(s => s.graphParameters)
   const edges = useSelector(s => Object.values(s.edges).filter(edge => edge.inId === node.id || edge.outId === node.id))
   const movingEdgeAttachedToNode = useSelector(s => s.movingEdge && (s.movingEdge.inId === node.id || s.movingEdge.outId === node.id) ? s.movingEdge : null)
   const activeIds = useSelector(s => s.activeIds)
@@ -101,6 +102,16 @@ function Node({ node }) {
     })
   }
 
+  function handleColorChange(color) {
+    dispatch({
+      type: 'UPDATE_NODE',
+      payload: {
+        ...node,
+        value: color,
+      },
+    })
+  }
+
   function handleMouseDown() {
     dispatch({
       type: 'SET_ACTIVE_IDS',
@@ -140,17 +151,8 @@ function Node({ node }) {
           {isOpened && (
             <span className="Node-color-picker">
               <RgbaStringColorPicker
-                value={node.value}
-                onChange={color => {
-                  console.log('color', color)
-                  dispatch({
-                    type: 'UPDATE_NODE',
-                    payload: {
-                      ...node,
-                      value: color,
-                    },
-                  })
-                }}
+                color={node.value}
+                onChange={handleColorChange}
               />
             </span>
           )}
@@ -167,9 +169,12 @@ function Node({ node }) {
 
   return (
     <Draggable
+      scale={graphParameters.scale}
       cancel="span"
       position={node}
       onDrag={handleDrag}
+      onStart={onDragStart}
+      onEnd={onDragEnd}
       bounds="parent"
       onMouseDown={handleMouseDown}
     >
@@ -187,12 +192,14 @@ function Node({ node }) {
             {node.inputs.map(({ type, label }, index) => (
               <div
                 key={index}
-                className="Node-connector x4 pl-1"
+                className="x4"
               >
                 <span
                   onMouseDown={() => handleConnectorDotMouseDown('in', type, index)}
-                  className={`Node-connector-dot mr-1 ${edges.find(inPredicate(index)) ? 'Node-connector-dot-filled' : ''}`}
-                />
+                  className="Node-connector p-1 x5"
+                >
+                  <span className={`Node-connector-dot p-1 ${edges.find(inPredicate(index)) ? 'Node-connector-dot-filled' : ''}`} />
+                </span>
                 {renderConnectorLabel(label)}
               </div>
             ))}

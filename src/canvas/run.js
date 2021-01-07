@@ -4,7 +4,6 @@ function run(canvas) {
   const _ = canvas.getContext('2d')
   const pixelRatio = window.devicePixelRatio || 1
   const { width, height } = canvas.getBoundingClientRect()
-
   const w = canvas.width = width * pixelRatio
   const h = canvas.height = height * pixelRatio
 
