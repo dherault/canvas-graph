@@ -3,6 +3,7 @@ import './Graph.css'
 import { v4 as uuid } from 'uuid'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { batch, useDispatch, useSelector } from 'react-redux'
+import { useTheme } from '@material-ui/core'
 import mousetrap from 'mousetrap'
 
 import { MapInteractionCSS } from 'react-map-interaction'
@@ -29,6 +30,7 @@ function Graph() {
   const [isSidebarOpened, setIsSidebarOpened] = useState(false)
   const [isAddNodeDialogOpened, setIsAddNodeDialogOpened] = useState(false)
   const [isPanDisabled, setIsPanDisabled] = useState(false)
+  const theme = useTheme()
 
   const handleEscape = useCallback(() => {
     if (isAddNodeDialogOpened) return
@@ -185,6 +187,35 @@ function Graph() {
     })
   }
 
+  function handleCenter() {
+    const { innerWidth, innerHeight } = window
+    const { width, height } = graphParameters
+    const min = { x: Infinity, y: Infinity }
+    const max = { x: 0, y: 0 }
+
+    Object.values(nodes).forEach(node => {
+      if (node.x < min.x) min.x = node.x
+      if (node.y < min.y) min.y = node.y
+      if (node.x + node.width > max.x) max.x = node.x + node.width
+      if (node.y + node.height > max.y) max.y = node.y + node.height
+    })
+
+    // console.log('min, max', min, max)
+
+    const w = max.x - min.x
+    // const h = max.y - min.y
+
+    const s1 = (width - w) / (width - innerWidth)
+    const s2 = (width - w) / width
+    const s3 = w / width
+    const s4 = innerWidth / w
+    const s5 = (width - innerWidth) / w
+    const s6 = (w - innerWidth) / width
+
+    console.log(s1, s2, s3, s4, s5, s6)
+    console.log(1 - s1, 1 - s2, 1 - s3, 1 - s4, 1 - s5, 1 - s6)
+  }
+
   function handleReset() {
     dispatch({ type: 'RESET' })
   }
@@ -198,6 +229,13 @@ function Graph() {
         <pre className="p-1 mr-2" style={{ backgroundColor: 'white' }}>
           {(graphParameters.maxScale - graphParameters.scale) / (graphParameters.maxScale - graphParameters.minScale)}
         </pre>
+        <Button
+          onClick={handleCenter}
+          variant="contained"
+          className="mr-2"
+        >
+          Center
+        </Button>
         <Button
           onClick={handleReset}
           variant="contained"
@@ -216,6 +254,7 @@ function Graph() {
         disablePan={isPanDisabled}
         minScale={graphParameters.minScale}
         maxScale={graphParameters.maxScale}
+
         // translationBounds={{
         //   xMin: -(graphParameters.width - window.innerWidth) * (1 - (graphParameters.maxScale - graphParameters.scale) / (graphParameters.maxScale - graphParameters.minScale)),
         //   yMin: -(graphParameters.height - window.innerHeight) * (1 - (graphParameters.maxScale - graphParameters.scale) / (graphParameters.maxScale - graphParameters.minScale)),
@@ -233,6 +272,9 @@ function Graph() {
           style={{
             width: graphParameters.width,
             height: graphParameters.height,
+            borderWidth: 1 / graphParameters.scale,
+            borderStyle: 'solid',
+            borderColor: theme.palette.background.paper,
           }}
         >
           {Object.values(nodes).map(node => (

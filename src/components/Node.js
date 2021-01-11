@@ -25,8 +25,8 @@ function Node({ node, onDragStart, onDragEnd }) {
     edges.push(movingEdgeAttachedToNode)
   }
 
-  const outPredicate = index => edge => edge.inId === node.id && edge.inIndex === index
   const inPredicate = index => edge => edge.outId === node.id && edge.outIndex === index
+  const outPredicate = index => edge => edge.inId === node.id && edge.inIndex === index
 
   function handleDrag(event, data) {
     batch(() => {
@@ -115,7 +115,7 @@ function Node({ node, onDragStart, onDragEnd }) {
   function handleMouseDown() {
     dispatch({
       type: 'SET_ACTIVE_IDS',
-      payload: [node.id, ...edges.map(edge => edge.id)],
+      payload: [node.id],
     })
   }
 
@@ -126,6 +126,18 @@ function Node({ node, onDragStart, onDragEnd }) {
       <Typography className="Node-type pt-1 px-2">
         {node.type}
       </Typography>
+    )
+  }
+
+  function renderConnectorDot(io, type, index) {
+    const isIn = io === 'in'
+    const predicate = isIn ? inPredicate : outPredicate
+
+    return (
+      <span
+        onMouseDown={() => handleConnectorDotMouseDown(io, type, index)}
+        className={`Node-connector-dot mx-1 ${edges.find(predicate(index)) ? 'Node-connector-dot-filled' : ''}`}
+      />
     )
   }
 
@@ -183,7 +195,7 @@ function Node({ node, onDragStart, onDragEnd }) {
         style={{
           width: node.width,
           height: node.height,
-          zIndex: activeIds.includes(node.id) ? 99 : 2,
+          zIndex: activeIds.includes(node.id) ? 4 : 3,
         }}
       >
         {renderTitle()}
@@ -192,14 +204,9 @@ function Node({ node, onDragStart, onDragEnd }) {
             {node.inputs.map(({ type, label }, index) => (
               <div
                 key={index}
-                className="x4"
+                className="Node-connector x4"
               >
-                <span
-                  onMouseDown={() => handleConnectorDotMouseDown('in', type, index)}
-                  className="Node-connector p-1 x5"
-                >
-                  <span className={`Node-connector-dot p-1 ${edges.find(inPredicate(index)) ? 'Node-connector-dot-filled' : ''}`} />
-                </span>
+                {renderConnectorDot('in', type, index)}
                 {renderConnectorLabel(label)}
               </div>
             ))}
@@ -208,13 +215,10 @@ function Node({ node, onDragStart, onDragEnd }) {
             {node.outputs.map(({ type, label }, index) => (
               <div
                 key={index}
-                className="Node-connector x4 pr-1"
+                className="Node-connector x4"
               >
                 {renderConnectorLabel(label)}
-                <span
-                  onMouseDown={() => handleConnectorDotMouseDown('out', type, index)}
-                  className={`Node-connector-dot ml-1 ${edges.find(outPredicate(index)) ? 'Node-connector-dot-filled' : ''}`}
-                />
+                {renderConnectorDot('out', type, index)}
               </div>
             ))}
           </div>

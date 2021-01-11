@@ -16,7 +16,7 @@ export function getNodePositionAgainstConnector(node, io, index, mouse, graphPar
   const relativeMouse = getRelativePosition(mouse, graphParameters)
 
   return {
-    x: relativeMouse.x - (isOut ? node.width - connectorRadius - 4 : 4 + connectorRadius),
+    x: relativeMouse.x - (isOut ? node.width : 0),
     y: relativeMouse.y - (node.height - (isOut ? node.outputs.length : node.inputs.length - index) * 17 + connectorRadius - 1),
   }
 }
@@ -25,7 +25,7 @@ export function getEdgePosition(node, io, index) {
   const isOut = io === 'out'
 
   return {
-    x: node.x + (isOut ? node.width - connectorRadius - 4 : 4 + connectorRadius),
+    x: node.x + (isOut ? node.width : 0),
     y: node.y + node.height - (isOut ? node.outputs.length : node.inputs.length - index) * 17 + connectorRadius - 1,
   }
 }

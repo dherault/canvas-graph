@@ -3,6 +3,8 @@ import './CanvasGraph.css'
 import { useEffect, useState } from 'react'
 import mousetrap from 'mousetrap'
 
+import Box from '@material-ui/core/Box'
+
 import Canvas from './Canvas'
 import Graph from './Graph'
 
@@ -19,10 +21,13 @@ function CanvasGraph() {
   }, [])
 
   return (
-    <div className="CanvasGraph">
+    <Box
+      bgcolor="background.default"
+      className="CanvasGraph"
+    >
       <Graph />
       {displayCanvas && <Canvas />}
-    </div>
+    </Box>
   )
 }
 

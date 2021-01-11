@@ -59,7 +59,6 @@ function Edge({ edge }) {
       style={{
         top: Math.min(ya, yb),
         left: Math.min(xa, xb),
-        zIndex: activeIds.includes(edge.id) ? 99 : 3,
       }}
     >
       <path
