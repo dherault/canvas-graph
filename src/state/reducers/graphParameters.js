@@ -20,8 +20,8 @@ function getInitialState() {
   }
 
   initialState.translation = {
-    x: -(width - innerWidth) / 2,
-    y: -(height - innerHeight) / 2,
+    x: (innerWidth - width) / 2,
+    y: (innerHeight - height) / 2,
   }
 
   return initialState

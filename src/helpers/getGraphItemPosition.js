@@ -2,8 +2,8 @@ import getRelativePosition from './getRelativePosition'
 
 const connectorRadius = 6
 
-export function getNodePosition(node, center, graphParameters) {
-  const relativeCenter = getRelativePosition(center, graphParameters)
+export function getNodePosition(node) {
+  const relativeCenter = getRelativePosition()
 
   return {
     x: relativeCenter.x - node.width / 2,
@@ -11,9 +11,9 @@ export function getNodePosition(node, center, graphParameters) {
   }
 }
 
-export function getNodePositionAgainstConnector(node, io, index, mouse, graphParameters) {
+export function getNodePositionAgainstConnector(node, io, index) {
   const isOut = io === 'out'
-  const relativeMouse = getRelativePosition(mouse, graphParameters)
+  const relativeMouse = getRelativePosition()
 
   return {
     x: relativeMouse.x - (isOut ? node.width : 0),

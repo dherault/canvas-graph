@@ -1,4 +1,7 @@
-function getRelativePosition(mouse, graphParameters) {
+import store from '../state'
+
+function getRelativePosition() {
+  const { mouse, graphParameters } = store.getState()
   const { scale, translation } = graphParameters
 
   return {

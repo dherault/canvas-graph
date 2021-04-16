@@ -18,6 +18,7 @@ import getRelativePosition from '../helpers/getRelativePosition'
 import AddNodeDialog from './AddNodeDialog'
 import Node from './Node'
 import Edge from './Edge'
+import MovingEdge from './MovingEdge'
 
 function Graph() {
   const backgroundRef = useRef()
@@ -25,7 +26,6 @@ function Graph() {
   const nodes = useSelector(s => s.nodes)
   const edges = useSelector(s => s.edges)
   const movingEdge = useSelector(s => s.movingEdge)
-  const mouse = useSelector(s => s.mouse)
   const graphParameters = useSelector(s => s.graphParameters)
   const [isSidebarOpened, setIsSidebarOpened] = useState(false)
   const [isAddNodeDialogOpened, setIsAddNodeDialogOpened] = useState(false)
@@ -99,7 +99,7 @@ function Graph() {
           ...nodesMetadata[nodeType],
         }
 
-        Object.assign(node, getNodePositionAgainstConnector(node, io, index, mouse, graphParameters))
+        Object.assign(node, getNodePositionAgainstConnector(node, io, index))
 
         dispatch({
           type: 'ADD_NODE',
@@ -111,7 +111,7 @@ function Graph() {
           ...movingEdge,
         }
 
-        const relativeMouse = getRelativePosition(mouse, graphParameters)
+        const relativeMouse = getRelativePosition()
 
         if (io === 'in') {
           edge.outId = nodeId
@@ -146,7 +146,7 @@ function Graph() {
         ...nodesMetadata[nodeType],
       }
 
-      Object.assign(node, getNodePosition(node, mouse, graphParameters))
+      Object.assign(node, getNodePosition(node))
 
       dispatch({
         type: 'ADD_NODE',
@@ -224,7 +224,7 @@ function Graph() {
     <>
       <div className="Graph-toolbar x4 p-2">
         <pre className="p-1 mr-2" style={{ backgroundColor: 'white' }}>
-          {JSON.stringify(getRelativePosition(mouse, graphParameters))}
+          {JSON.stringify(getRelativePosition())}
         </pre>
         <pre className="p-1 mr-2" style={{ backgroundColor: 'white' }}>
           {(graphParameters.maxScale - graphParameters.scale) / (graphParameters.maxScale - graphParameters.minScale)}
@@ -285,12 +285,15 @@ function Graph() {
               onDragEnd={() => setIsPanDisabled(false)}
             />
           ))}
-          {[...Object.values(edges), movingEdge || { id: 'moving-edge' }].map(edge => (
+          {[...Object.values(edges)].map(edge => (
             <Edge
               key={edge.id}
               edge={edge}
             />
           ))}
+          {!!movingEdge && (
+            <MovingEdge edge={movingEdge} />
+          )}
           <AddNodeDialog
             opened={isAddNodeDialogOpened}
             onSubmit={handleAddNode}

@@ -6,11 +6,10 @@ import getRelativePosition from '../helpers/getRelativePosition'
 
 function Edge({ edge }) {
   const { inX, inY, outX, outY, inId, outId } = edge
-  const mouse = useSelector(s => s.mouse)
-  const activeIds = useSelector(s => s.activeIds)
+  // const activeIds = useSelector(s => s.activeIds)
   const graphParameters = useSelector(s => s.graphParameters)
 
-  const { x, y } = getRelativePosition(mouse, graphParameters)
+  const { x, y } = getRelativePosition()
   let xa
   let ya
   let xb

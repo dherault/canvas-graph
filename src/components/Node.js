@@ -17,9 +17,11 @@ function Node({ node, onDragStart, onDragEnd }) {
   const dispatch = useDispatch()
   const graphParameters = useSelector(s => s.graphParameters)
   const edges = useSelector(s => Object.values(s.edges).filter(edge => edge.inId === node.id || edge.outId === node.id))
-  const movingEdgeAttachedToNode = useSelector(s => s.movingEdge && (s.movingEdge.inId === node.id || s.movingEdge.outId === node.id) ? s.movingEdge : null)
+  const movingEdge = useSelector(s => s.movingEdge)
   const activeIds = useSelector(s => s.activeIds)
   const [isOpened, setIsOpened] = useState(false)
+  const [hoveredConnectorIoAndIndex, setHoveredConnectorIoAndIndex] = useState(['in', -1])
+  const movingEdgeAttachedToNode = movingEdge && (movingEdge.inId === node.id || movingEdge.outId === node.id) ? movingEdge : null
 
   if (movingEdgeAttachedToNode) {
     edges.push(movingEdgeAttachedToNode)
@@ -67,29 +69,42 @@ function Node({ node, onDragStart, onDragEnd }) {
   }
 
   function handleConnectorDotMouseDown(io, ioType, index) {
-    const isOut = io === 'out'
-    const predicate = isOut ? outPredicate(index) : inPredicate(index)
-    const foundEdge = edges.find(predicate)
-
-    if (!foundEdge) {
-      const { x, y } = getEdgePosition(node, io, index, connectorRadius)
-
-      dispatch({
-        type: 'SET_MOVING_EDGE',
-        payload: {
-          inId: isOut ? node.id : null,
-          outId: isOut ? null : node.id,
-          inX: isOut ? x : null,
-          inY: isOut ? y : null,
-          outX: isOut ? null : x,
-          outY: isOut ? null : y,
-          inIndex: isOut ? index : null,
-          outIndex: isOut ? null : index,
-          inType: isOut ? ioType : null,
-          outType: isOut ? null : ioType,
-        },
-      })
+    if (movingEdge) {
+      //
     }
+    else {
+      const isOut = io === 'out'
+      const predicate = isOut ? outPredicate(index) : inPredicate(index)
+      const foundEdge = edges.find(predicate)
+
+      if (!foundEdge) {
+        const { x, y } = getEdgePosition(node, io, index, connectorRadius)
+
+        dispatch({
+          type: 'SET_MOVING_EDGE',
+          payload: {
+            inId: isOut ? node.id : null,
+            outId: isOut ? null : node.id,
+            inX: isOut ? x : null,
+            inY: isOut ? y : null,
+            outX: isOut ? null : x,
+            outY: isOut ? null : y,
+            inIndex: isOut ? index : null,
+            outIndex: isOut ? null : index,
+            inType: isOut ? ioType : null,
+            outType: isOut ? null : ioType,
+          },
+        })
+      }
+    }
+  }
+
+  function handleConnectorDotMouseEnter(io, index) {
+    setHoveredConnectorIoAndIndex([io, index])
+  }
+
+  function handleConnectorDotMouseLeave() {
+    setHoveredConnectorIoAndIndex(['in', -1])
   }
 
   function handleValueChange(event) {
@@ -132,14 +147,20 @@ function Node({ node, onDragStart, onDragEnd }) {
   function renderConnectorDot(io, type, index) {
     const isIn = io === 'in'
     const predicate = isIn ? inPredicate : outPredicate
+    const isHovered = hoveredConnectorIoAndIndex[0] === io && hoveredConnectorIoAndIndex[1] === index
+    const isSameTypeAsMovingEdge = movingEdge && (isIn ? movingEdge.outType : movingEdge.inType) === type
 
     return (
       <span
+        onMouseEnter={() => handleConnectorDotMouseEnter(io, index)}
+        onMouseLeave={handleConnectorDotMouseLeave}
         onMouseDown={() => handleConnectorDotMouseDown(io, type, index)}
-        className={`Node-connector-dot mx-1 ${edges.find(predicate(index)) ? 'Node-connector-dot-filled' : ''}`}
+        className={`Node-connector-dot mx-1 ${(isHovered && isSameTypeAsMovingEdge) || edges.find(predicate(index)) ? 'Node-connector-dot-filled' : ''}`}
       />
     )
   }
+
+  console.log('render')
 
   function renderConnectorLabel(label) {
     if (node.type === 'scalar') {
