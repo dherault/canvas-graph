@@ -9,6 +9,8 @@ function Edge({ edge }) {
   // const activeIds = useSelector(s => s.activeIds)
   const graphParameters = useSelector(s => s.graphParameters)
 
+  console.log('render edge')
+
   const { x, y } = getRelativePosition()
   let xa
   let ya

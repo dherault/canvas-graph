@@ -2,7 +2,7 @@ import './Node.css'
 import 'react-colorful/dist/index.css'
 
 import { useState } from 'react'
-import { batch, useDispatch, useSelector } from 'react-redux'
+import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux'
 
 import { RgbaStringColorPicker } from 'react-colorful'
 import Draggable from 'react-draggable'
@@ -16,12 +16,14 @@ const connectorRadius = 6
 function Node({ node, onDragStart, onDragEnd }) {
   const dispatch = useDispatch()
   const graphParameters = useSelector(s => s.graphParameters)
-  const edges = useSelector(s => Object.values(s.edges).filter(edge => edge.inId === node.id || edge.outId === node.id))
+  const edges = useSelector(s => Object.values(s.edges).filter(edge => edge.inId === node.id || edge.outId === node.id), shallowEqual)
   const movingEdge = useSelector(s => s.movingEdge)
   const activeIds = useSelector(s => s.activeIds)
   const [isOpened, setIsOpened] = useState(false)
   const [hoveredConnectorIoAndIndex, setHoveredConnectorIoAndIndex] = useState(['in', -1])
   const movingEdgeAttachedToNode = movingEdge && (movingEdge.inId === node.id || movingEdge.outId === node.id) ? movingEdge : null
+
+  console.log('render node')
 
   if (movingEdgeAttachedToNode) {
     edges.push(movingEdgeAttachedToNode)
@@ -148,19 +150,17 @@ function Node({ node, onDragStart, onDragEnd }) {
     const isIn = io === 'in'
     const predicate = isIn ? inPredicate : outPredicate
     const isHovered = hoveredConnectorIoAndIndex[0] === io && hoveredConnectorIoAndIndex[1] === index
-    const isSameTypeAsMovingEdge = movingEdge && (isIn ? movingEdge.outType : movingEdge.inType) === type
+    // const isSameTypeAsMovingEdge = movingEdge && (isIn ? movingEdge.outType : movingEdge.inType) === type
 
     return (
       <span
         onMouseEnter={() => handleConnectorDotMouseEnter(io, index)}
         onMouseLeave={handleConnectorDotMouseLeave}
         onMouseDown={() => handleConnectorDotMouseDown(io, type, index)}
-        className={`Node-connector-dot mx-1 ${(isHovered && isSameTypeAsMovingEdge) || edges.find(predicate(index)) ? 'Node-connector-dot-filled' : ''}`}
+        className={`Node-connector-dot mx-1 ${isHovered || edges.find(predicate(index)) ? 'Node-connector-dot-filled' : ''}`}
       />
     )
   }
-
-  console.log('render')
 
   function renderConnectorLabel(label) {
     if (node.type === 'scalar') {
