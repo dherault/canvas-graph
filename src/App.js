@@ -10,7 +10,7 @@ import CssBaseline from '@material-ui/core/CssBaseline'
 import store from './state'
 import theme from './theme'
 
-import CanvasGraph from './components/CanvasGraph'
+import Router from './Router'
 
 function App() {
   return (
@@ -18,7 +18,7 @@ function App() {
       <PersistGate loading={null} persistor={store.persistor}>
         <CssBaseline />
         <ThemeProvider theme={theme}>
-          <CanvasGraph />
+          <Router />
         </ThemeProvider>
       </PersistGate>
     </Provider>
