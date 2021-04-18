@@ -84,7 +84,7 @@ function createNodeTree(node, state) {
     .forEach(edge => {
       const childTree = createNodeTree(state.data.nodes[edge.inId], state)
 
-      if (childTree.node.isValue) {
+      if (childTree.node.isLiteral) {
         const io = node.inputs[edge.outIndex]
 
         if (!drawTree.values[io.label]) {

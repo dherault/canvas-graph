@@ -6,10 +6,7 @@ import getRelativePosition from '../helpers/getRelativePosition'
 
 function Edge({ edge }) {
   const { inX, inY, outX, outY, inId, outId } = edge
-  // const activeIds = useSelector(s => s.activeIds)
   const graphParameters = useSelector(s => s.graphParameters)
-
-  console.log('render edge')
 
   const { x, y } = getRelativePosition()
   let xa
@@ -47,8 +44,8 @@ function Edge({ edge }) {
   const x2 = diffX0 ? diffX : 0
   const y2 = diffY0 ? diffY : 0
 
-  const viewX = Math.abs(diffX)
-  const viewY = Math.abs(diffY)
+  const viewX = Math.max(1, Math.abs(diffX))
+  const viewY = Math.max(1, Math.abs(diffY))
   const path = `M ${x1} ${y1}  Q ${x1 + (diffX0 ? 1 : -1) * viewX / 4} ${y1}, ${(x1 + x2) / 2} ${(y1 + y2) / 2} T ${x2} ${y2}`
 
   return (

@@ -5,7 +5,7 @@ import CanvasGraph from './components/CanvasGraph'
 import ControlledSurface from './components/ControlledSurface'
 
 function Router() {
-  const [value, setValue] = useState({ scale: 1, translation: { x: 0, y: 0 } })
+  const [value, setValue] = useState({ width: 1024, translation: { x: 0, y: 0 } })
 
   return (
     <BrowserRouter>
@@ -14,7 +14,8 @@ function Router() {
           <CanvasGraph />
         </Route>
         <Route exact path="/dev">
-          <div className="x5 w100vw h100vh">
+          <div className="y5 w100vw h100vh">
+            {JSON.stringify(value)}
             <ControlledSurface value={value} onChange={value => setValue(value)}>
               foo
             </ControlledSurface>

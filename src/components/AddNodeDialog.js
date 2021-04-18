@@ -54,7 +54,7 @@ function AddNodeDialog({ opened, onSubmit, onClose }) {
       })
   }
 
-  if (possibilities.length === 1) {
+  if (opened && possibilities.length === 1) {
     handleClick(possibilities[0])
   }
 

@@ -1,5 +1,6 @@
 .ControlledSurface {
   overflow: hidden;
+  border: 1px solid aqua;
 }
 
 .ControlledSurface-inner {

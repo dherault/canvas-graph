@@ -8,6 +8,7 @@ import { persistStorageKey } from '../configuration'
 import mouse from './reducers/mouse'
 import nodes from './reducers/nodes'
 import edges from './reducers/edges'
+import literals from './reducers/literals'
 import movingEdge from './reducers/movingEdge'
 import activeIds from './reducers/activeIds'
 import graphParameters from './reducers/graphParameters'
@@ -23,6 +24,7 @@ const store = configureStore({
     nodes,
     edges,
     movingEdge,
+    literals,
     activeIds,
     graphParameters,
   })),

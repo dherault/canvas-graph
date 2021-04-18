@@ -29,3 +29,11 @@ body {
 .h100vh {
   height: 100vh;
 }
+
+.text-align-center {
+  text-align: center;
+}
+
+.position-relative {
+  position: relative;
+}

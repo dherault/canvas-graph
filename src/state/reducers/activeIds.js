@@ -5,6 +5,7 @@ import {
   setActiveIds,
 } from '../actions'
 
+// The active node (or edge?) to adjust the z-index
 const activeIds = createReducer([],
   {
     [reset]: () => [],

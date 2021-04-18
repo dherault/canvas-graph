@@ -1,8 +1,8 @@
 import './Node.css'
-import 'react-colorful/dist/index.css'
 
 import { useState } from 'react'
 import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux'
+import { v4 as uuid } from 'uuid'
 
 import { RgbaStringColorPicker } from 'react-colorful'
 import Draggable from 'react-draggable'
@@ -10,6 +10,7 @@ import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
 
 import { getEdgePosition } from '../helpers/getGraphItemPosition'
+import getRelativePosition from '../helpers/getRelativePosition'
 
 const connectorRadius = 6
 
@@ -22,8 +23,6 @@ function Node({ node, onDragStart, onDragEnd }) {
   const [isOpened, setIsOpened] = useState(false)
   const [hoveredConnectorIoAndIndex, setHoveredConnectorIoAndIndex] = useState(['in', -1])
   const movingEdgeAttachedToNode = movingEdge && (movingEdge.inId === node.id || movingEdge.outId === node.id) ? movingEdge : null
-
-  console.log('render node')
 
   if (movingEdgeAttachedToNode) {
     edges.push(movingEdgeAttachedToNode)
@@ -71,8 +70,47 @@ function Node({ node, onDragStart, onDragEnd }) {
   }
 
   function handleConnectorDotMouseDown(io, ioType, index) {
+    onDragStart()
+
     if (movingEdge) {
-      //
+      if (io === 'in' && movingEdge.inType === ioType || io === 'out' && movingEdge.outType === ioType) {
+        batch(() => {
+          const edge = {
+            id: uuid(),
+            ...movingEdge,
+          }
+
+          const relativeMouse = getRelativePosition()
+
+          if (io === 'in') {
+            edge.outId = node.id
+            edge.outType = ioType
+            edge.outIndex = index
+            edge.outX = relativeMouse.x
+            edge.outY = relativeMouse.y
+          }
+          else {
+            edge.inId = node.id
+            edge.inType = ioType
+            edge.inIndex = index
+            edge.inX = relativeMouse.x
+            edge.inY = relativeMouse.y
+          }
+
+          dispatch({
+            type: 'ADD_EDGE',
+            payload: edge,
+          })
+
+          dispatch({
+            type: 'SET_MOVING_EDGE',
+            payload: null,
+          })
+        })
+      }
+      else {
+        console.log('Invalid type')
+      }
     }
     else {
       const isOut = io === 'out'
@@ -101,6 +139,10 @@ function Node({ node, onDragStart, onDragEnd }) {
     }
   }
 
+  function handleConnectorDotMouseUp() {
+    onDragEnd()
+  }
+
   function handleConnectorDotMouseEnter(io, index) {
     setHoveredConnectorIoAndIndex([io, index])
   }
@@ -109,15 +151,15 @@ function Node({ node, onDragStart, onDragEnd }) {
     setHoveredConnectorIoAndIndex(['in', -1])
   }
 
-  function handleValueChange(event) {
-    dispatch({
-      type: 'UPDATE_NODE',
-      payload: {
-        ...node,
-        value: event.target.value,
-      },
-    })
-  }
+  // function handleValueChange(event) {
+  //   dispatch({
+  //     type: 'UPDATE_NODE',
+  //     payload: {
+  //       ...node,
+  //       value: event.target.value,
+  //     },
+  //   })
+  // }
 
   function handleColorChange(color) {
     dispatch({
@@ -137,7 +179,8 @@ function Node({ node, onDragStart, onDragEnd }) {
   }
 
   function renderTitle() {
-    if (node.isValue) return null
+    console.log('node', node)
+    if (node.isLiteral) return null
 
     return (
       <Typography className="Node-type pt-1 px-2">
@@ -157,22 +200,13 @@ function Node({ node, onDragStart, onDragEnd }) {
         onMouseEnter={() => handleConnectorDotMouseEnter(io, index)}
         onMouseLeave={handleConnectorDotMouseLeave}
         onMouseDown={() => handleConnectorDotMouseDown(io, type, index)}
+        onMouseUp={handleConnectorDotMouseUp}
         className={`Node-connector-dot mx-1 ${isHovered || edges.find(predicate(index)) ? 'Node-connector-dot-filled' : ''}`}
       />
     )
   }
 
   function renderConnectorLabel(label) {
-    if (node.type === 'scalar') {
-      return (
-        <input
-          value={node.value}
-          onChange={handleValueChange}
-          className="Node-input"
-        />
-      )
-    }
-
     if (node.type === 'color') {
       return (
         <>
@@ -212,7 +246,7 @@ function Node({ node, onDragStart, onDragEnd }) {
       onMouseDown={handleMouseDown}
     >
       <Paper
-        className="Node y7"
+        className="Node y2"
         style={{
           width: node.width,
           height: node.height,
@@ -220,7 +254,7 @@ function Node({ node, onDragStart, onDragEnd }) {
         }}
       >
         {renderTitle()}
-        <div className="x2b flex-grow w100">
+        <div className="x8b flex-grow w100">
           <div className="y1 pb-1">
             {node.inputs.map(({ type, label }, index) => (
               <div

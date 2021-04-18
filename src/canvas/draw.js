@@ -54,7 +54,7 @@ function draw(_, state) {
 function traverseTreeUp(tree, fn) {
   if (tree.children.length) tree.children.forEach(childTree => traverseTreeUp(childTree, fn))
 
-  if (!tree.node.isValue) {
+  if (!tree.node.isLiteral) {
     fn(tree)
   }
 }

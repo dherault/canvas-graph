@@ -22,7 +22,7 @@ function CanvasGraph() {
 
   return (
     <Box
-      bgcolor="background.default"
+      bgcolor="black"
       className="CanvasGraph"
     >
       <Graph />

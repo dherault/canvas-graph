@@ -78,7 +78,7 @@ export const nodesMetadata = {
   scalar: {
     width: 128,
     height: 22,
-    isValue: true,
+    isLiteral: true,
     value: 0,
     inputs: [],
     outputs: [
@@ -92,7 +92,7 @@ export const nodesMetadata = {
   color: {
     width: 64,
     height: 22,
-    isValue: true,
+    isLiteral: true,
     value: 'rgba(255, 255, 255, 1)',
     inputs: [],
     outputs: [

@@ -9,7 +9,6 @@ import mousetrap from 'mousetrap'
 import { MapInteractionCSS } from 'react-map-interaction'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
-import Paper from '@material-ui/core/Paper'
 
 import { nodesMetadata } from '../configuration'
 import { getNodePosition, getNodePositionAgainstConnector } from '../helpers/getGraphItemPosition'
@@ -19,6 +18,7 @@ import AddNodeDialog from './AddNodeDialog'
 import Node from './Node'
 import Edge from './Edge'
 import MovingEdge from './MovingEdge'
+import Literals from './Literals'
 
 function Graph() {
   const parentRef = useRef()
@@ -28,7 +28,7 @@ function Graph() {
   const edges = useSelector(s => s.edges)
   const movingEdge = useSelector(s => s.movingEdge)
   const graphParameters = useSelector(s => s.graphParameters)
-  const [isSidebarOpened, setIsSidebarOpened] = useState(false)
+  const [isLiteralsOpened, setIsLiteralsOpened] = useState(true)
   const [isAddNodeDialogOpened, setIsAddNodeDialogOpened] = useState(false)
   const [isPanDisabled, setIsPanDisabled] = useState(false)
   const theme = useTheme()
@@ -66,7 +66,7 @@ function Graph() {
     mousetrap.bind('tab', event => {
       event.preventDefault()
 
-      setIsSidebarOpened(opened => !opened)
+      setIsLiteralsOpened(opened => !opened)
     })
 
     return () => {
@@ -94,6 +94,7 @@ function Graph() {
 
     if (shouldAddEdge) {
       batch(() => {
+        console.log('handleAddNode')
         const node = {
           id: nodeId,
           type: nodeType,
@@ -175,6 +176,7 @@ function Graph() {
   }
 
   function handleClick(event) {
+    console.log('handleClick')
     // If there is a moving edge and we clicked on background or svg or edge path
     if (movingEdge && (event.target === backgroundRef.current || event.target.tagName === 'svg' || event.target.tagName === 'path')) {
       setIsAddNodeDialogOpened(true)
@@ -256,10 +258,8 @@ function Graph() {
           Reset
         </Button>
       </div>
-      {isSidebarOpened && (
-        <Paper square className="Graph-sidebar">
-          Foo
-        </Paper>
+      {isLiteralsOpened && (
+        <Literals />
       )}
       <div ref={parentRef}>
         <MapInteractionCSS

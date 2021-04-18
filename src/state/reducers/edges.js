@@ -1,4 +1,3 @@
-import { v4 as uuid } from 'uuid'
 import { createReducer } from '@reduxjs/toolkit'
 
 import {
@@ -12,9 +11,9 @@ const edges = createReducer({},
   {
     [reset]: () => ({}),
     [addEdge]: (state, { payload }) => {
-      const node = { ...payload }
+      const edge = { ...payload }
 
-      return { ...state, [node.id]: node }
+      return { ...state, [edge.id]: edge }
     },
     [updateEdge]: (state, { payload }) => ({
       ...state,
