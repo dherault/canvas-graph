@@ -51,10 +51,10 @@ function Edge({ edge }) {
   const viewY = Math.max(1, Math.abs(diffY))
   const path = `M ${x1} ${y1}  Q ${x1 + (diffX0 ? 1 : -1) * viewX / 4} ${y1}, ${(x1 + x2) / 2} ${(y1 + y2) / 2} T ${x2} ${y2}`
 
-  function handleClick(event) {
+  function handleMouseDown(event) {
     dispatch({
-      type: 'SET_SELECTED_ITEMS',
-      payload: event.target.tagName === 'svg' ? [edge] : [edge],
+      type: event.shiftKey ? 'TOGGLE_SELECTED_ITEMS' : 'SET_SELECTED_ITEMS',
+      payload: [edge],
     })
   }
 
@@ -68,13 +68,22 @@ function Edge({ edge }) {
         top: Math.min(ya, yb),
         left: Math.min(xa, xb),
       }}
-      onClick={handleClick}
     >
       <path
         d={path}
+        onMouseDown={handleMouseDown}
         stroke={selected ? 'moccasin' : 'lightskyblue'}
         fill="transparent"
-        strokeWidth={1 / graphParameters.scale * (selected ? 2 : 1)}
+        strokeWidth={(selected ? 2 : 1) / graphParameters.scale}
+        cursor="pointer"
+      />
+      <path
+        d={path}
+        onMouseDown={handleMouseDown}
+        stroke="transparent"
+        fill="transparent"
+        strokeWidth={7 / graphParameters.scale}
+        cursor="pointer"
       />
     </svg>
   )

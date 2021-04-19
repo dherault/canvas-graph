@@ -69,11 +69,6 @@ function Node({ node, onDragStart, onDragEnd }) {
           type: 'UPDATE_EDGE',
           payload: updatedEdge,
         })
-
-        dispatch({
-          type: 'SET_SELECTED_ITEMS',
-          payload: [node],
-        })
       })
     })
   }
@@ -170,10 +165,11 @@ function Node({ node, onDragStart, onDragEnd }) {
   //   })
   // }
 
-  function handleMouseDown() {
+  function handleMouseDown(event) {
+    console.log('handleMouseDown')
     dispatch({
-      type: 'SET_ACTIVE_IDS',
-      payload: [node.id],
+      type: event.shiftKey ? 'TOGGLE_SELECTED_ITEMS' : 'SET_SELECTED_ITEMS',
+      payload: [node],
     })
   }
 
@@ -233,8 +229,6 @@ function Node({ node, onDragStart, onDragEnd }) {
     }
   }
 
-  console.log('selected', selected)
-
   return (
     <Draggable
       scale={graphParameters.scale}
@@ -248,7 +242,6 @@ function Node({ node, onDragStart, onDragEnd }) {
     >
       <Paper
         className="Node y2"
-        onClick={handleMouseDown}
         style={{
           width: node.width,
           height: node.height,
