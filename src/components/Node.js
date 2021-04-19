@@ -7,6 +7,8 @@ import { v4 as uuid } from 'uuid'
 import Draggable from 'react-draggable'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
+import Button from '@material-ui/core/Button'
+import CropFreeIcon from '@material-ui/icons/CropFree'
 
 import { getEdgePosition } from '../helpers/getGraphItemPosition'
 import getRelativePosition from '../helpers/getRelativePosition'
@@ -34,6 +36,13 @@ function Node({ node, onDragStart, onDragEnd }) {
 
   const inPredicate = index => edge => edge.outId === node.id && edge.outIndex === index
   const outPredicate = index => edge => edge.inId === node.id && edge.inIndex === index
+
+  function handleExpand() {
+    dispatch({
+      type: 'SET_CURRENT_FUNCTION',
+      payload: node,
+    })
+  }
 
   function handleDrag(event, data) {
     batch(() => {
@@ -178,8 +187,22 @@ function Node({ node, onDragStart, onDragEnd }) {
 
     return (
       <Typography className="Node-type pt-1 px-2">
-        {node.name || node.type}
+        {node.type === 'function' ? node.label : node.type}
       </Typography>
+    )
+  }
+
+  function renderExpandButton() {
+    if (node.type !== 'function') return null
+
+    return (
+      <Button
+        size="small"
+        className="Node-expand"
+        onClick={handleExpand}
+      >
+        <CropFreeIcon />
+      </Button>
     )
   }
 
@@ -229,6 +252,8 @@ function Node({ node, onDragStart, onDragEnd }) {
     }
   }
 
+  console.log('node', node)
+
   return (
     <Draggable
       scale={graphParameters.scale}
@@ -241,7 +266,7 @@ function Node({ node, onDragStart, onDragEnd }) {
       onMouseDown={handleMouseDown}
     >
       <Paper
-        className="Node y2"
+        className="Node y2 position-relative"
         style={{
           width: node.width,
           height: node.height,
@@ -250,6 +275,7 @@ function Node({ node, onDragStart, onDragEnd }) {
         }}
       >
         {renderTitle()}
+        {renderExpandButton()}
         <div className="x8b flex-grow w100">
           <div className="y1 pb-1">
             {node.inputs.map(({ type, label }, index) => (

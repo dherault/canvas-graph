@@ -8,16 +8,22 @@ import {
   updateNode,
 } from '../actions'
 
-import { nodesMetadata } from '../../configuration'
+import { argumentsNode, initialNode, nodesMetadata, returnNode } from '../../configuration'
 
 function addMetaFields(node) {
   Object.assign(node, { ...nodesMetadata[node.type] })
 }
 
-const nodes = createReducer({},
+const initialState = {
+  [initialNode.id]: initialNode,
+  [argumentsNode.id]: argumentsNode,
+  [returnNode.id]: returnNode,
+}
+
+const nodes = createReducer(initialState,
   {
     [set]: (state, { payload }) => payload.nodes || state,
-    [reset]: () => ({}),
+    [reset]: () => initialState,
     [addNode]: (state, { payload }) => {
       const node = { ...payload }
 
@@ -41,5 +47,7 @@ const nodes = createReducer({},
     },
   },
 )
+
+nodes.initialNode = initialNode
 
 export default nodes

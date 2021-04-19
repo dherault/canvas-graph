@@ -6,10 +6,14 @@ import {
   setCurrentFunction,
 } from '../actions'
 
-const currentFunction = createReducer('__root__',
+import { initialNode } from '../../configuration'
+
+const initialState = initialNode
+
+const currentFunction = createReducer(initialState,
   {
     [set]: (state, { payload }) => payload.currentFunction || state,
-    [reset]: () => [],
+    [reset]: () => initialState,
     [setCurrentFunction]: (_state, { payload }) => payload,
   },
 )

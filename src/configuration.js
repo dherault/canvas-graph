@@ -110,3 +110,44 @@ export const nodesMetadata = {
     ],
   },
 }
+
+export const initialNodeId = '__root__'
+export const initialNode = {
+  id: initialNodeId,
+  label: 'Main',
+  type: 'function',
+  functionId: null,
+  inputs: [],
+  outputs: [
+    {
+      type: 'shape',
+      label: 'canvas',
+      multiple: true,
+    },
+  ],
+}
+export const argumentsNode = {
+  id: `arguments${initialNodeId}`,
+  label: 'arguments',
+  type: 'arguments',
+  functionId: initialNodeId,
+  inputs: [],
+  outputs: [],
+  width: 128,
+  height: 22,
+  x: 11208,
+  y: 9294,
+}
+export const returnNode = {
+  id: `return${initialNodeId}`,
+  label: 'return',
+  type: 'return',
+  functionId: initialNodeId,
+  inputs: [],
+  outputs: [],
+  width: 128,
+  height: 22,
+
+  x: 11864,
+  y: 9294,
+}

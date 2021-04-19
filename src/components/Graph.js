@@ -2,15 +2,17 @@ import './Graph.css'
 
 import { v4 as uuid } from 'uuid'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { batch, useDispatch, useSelector } from 'react-redux'
-import { useTheme } from '@material-ui/core'
+import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux'
+import { IconButton, useTheme } from '@material-ui/core'
 import mousetrap from 'mousetrap'
 
 import { MapInteractionCSS } from 'react-map-interaction'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
+import Typography from '@material-ui/core/Typography'
+import ReplyIcon from '@material-ui/icons/Reply'
 
-import { nodesMetadata } from '../configuration'
+import { argumentsNode, nodesMetadata, returnNode } from '../configuration'
 import { getNodePosition, getNodePositionAgainstConnector } from '../helpers/getGraphItemPosition'
 import getRelativePosition from '../helpers/getRelativePosition'
 
@@ -28,8 +30,10 @@ function Graph() {
   const parentRef = useRef()
   const backgroundRef = useRef()
   const dispatch = useDispatch()
-  const nodes = useSelector(s => s.nodes)
-  const edges = useSelector(s => s.edges)
+  const currentFunction = useSelector(s => s.currentFunction)
+  const parentFunction = useSelector(s => s.nodes[currentFunction.functionId])
+  const nodes = useSelector(s => Object.values(s.nodes).filter(node => node.functionId === currentFunction.id), shallowEqual)
+  const edges = useSelector(s => Object.values(s.edges).filter(edge => edge.functionId === currentFunction.id), shallowEqual)
   const movingEdge = useSelector(s => s.movingEdge)
   const selectedItems = useSelector(s => s.selectedItems)
   const graphParameters = useSelector(s => s.graphParameters)
@@ -38,6 +42,7 @@ function Graph() {
   const [isPanDisabled, setIsPanDisabled] = useState(false)
   const theme = useTheme()
 
+  console.log('nodes', nodes)
   const handleEscape = useCallback(() => {
     if (isAddNodeDialogOpened) return
 
@@ -118,6 +123,15 @@ function Graph() {
 
   useEffect(handleResize, [handleResize])
 
+  function handleContract() {
+    if (parentFunction) {
+      dispatch({
+        type: 'SET_CURRENT_FUNCTION',
+        payload: parentFunction,
+      })
+    }
+  }
+
   function handleCloseAddNodeDialog(event) {
     if (event) {
       event.preventDefault()
@@ -128,7 +142,9 @@ function Graph() {
   }
 
   // TODO Move to AddNodeDialog
-  function handleAddNode({ type, io, ioType, ioIndex, literal, name = null }) {
+  function handleAddNode({ type, io, ioType, ioIndex, literal, label }) {
+    // console.log('arguments', arguments)
+
     batch(() => {
       const nodeId = uuid()
       const shouldAddEdge = io && typeof ioIndex === 'number'
@@ -136,9 +152,19 @@ function Graph() {
       const node = {
         id: nodeId,
         type,
-        name,
+        functionId: currentFunction.id,
         literalId: literal ? literal.id : null,
+        label,
         ...nodesMetadata[type],
+      }
+
+      const nodes = [node]
+
+      if (node.type === 'function') {
+        nodes.push(
+          { ...argumentsNode, id: `arguments${node.id}`, functionId: node.id },
+          { ...returnNode, id: `return${node.id}`, functionId: node.id },
+        )
       }
 
       if (shouldAddEdge) {
@@ -180,9 +206,11 @@ function Graph() {
         Object.assign(node, getNodePosition(node))
       }
 
-      dispatch({
-        type: 'CREATE_NODE',
-        payload: node,
+      nodes.forEach(node => {
+        dispatch({
+          type: 'CREATE_NODE',
+          payload: node,
+        })
       })
 
       dispatch({
@@ -286,8 +314,26 @@ function Graph() {
     })
   }
 
+  function renderArgumentsAndReturn() {
+    return (
+      <>
+      </>
+    )
+  }
+
   return (
     <>
+      <div className="Graph-function p-2 x4">
+        <IconButton
+          onClick={handleContract}
+        >
+          <ReplyIcon />
+        </IconButton>
+
+        <Typography>
+          {currentFunction.label}
+        </Typography>
+      </div>
       <div className="Graph-toolbar x4 p-2">
         <Button
           onClick={() => handleDataset(1)}
@@ -337,6 +383,7 @@ function Graph() {
                 onDragEnd={() => setIsPanDisabled(false)}
               />
             ))}
+            {renderArgumentsAndReturn()}
             {[...Object.values(edges)].map(edge => (
               <Edge
                 key={edge.id}

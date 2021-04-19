@@ -102,8 +102,8 @@ function AddNodeDialog({ opened, onSubmit, onClose }) {
 
   function handleClick(possibility) {
     if (possibility.type === 'function') {
-      setOnSubmitName(() => name => {
-        onSubmit({ ...possibility, name })
+      setOnSubmitName(() => label => {
+        onSubmit({ ...possibility, label })
         onClose()
         setOnSubmitName(null)
       })

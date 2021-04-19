@@ -12,9 +12,17 @@
   background-size: 100px 50px; */
 }
 
-.Graph-toolbar {
+.Graph-function {
+  color: white;
   position: absolute;
   top: 0;
-  right: 0px;
+  right: 0;
+  z-index: 999;
+}
+
+.Graph-toolbar {
+  position: absolute;
+  bottom: 0;
+  right: 0;
   z-index: 999;
 }
