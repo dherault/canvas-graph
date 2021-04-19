@@ -27,6 +27,7 @@ function Graph() {
   const nodes = useSelector(s => s.nodes)
   const edges = useSelector(s => s.edges)
   const movingEdge = useSelector(s => s.movingEdge)
+  const selectedItems = useSelector(s => s.selectedItems)
   const graphParameters = useSelector(s => s.graphParameters)
   const [isLiteralsOpened, setIsLiteralsOpened] = useState(true)
   const [isAddNodeDialogOpened, setIsAddNodeDialogOpened] = useState(false)
@@ -59,10 +60,43 @@ function Graph() {
   // eslint-disable-next-line
   }, [dispatch])
 
+  const handleDeleteKeyPress = useCallback(() => {
+    batch(() => {
+      selectedItems.forEach(item => {
+        if (item.type) {
+          dispatch({
+            type: 'DELETE_NODE',
+            payload: item,
+          })
+
+          Object.values(edges)
+            .filter(edge => edge.inId === item.id || edge.outId === item.id)
+            .forEach(edge => {
+              dispatch({
+                type: 'DELETE_EDGE',
+                payload: edge,
+              })
+            })
+        }
+        else {
+          dispatch({
+            type: 'DELETE_EDGE',
+            payload: item,
+          })
+        }
+      })
+      dispatch({
+        type: 'SET_SELECTED_ITEMS',
+        payload: [],
+      })
+    })
+  }, [dispatch, selectedItems, edges])
+
   useEffect(() => {
     window.addEventListener('resize', handleResize)
     mousetrap.bind('ctrl+space', () => setIsAddNodeDialogOpened(opened => !opened))
     mousetrap.bind('escape', handleEscape)
+    mousetrap.bind('del', handleDeleteKeyPress)
     mousetrap.bind('tab', event => {
       event.preventDefault()
 
@@ -73,9 +107,10 @@ function Graph() {
       window.removeEventListener('resize', handleResize)
       mousetrap.unbind('ctrl+space')
       mousetrap.unbind('escape')
+      mousetrap.unbind('del')
       mousetrap.unbind('tab')
     }
-  }, [handleEscape, handleResize])
+  }, [handleEscape, handleResize, handleDeleteKeyPress])
 
   useEffect(handleResize, [handleResize])
 
