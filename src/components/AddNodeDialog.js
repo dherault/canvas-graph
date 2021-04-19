@@ -13,6 +13,7 @@ import { nodesMetadata } from '../configuration'
 
 function AddNodeDialog({ opened, onSubmit, onClose }) {
   const movingEdge = useSelector(s => s.movingEdge)
+  const literals = useSelector(s => s.literals)
   const [search, setSearch] = useState('')
 
   const io = movingEdge && movingEdge.inId ? 'in' : movingEdge && movingEdge.outId ? 'out' : null
@@ -27,35 +28,65 @@ function AddNodeDialog({ opened, onSubmit, onClose }) {
       : ([, metadata]) => metadata.outputs.some(output => output.type === ioType)
 
     Object.entries(nodesMetadata)
+      .filter(([, metadata]) => !metadata.isLiteral)
       .filter(predicate)
       .forEach(([type, metadata]) => {
         (isIn ? metadata.inputs : metadata.outputs).forEach((inputOrOutput, ioIndex) => {
           if (inputOrOutput.type === ioType) {
             possibilities.push({
+              id: Math.random(),
               type,
               io,
               ioType,
               ioIndex,
               label: `${type} (${inputOrOutput.label})`,
-              id: Math.random(),
             })
           }
         })
       })
+
+    if (!isIn) {
+      Object.values(literals)
+      .filter(literal => literal.type === ioType)
+      .forEach(literal => {
+        possibilities.push({
+          id: Math.random(),
+          type: literal.type,
+          label: `(literal) ${literal.label}`,
+          literal,
+          io,
+          ioType,
+          ioIndex: 0,
+        })
+      })
+    }
   }
   else {
     Object.entries(nodesMetadata)
+      .filter(([, metadata]) => !metadata.isLiteral)
       .forEach(([type]) => {
         possibilities.push({
+          id: Math.random(),
           type,
           label: type,
+        })
+      })
+
+    Object.values(literals)
+      .forEach(literal => {
+        possibilities.push({
           id: Math.random(),
+          type: literal.type,
+          label: `(literal) ${literal.label}`,
+          literal,
         })
       })
   }
 
   if (opened && possibilities.length === 1) {
     handleClick(possibilities[0])
+
+    return null
   }
 
   function handleSubmit(event) {
@@ -65,7 +96,7 @@ function AddNodeDialog({ opened, onSubmit, onClose }) {
   }
 
   function handleClick(possibility) {
-    onSubmit(possibility.type, possibility.io, possibility.ioType, possibility.ioIndex)
+    onSubmit(possibility.type, possibility.io, possibility.ioType, possibility.ioIndex, possibility.literal)
     onClose()
   }
 
@@ -93,6 +124,11 @@ function AddNodeDialog({ opened, onSubmit, onClose }) {
             <ListItemText primary={possibility.label} />
           </ListItem>
         ))}
+        {possibilities.length === 0 && (
+          <ListItem button disabled>
+            <ListItemText primary="Nothing" />
+          </ListItem>
+        )}
       </List>
     </Dialog>
   )

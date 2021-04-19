@@ -46,6 +46,8 @@ function draw(_, state) {
     traverseTreeUp(tree, childTree => {
       if (innerState.abort) return
 
+      console.log('childTree.node.type', childTree.node)
+
       nodeTypeToDraw[childTree.node.type](_, state, innerState, childTree)
     })
   })

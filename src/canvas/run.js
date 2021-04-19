@@ -57,6 +57,7 @@ function run(canvas) {
     state.drawOrder = []
     state.edges = Object.values(data.edges)
     state.nodes = Object.values(data.nodes)
+    state.literals = data.literals
 
     state.nodes
       .filter(node => node.type === 'endShape') // TODO use canvas node
@@ -84,14 +85,14 @@ function createNodeTree(node, state) {
     .forEach(edge => {
       const childTree = createNodeTree(state.data.nodes[edge.inId], state)
 
-      if (childTree.node.isLiteral) {
+      if (childTree.node.literalId) {
         const io = node.inputs[edge.outIndex]
 
         if (!drawTree.values[io.label]) {
           drawTree.values[io.label] = []
         }
 
-        drawTree.values[io.label].push(childTree.node.value)
+        drawTree.values[io.label].push(state.data.literals[childTree.node.literalId].value)
       }
       else {
         drawTree.children.push(childTree)

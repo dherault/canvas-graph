@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { batch, shallowEqual, useDispatch, useSelector } from 'react-redux'
 import { v4 as uuid } from 'uuid'
 
-import { RgbaStringColorPicker } from 'react-colorful'
 import Draggable from 'react-draggable'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
@@ -17,16 +16,21 @@ const connectorRadius = 6
 function Node({ node, onDragStart, onDragEnd }) {
   const dispatch = useDispatch()
   const graphParameters = useSelector(s => s.graphParameters)
+  const literal = useSelector(s => node.literalId ? s.literals[node.literalId] : null)
   const edges = useSelector(s => Object.values(s.edges).filter(edge => edge.inId === node.id || edge.outId === node.id), shallowEqual)
   const movingEdge = useSelector(s => s.movingEdge)
   const activeIds = useSelector(s => s.activeIds)
-  const [isOpened, setIsOpened] = useState(false)
+  const selected = useSelector(s => s.selectedItems.find(x => x.id === node.id))
   const [hoveredConnectorIoAndIndex, setHoveredConnectorIoAndIndex] = useState(['in', -1])
   const movingEdgeAttachedToNode = movingEdge && (movingEdge.inId === node.id || movingEdge.outId === node.id) ? movingEdge : null
 
   if (movingEdgeAttachedToNode) {
     edges.push(movingEdgeAttachedToNode)
   }
+
+  const outputs = literal
+    ? [{ ...literal, multiple: true }]
+    : node.outputs
 
   const inPredicate = index => edge => edge.outId === node.id && edge.outIndex === index
   const outPredicate = index => edge => edge.inId === node.id && edge.inIndex === index
@@ -65,6 +69,11 @@ function Node({ node, onDragStart, onDragEnd }) {
           type: 'UPDATE_EDGE',
           payload: updatedEdge,
         })
+
+        dispatch({
+          type: 'SET_SELECTED_ITEMS',
+          payload: [node],
+        })
       })
     })
   }
@@ -98,7 +107,7 @@ function Node({ node, onDragStart, onDragEnd }) {
           }
 
           dispatch({
-            type: 'ADD_EDGE',
+            type: 'CREATE_EDGE',
             payload: edge,
           })
 
@@ -161,16 +170,6 @@ function Node({ node, onDragStart, onDragEnd }) {
   //   })
   // }
 
-  function handleColorChange(color) {
-    dispatch({
-      type: 'UPDATE_NODE',
-      payload: {
-        ...node,
-        value: color,
-      },
-    })
-  }
-
   function handleMouseDown() {
     dispatch({
       type: 'SET_ACTIVE_IDS',
@@ -179,7 +178,6 @@ function Node({ node, onDragStart, onDragEnd }) {
   }
 
   function renderTitle() {
-    console.log('node', node)
     if (node.isLiteral) return null
 
     return (
@@ -206,33 +204,36 @@ function Node({ node, onDragStart, onDragEnd }) {
     )
   }
 
-  function renderConnectorLabel(label) {
-    if (node.type === 'color') {
-      return (
-        <>
-          <span
-            onClick={() => setIsOpened(opened => !opened)}
-            className="Node-color"
-            style={{ backgroundColor: node.value }}
-          />
-          {isOpened && (
-            <span className="Node-color-picker">
-              <RgbaStringColorPicker
-                color={node.value}
-                onChange={handleColorChange}
-              />
-            </span>
-          )}
-        </>
-      )
-    }
+  function renderConnectorLabel(type, label) {
+    switch (type) {
 
-    return (
-      <Typography variant="body2">
-        {label}
-      </Typography>
-    )
+      case 'color': {
+        return (
+          <>
+            <Typography variant="body2">
+              {label}
+            </Typography>
+            {!!literal && (
+              <span
+                className="Node-color ml-2"
+                style={{ backgroundColor: literal.value }}
+              />
+            )}
+          </>
+        )
+      }
+
+      default: {
+        return (
+          <Typography variant="body2">
+            {label}
+          </Typography>
+        )
+      }
+    }
   }
+
+  console.log('selected', selected)
 
   return (
     <Draggable
@@ -247,10 +248,12 @@ function Node({ node, onDragStart, onDragEnd }) {
     >
       <Paper
         className="Node y2"
+        onClick={handleMouseDown}
         style={{
           width: node.width,
           height: node.height,
           zIndex: activeIds.includes(node.id) ? 4 : 3,
+          boxShadow: selected ? '0 0 3pt 2pt moccasin' : null,
         }}
       >
         {renderTitle()}
@@ -262,17 +265,17 @@ function Node({ node, onDragStart, onDragEnd }) {
                 className="Node-connector x4"
               >
                 {renderConnectorDot('in', type, index)}
-                {renderConnectorLabel(label)}
+                {renderConnectorLabel(type, label)}
               </div>
             ))}
           </div>
           <div className="y3 pb-1">
-            {node.outputs.map(({ type, label }, index) => (
+            {outputs.map(({ type, label }, index) => (
               <div
                 key={index}
                 className="Node-connector x4"
               >
-                {renderConnectorLabel(label)}
+                {renderConnectorLabel(type, label)}
                 {renderConnectorDot('out', type, index)}
               </div>
             ))}

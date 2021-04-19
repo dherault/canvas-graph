@@ -88,25 +88,20 @@ function Graph() {
     setIsAddNodeDialogOpened(false)
   }
 
-  function handleAddNode(nodeType, io, ioType, index) {
+  function handleAddNode(nodeType, io, ioType, index, literal) {
     const nodeId = uuid()
     const shouldAddEdge = io && typeof index === 'number'
 
+    const node = {
+      id: nodeId,
+      type: nodeType,
+      literalId: literal ? literal.id : null,
+      ...nodesMetadata[nodeType],
+    }
+
     if (shouldAddEdge) {
       batch(() => {
-        console.log('handleAddNode')
-        const node = {
-          id: nodeId,
-          type: nodeType,
-          ...nodesMetadata[nodeType],
-        }
-
         Object.assign(node, getNodePositionAgainstConnector(node, io, index))
-
-        dispatch({
-          type: 'ADD_NODE',
-          payload: node,
-        })
 
         const edge = {
           id: uuid(),
@@ -131,7 +126,7 @@ function Graph() {
         }
 
         dispatch({
-          type: 'ADD_EDGE',
+          type: 'CREATE_EDGE',
           payload: edge,
         })
 
@@ -142,19 +137,23 @@ function Graph() {
       })
     }
     else {
-      const node = {
-        id: nodeId,
-        type: nodeType,
-        ...nodesMetadata[nodeType],
-      }
-
       Object.assign(node, getNodePosition(node))
 
       dispatch({
-        type: 'ADD_NODE',
+        type: 'CREATE_NODE',
         payload: node,
       })
     }
+
+    dispatch({
+      type: 'CREATE_NODE',
+      payload: node,
+    })
+
+    dispatch({
+      type: 'SET_SELECTED_ITEMS',
+      payload: [node],
+    })
   }
 
   function handleMouseMove(event) {
@@ -176,10 +175,16 @@ function Graph() {
   }
 
   function handleClick(event) {
-    console.log('handleClick')
     // If there is a moving edge and we clicked on background or svg or edge path
     if (movingEdge && (event.target === backgroundRef.current || event.target.tagName === 'svg' || event.target.tagName === 'path')) {
       setIsAddNodeDialogOpened(true)
+    }
+
+    if (event.target === backgroundRef.current) {
+      dispatch({
+        type: 'SET_SELECTED_ITEMS',
+        payload: [],
+      })
     }
   }
 
@@ -190,49 +195,49 @@ function Graph() {
     })
   }
 
-  function handleCenter() {
-    const { innerWidth, innerHeight } = window
-    const { width, height, minScale, maxScale } = graphParameters
-    const min = { x: Infinity, y: Infinity }
-    const max = { x: 0, y: 0 }
+  // function handleCenter() {
+    // const { innerWidth, innerHeight } = window
+    // const { width, height, minScale, maxScale } = graphParameters
+    // const min = { x: Infinity, y: Infinity }
+    // const max = { x: 0, y: 0 }
 
-    Object.values(nodes).forEach(node => {
-      if (node.x < min.x) min.x = node.x
-      if (node.y < min.y) min.y = node.y
-      if (node.x + node.width > max.x) max.x = node.x + node.width
-      if (node.y + node.height > max.y) max.y = node.y + node.height
-    })
+    // Object.values(nodes).forEach(node => {
+    //   if (node.x < min.x) min.x = node.x
+    //   if (node.y < min.y) min.y = node.y
+    //   if (node.x + node.width > max.x) max.x = node.x + node.width
+    //   if (node.y + node.height > max.y) max.y = node.y + node.height
+    // })
 
-    console.log('min, max', min, max)
+    // console.log('min, max', min, max)
 
-    const w = max.x - min.x
-    const a = (w - innerWidth) / (width - innerWidth)
-    const s = maxScale - a * (maxScale - minScale)
+    // const w = max.x - min.x
+    // const a = (w - innerWidth) / (width - innerWidth)
+    // const s = maxScale - a * (maxScale - minScale)
 
-    console.log('s', s)
-    // const h = max.y - min.y
+    // console.log('s', s)
+    // // const h = max.y - min.y
 
-    // const s1 = (width - w) / (width - innerWidth)
-    // const s2 = (width - w) / width
-    // const s3 = w / width
-    // const s4 = innerWidth / w
-    // const s5 = (width - innerWidth) / w
-    // const s6 = (w - innerWidth) / width
+    // // const s1 = (width - w) / (width - innerWidth)
+    // // const s2 = (width - w) / width
+    // // const s3 = w / width
+    // // const s4 = innerWidth / w
+    // // const s5 = (width - innerWidth) / w
+    // // const s6 = (w - innerWidth) / width
 
-    dispatch({
-      type: 'UPDATE_GRAPH_PARAMETERS',
-      payload: {
-        // translation: {
-        //   x: min.x,
-        //   y: min.y,
-        // },
-        // scale: Math.min(graphParameters.maxScale, Math.max(graphParameters.minScale, 1 - s4)),
-      },
-    })
+    // dispatch({
+    //   type: 'UPDATE_GRAPH_PARAMETERS',
+    //   payload: {
+    //     // translation: {
+    //     //   x: min.x,
+    //     //   y: min.y,
+    //     // },
+    //     // scale: Math.min(graphParameters.maxScale, Math.max(graphParameters.minScale, 1 - s4)),
+    //   },
+    // })
 
     // console.log(s1, s2, s3, s4, s5, s6)
     // console.log(1 - s1, 1 - s2, 1 - s3, 1 - s4, 1 - s5, 1 - s6)
-  }
+  // }
 
   function handleReset() {
     dispatch({ type: 'RESET' })
@@ -241,16 +246,6 @@ function Graph() {
   return (
     <>
       <div className="Graph-toolbar x4 p-2">
-        <pre className="p-1 mr-2" style={{ backgroundColor: 'white' }}>
-          {JSON.stringify(graphParameters)}
-        </pre>
-        <Button
-          onClick={handleCenter}
-          variant="contained"
-          className="mr-2"
-        >
-          Center
-        </Button>
         <Button
           onClick={handleReset}
           variant="contained"

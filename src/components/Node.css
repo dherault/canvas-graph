@@ -35,8 +35,9 @@
 }
 
 .Node-color {
-  height: 22px;
-  width: 32px;
+  height: 16px;
+  width: 16px;
+  border-radius: 4;
 }
 
 .Node-color-picker {

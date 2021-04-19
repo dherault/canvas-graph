@@ -11,6 +11,7 @@ function Canvas() {
   const canvasRef = useRef()
   const nodes = useSelector(s => s.nodes)
   const edges = useSelector(s => s.edges)
+  const literals = useSelector(s => s.literals)
   const [update, setUpdate] = useState(() => () => null)
 
   useEffect(() => {
@@ -23,8 +24,8 @@ function Canvas() {
   }, [])
 
   useEffect(() => {
-    update({ nodes, edges })
-  }, [update, nodes, edges])
+    update({ nodes, edges, literals })
+  }, [update, nodes, edges, literals])
 
   return (
     <Box

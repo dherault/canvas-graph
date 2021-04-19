@@ -1,10 +1,13 @@
 import './Edge.css'
 
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import getRelativePosition from '../helpers/getRelativePosition'
 
 function Edge({ edge }) {
+  const dispatch = useDispatch()
+  const selected = useSelector(s => s.selectedItems.find(x => x.id === edge.id))
+
   const { inX, inY, outX, outY, inId, outId } = edge
   const graphParameters = useSelector(s => s.graphParameters)
 
@@ -48,6 +51,13 @@ function Edge({ edge }) {
   const viewY = Math.max(1, Math.abs(diffY))
   const path = `M ${x1} ${y1}  Q ${x1 + (diffX0 ? 1 : -1) * viewX / 4} ${y1}, ${(x1 + x2) / 2} ${(y1 + y2) / 2} T ${x2} ${y2}`
 
+  function handleClick(event) {
+    dispatch({
+      type: 'SET_SELECTED_ITEMS',
+      payload: event.target.tagName === 'svg' ? [edge] : [edge],
+    })
+  }
+
   return (
     <svg
       width={viewX}
@@ -58,12 +68,13 @@ function Edge({ edge }) {
         top: Math.min(ya, yb),
         left: Math.min(xa, xb),
       }}
+      onClick={handleClick}
     >
       <path
         d={path}
-        stroke="lightskyblue"
+        stroke={selected ? 'moccasin' : 'lightskyblue'}
         fill="transparent"
-        strokeWidth={1 / graphParameters.scale}
+        strokeWidth={1 / graphParameters.scale * (selected ? 2 : 1)}
       />
     </svg>
   )
