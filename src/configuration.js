@@ -1,5 +1,11 @@
 export const persistStorageKey = 'canvas-graph'
 export const nodesMetadata = {
+  function: {
+    width: 128,
+    height: 128,
+    inputs: [],
+    outputs: [],
+  },
   moveTo: {
     width: 128,
     height: 128,

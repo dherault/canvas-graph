@@ -4,6 +4,7 @@ import {
   addNode,
   removeNode,
   reset,
+  set,
   updateNode,
 } from '../actions'
 
@@ -15,6 +16,7 @@ function addMetaFields(node) {
 
 const nodes = createReducer({},
   {
+    [set]: (state, { payload }) => payload.nodes || state,
     [reset]: () => ({}),
     [addNode]: (state, { payload }) => {
       const node = { ...payload }

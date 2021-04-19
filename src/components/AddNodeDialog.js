@@ -2,6 +2,7 @@ import './AddNodeDialog.css'
 
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
+import { useTheme } from '@material-ui/core'
 
 import Dialog from '@material-ui/core/Dialog'
 import List from '@material-ui/core/List'
@@ -11,10 +12,14 @@ import TextField from '@material-ui/core/TextField'
 
 import { nodesMetadata } from '../configuration'
 
+import NameFunctionDialog from './NameFunctionDialog'
+
 function AddNodeDialog({ opened, onSubmit, onClose }) {
   const movingEdge = useSelector(s => s.movingEdge)
   const literals = useSelector(s => s.literals)
   const [search, setSearch] = useState('')
+  const [onSubmitName, setOnSubmitName] = useState(null)
+  const theme = useTheme()
 
   const io = movingEdge && movingEdge.inId ? 'in' : movingEdge && movingEdge.outId ? 'out' : null
   const ioType = io ? io === 'in' ? movingEdge.inType : movingEdge.outType : null
@@ -96,7 +101,16 @@ function AddNodeDialog({ opened, onSubmit, onClose }) {
   }
 
   function handleClick(possibility) {
-    onSubmit(possibility.type, possibility.io, possibility.ioType, possibility.ioIndex, possibility.literal)
+    if (possibility.type === 'function') {
+      setOnSubmitName(() => name => {
+        onSubmit({ ...possibility, name })
+        onClose()
+        setOnSubmitName(null)
+      })
+
+      return
+    }
+    onSubmit(possibility)
     onClose()
   }
 
@@ -108,12 +122,18 @@ function AddNodeDialog({ opened, onSubmit, onClose }) {
     >
       <form
         className="AddNodeDialog-inner p-4"
+        style={{
+          backgroundColor: 'white',
+        }}
         onSubmit={handleSubmit}
       >
         <TextField
           autoFocus
           fullWidth
           value={search}
+          InputProps={{
+            className: 'AddNodeDialog-input',
+          }}
           onChange={event => setSearch(event.target.value)}
           placeholder="Add node"
         />
@@ -130,6 +150,11 @@ function AddNodeDialog({ opened, onSubmit, onClose }) {
           </ListItem>
         )}
       </List>
+      <NameFunctionDialog
+        opened={!!onSubmitName}
+        onSubmit={onSubmitName}
+        onClose={() => setOnSubmitName(null)}
+      />
     </Dialog>
   )
 }

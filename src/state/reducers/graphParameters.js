@@ -2,6 +2,7 @@ import { createReducer } from '@reduxjs/toolkit'
 
 import {
   reset,
+  set,
   updateGraphParameters,
 } from '../actions'
 
@@ -27,8 +28,9 @@ function getInitialState() {
   return initialState
 }
 
-const activeIds = createReducer(getInitialState(),
+const graphParameters = createReducer(getInitialState(),
   {
+    [set]: (state, { payload }) => payload.graphParameters || state,
     [reset]: () => getInitialState(),
     [updateGraphParameters]: (state, { payload }) => ({
       ...state,
@@ -37,4 +39,4 @@ const activeIds = createReducer(getInitialState(),
   },
 )
 
-export default activeIds
+export default graphParameters

@@ -1,8 +1,8 @@
-.AddNodeDialog-inner {
+.NameFunctionDialog-inner {
   width: 512px;
   border-radius: 8px;
 }
 
-.AddNodeDialog-input {
+.NameFunctionDialog-input {
   color: rgba(0, 0, 0, 0.87) !important;
 }

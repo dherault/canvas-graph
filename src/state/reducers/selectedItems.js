@@ -2,12 +2,14 @@ import { createReducer } from '@reduxjs/toolkit'
 
 import {
   reset,
+  set,
   setSelectedItems,
   toggleSelectedItems,
 } from '../actions'
 
 const selectedItems = createReducer([],
   {
+    [set]: (state, { payload }) => payload.selectedItems || state,
     [reset]: () => [],
     [setSelectedItems]: (_state, { payload }) => payload,
     [toggleSelectedItems]: (state, { payload }) => {

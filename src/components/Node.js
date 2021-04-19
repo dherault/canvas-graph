@@ -178,7 +178,7 @@ function Node({ node, onDragStart, onDragEnd }) {
 
     return (
       <Typography className="Node-type pt-1 px-2">
-        {node.type}
+        {node.name || node.type}
       </Typography>
     )
   }

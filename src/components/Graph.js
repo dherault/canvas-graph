@@ -14,11 +14,15 @@ import { nodesMetadata } from '../configuration'
 import { getNodePosition, getNodePositionAgainstConnector } from '../helpers/getGraphItemPosition'
 import getRelativePosition from '../helpers/getRelativePosition'
 
+import dataset1 from '../data/1'
+
 import AddNodeDialog from './AddNodeDialog'
 import Node from './Node'
 import Edge from './Edge'
 import MovingEdge from './MovingEdge'
 import Literals from './Literals'
+
+const datasets = [dataset1]
 
 function Graph() {
   const parentRef = useRef()
@@ -123,20 +127,22 @@ function Graph() {
     setIsAddNodeDialogOpened(false)
   }
 
-  function handleAddNode(nodeType, io, ioType, index, literal) {
-    const nodeId = uuid()
-    const shouldAddEdge = io && typeof index === 'number'
+  // TODO Move to AddNodeDialog
+  function handleAddNode({ type, io, ioType, ioIndex, literal, name = null }) {
+    batch(() => {
+      const nodeId = uuid()
+      const shouldAddEdge = io && typeof ioIndex === 'number'
 
-    const node = {
-      id: nodeId,
-      type: nodeType,
-      literalId: literal ? literal.id : null,
-      ...nodesMetadata[nodeType],
-    }
+      const node = {
+        id: nodeId,
+        type,
+        name,
+        literalId: literal ? literal.id : null,
+        ...nodesMetadata[type],
+      }
 
-    if (shouldAddEdge) {
-      batch(() => {
-        Object.assign(node, getNodePositionAgainstConnector(node, io, index))
+      if (shouldAddEdge) {
+        Object.assign(node, getNodePositionAgainstConnector(node, io, ioIndex))
 
         const edge = {
           id: uuid(),
@@ -148,14 +154,14 @@ function Graph() {
         if (io === 'in') {
           edge.outId = nodeId
           edge.outType = ioType
-          edge.outIndex = index
+          edge.outIndex = ioIndex
           edge.outX = relativeMouse.x
           edge.outY = relativeMouse.y
         }
         else {
           edge.inId = nodeId
           edge.inType = ioType
-          edge.inIndex = index
+          edge.inIndex = ioIndex
           edge.inX = relativeMouse.x
           edge.inY = relativeMouse.y
         }
@@ -169,25 +175,20 @@ function Graph() {
           type: 'SET_MOVING_EDGE',
           payload: null,
         })
-      })
-    }
-    else {
-      Object.assign(node, getNodePosition(node))
+      }
+      else {
+        Object.assign(node, getNodePosition(node))
+      }
 
       dispatch({
         type: 'CREATE_NODE',
         payload: node,
       })
-    }
 
-    dispatch({
-      type: 'CREATE_NODE',
-      payload: node,
-    })
-
-    dispatch({
-      type: 'SET_SELECTED_ITEMS',
-      payload: [node],
+      dispatch({
+        type: 'SET_SELECTED_ITEMS',
+        payload: [node],
+      })
     })
   }
 
@@ -278,12 +279,26 @@ function Graph() {
     dispatch({ type: 'RESET' })
   }
 
+  function handleDataset(x) {
+    dispatch({
+      type: 'SET',
+      payload: datasets[x - 1],
+    })
+  }
+
   return (
     <>
       <div className="Graph-toolbar x4 p-2">
         <Button
+          onClick={() => handleDataset(1)}
+          variant="contained"
+        >
+          Dataset 1
+        </Button>
+        <Button
           onClick={handleReset}
           variant="contained"
+          className="ml-2"
         >
           Reset
         </Button>

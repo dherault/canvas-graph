@@ -6,6 +6,7 @@ import { persistReducer, persistStore } from 'redux-persist'
 import { persistStorageKey } from '../configuration'
 
 import mouse from './reducers/mouse'
+import currentFunction from './reducers/currentFunction'
 import nodes from './reducers/nodes'
 import edges from './reducers/edges'
 import literals from './reducers/literals'
@@ -22,6 +23,7 @@ const persistConfig = {
 const store = configureStore({
   reducer: persistReducer(persistConfig, combineReducers({
     mouse,
+    currentFunction,
     nodes,
     edges,
     selectedItems,

@@ -4,12 +4,14 @@ import {
   addLiteral,
   removeLiteral,
   reset,
+  set,
   updateLiteral,
 } from '../actions'
 
 // A collection of literal nodes for inputs
 const literals = createReducer({},
   {
+    [set]: (state, { payload }) => payload.literals || state,
     [reset]: () => ({}),
     [addLiteral]: (state, { payload }) => {
       const literal = { ...payload }

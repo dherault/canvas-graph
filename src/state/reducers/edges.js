@@ -4,11 +4,13 @@ import {
   addEdge,
   removeEdge,
   reset,
+  set,
   updateEdge,
 } from '../actions'
 
 const edges = createReducer({},
   {
+    [set]: (state, { payload }) => payload.edges || state,
     [reset]: () => ({}),
     [addEdge]: (state, { payload }) => {
       const edge = { ...payload }
