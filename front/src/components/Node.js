@@ -252,8 +252,6 @@ function Node({ node, onDragStart, onDragEnd }) {
     }
   }
 
-  console.log('node', node)
-
   return (
     <Draggable
       scale={graphParameters.scale}

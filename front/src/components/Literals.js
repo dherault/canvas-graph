@@ -70,6 +70,7 @@ function Literals() {
 
 function LiteralForm({ onClose, editedLiteral }) {
   const dispatch = useDispatch()
+
   const types = Object.values(nodesMetadata)
     .filter(nm => nm.isLiteral)
   const typeNames = types

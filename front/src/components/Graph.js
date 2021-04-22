@@ -42,7 +42,6 @@ function Graph() {
   const [isPanDisabled, setIsPanDisabled] = useState(false)
   const theme = useTheme()
 
-  console.log('nodes', nodes)
   const handleEscape = useCallback(() => {
     if (isAddNodeDialogOpened) return
 

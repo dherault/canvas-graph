@@ -16,6 +16,7 @@ import getGraphTopLeftCorner from '../helpers/getGraphTopLeftCorner'
 
 function Literal({ literal, onEdit }) {
   const dispatch = useDispatch()
+  const currentFunction = useSelector(s => s.currentFunction)
   const [menuAnchorElement, setMenuAnchorElement] = useState(null)
 
   function handleAdd() {
@@ -27,6 +28,7 @@ function Literal({ literal, onEdit }) {
       payload: {
         id: uuid(),
         literalId: literal.id,
+        functionId: currentFunction.id,
         width,
         height,
         inputs: [],
