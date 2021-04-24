@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "ts-morph": "^10.0.2"
+    "ts-morph": "^10.0.2",
+    "uuid": "^8.3.2"
   }
 }
