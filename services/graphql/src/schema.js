@@ -23,7 +23,7 @@ const schema = new GraphQLSchema({
         resolve: (_, { pseudo }) => db.User.findOne({ where: { pseudo } }),
       },
       source: {
-        type: types.Video,
+        type: types.Source,
         args: {
           slug: {
             type: new GraphQLNonNull(GraphQLString),

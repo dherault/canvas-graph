@@ -1,25 +1,42 @@
-import { useState } from 'react'
 import { BrowserRouter, Route } from 'react-router-dom'
 
-import CanvasGraph from './components/CanvasGraph'
-import ControlledSurface from './components/ControlledSurface'
+import AuthenticationBouncer from './components/AuthenticationBouncer'
+import OnboardingBouncer from './components/OnboardingBouncer'
+import Authentication from './scenes/Authentication'
+import User from './scenes/User'
+import Onboarding from './scenes/Onboarding'
+import Home from './scenes/Home'
+import Legal from './scenes/Legal'
 
 function Router() {
-  const [value, setValue] = useState({ width: 1024, translation: { x: 0, y: 0 } })
-
   return (
     <BrowserRouter>
       <>
         <Route exact path="/">
-          <CanvasGraph />
+          <OnboardingBouncer>
+            <Home />
+          </OnboardingBouncer>
         </Route>
-        <Route exact path="/dev">
-          <div className="y5 w100vw h100vh">
-            {JSON.stringify(value)}
-            <ControlledSurface value={value} onChange={value => setValue(value)}>
-              foo
-            </ControlledSurface>
-          </div>
+        <Route exact path="/sign-up">
+          <Authentication />
+        </Route>
+        <Route exact path="/sign-in">
+          <Authentication isSignIn />
+        </Route>
+        <Route exact path="/~/:pseudo">
+          <AuthenticationBouncer>
+            <OnboardingBouncer>
+              <User />
+            </OnboardingBouncer>
+          </AuthenticationBouncer>
+        </Route>
+        <Route path="/onboarding">
+          <AuthenticationBouncer>
+            <Onboarding />
+          </AuthenticationBouncer>
+        </Route>
+        <Route exact path={['/privacy-policy', '/terms-of-service', '/legal']}>
+          <Legal />
         </Route>
       </>
     </BrowserRouter>

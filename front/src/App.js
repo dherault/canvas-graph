@@ -1,27 +1,26 @@
-import './App.css'
+import './styles'
 import 'flexpad/dist/flexpad.css'
-import 'bootstrap-spacing-utils'
 
-import { Provider } from 'react-redux'
-import { PersistGate } from 'redux-persist/integration/react'
+import { Provider as GraphQLProvider } from 'urql'
 import { ThemeProvider } from '@material-ui/core/styles'
 import CssBaseline from '@material-ui/core/CssBaseline'
 
-import store from './state'
+import client from './client'
 import theme from './theme'
 
 import Router from './Router'
+import AuthenticationProvider from './components/AuthenticationProvider'
 
 function App() {
   return (
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={store.persistor}>
-        <CssBaseline />
-        <ThemeProvider theme={theme}>
+    <GraphQLProvider value={client}>
+      <CssBaseline />
+      <ThemeProvider theme={theme}>
+        <AuthenticationProvider>
           <Router />
-        </ThemeProvider>
-      </PersistGate>
-    </Provider>
+        </AuthenticationProvider>
+      </ThemeProvider>
+    </GraphQLProvider>
   )
 }
 

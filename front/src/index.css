@@ -1,29 +1,158 @@
 html {
   min-height: 100vh;
   overflow: hidden;
-  background-color: white;
 }
 
 body {
   position: relative;
   height: 100vh;
   overflow: auto;
+  background-color: white !important;
 }
 
 #root {
-  height: 100vh;
+  min-height: 100vh;
 }
 
-/* Chrome, Safari, Edge, Opera */
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
+a {
+  text-decoration: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+p {
+  margin: 0.5em 0px;
+}
+
+pre {
+  display: inline-block;
+  margin: 0;
+  padding: 4px;
+  border-radius: 4px;
+  white-space: pre-wrap;
+  background-color: #eeeeee;
+}
+
+ol {
   margin: 0;
 }
 
-/* Firefox */
-input[type=number] {
-  -moz-appearance: textfield;
+.overflow-auto {
+  overflow: auto;
+}
+
+.elevation-1 {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+.elevation-2 {
+  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+
+.elevation-3 {
+  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+}
+
+.elevation-4 {
+  box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+}
+
+.top-0 {
+  top: 0;
+}
+
+.bottom-0 {
+  bottom: 0;
+}
+
+.left-0 {
+  left: 0;
+}
+
+.right-0 {
+  right: 0;
+}
+
+.border-radius-1 {
+  border-radius: 4px;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-move {
+  cursor: move;
+}
+
+/* Markdown classes */
+
+.content {
+  font-size: 16px;
+}
+.content > h6 {
+  font-size: 18px;
+}
+.content > h5 {
+  font-size: 22px;
+}
+.content > h4 {
+  font-size: 26px;
+}
+.content > h3 {
+  font-size: 30px;
+}
+.content > h2 {
+  font-size: 34px;
+}
+.content > h1 {
+  font-size: 38px;
+}
+
+/* Shared CSS between applications */
+
+/* ---
+  Typography
+--- */
+
+.silent-link {
+  text-decoration: none;
+}
+
+.no-select {
+  user-select: none;
+}
+
+.font-weight-700 {
+  font-weight: 700;
+}
+
+.text-align-center {
+  text-align: center;
+}
+
+.text-align-right {
+  text-align: right;
+}
+
+/* ---
+  Position and display
+--- */
+
+.position-relative {
+  position: relative;
+}
+
+.position-absolute {
+  position: absolute;
+}
+
+.inline {
+  display: inline;
+}
+
+.inline-block {
+  display: inline-block;
 }
 
 .flex-grow {
@@ -34,8 +163,32 @@ input[type=number] {
   flex-shrink: 1;
 }
 
+.overflow-auto {
+  overflow: auto;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+/* ---
+  Dimensions
+--- */
+
 .w100 {
   width: 100%;
+}
+
+.mw100 {
+  max-width: 100%;
+}
+
+.h100 {
+  height: 100%;
+}
+
+.mh100 {
+  max-height: 100%;
 }
 
 .w100vw {
@@ -46,10 +199,52 @@ input[type=number] {
   height: 100vh;
 }
 
-.text-align-center {
-  text-align: center;
+.w33 {
+  width: 33.333%;
 }
 
-.position-relative {
-  position: relative;
+/* ---
+  Palette
+--- */
+
+.color-white {
+  color: white;
+}
+
+.background-color-white {
+  background-color: white;
+}
+
+/* ---
+  Misc
+--- */
+
+.profile-image-16 {
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+}
+
+.profile-image-24 {
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+}
+
+.profile-image-32 {
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+}
+
+.profile-image-48 {
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
+}
+
+.profile-image-64 {
+  width: 64px;
+  height: 64px;
+  border-radius: 32px;
 }

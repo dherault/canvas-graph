@@ -2,13 +2,7 @@ const fs = require('fs')
 const path = require('path')
 
 const uuid = require('uuid').v4
-const { Project, ForStatement } = require('ts-morph')
-
-function splice(array, predicate) {
-  const index = array.findIndex(predicate)
-
-  return array.splice(index, 1)
-}
+const { Project } = require('ts-morph')
 
 function run() {
   const project = new Project()
@@ -19,9 +13,9 @@ function run() {
     }
   `
 
-  const sourceFile = project.createSourceFile(path.join(__dirname, '../output/function.ts'), exampleFile);
+  const sourceFile = project.createSourceFile(path.join(__dirname, '../output/function.ts'), exampleFile)
 
-  sourceFile.getTypeAlias
+  // sourceFile.getTypeAlias
   // sourceFile.getSymbol().getName()
   // State
   const state = {
@@ -99,7 +93,7 @@ function run() {
 
       const functionNode = createNode('function', {
         name: node.getSymbol().getName(),
-        outputs: [returnIo]
+        outputs: [returnIo],
       })
 
       setParentId(functionNode.id)
@@ -110,7 +104,7 @@ function run() {
       })
       const returnNode = createNode('return', {
         functionId: functionNode.id,
-        inputs: [returnIo]
+        inputs: [returnIo],
       })
 
       next()
@@ -148,8 +142,6 @@ function run() {
 
       const nodeConnectedToReturn = nodes[0] // TODO
 
-      console.log('nodeConnectedToReturn', nodeConnectedToReturn)
-
       const edge = createEdge(
         nodeConnectedToReturn.outputs[0].type,
         nodeConnectedToReturn.id,
@@ -163,10 +155,10 @@ function run() {
         edges: [edge],
       }
     },
-    BinaryExpression(node, { next, logError }) {
+    BinaryExpression(node, { next }) {
       const children = node.forEachChildAsArray()
 
-      const child1Metadata = traverse(children[0]).metadata
+      const child1Metadata = traverse(children[0]).metadata // TODO, use next
       const child2Metadata = traverse(children[2]).metadata
       const operatorNodeText = children[1].getText()
 
@@ -181,36 +173,35 @@ function run() {
           {
             name: '1',
             type: 'number',
-          }
+          },
         ],
         outputs: [
           {
             name: 'result',
             type: 'number',
-          }
-        ]
+          },
+        ],
       }
 
       switch (operatorNodeText) {
         case '+':
           functionNode = createNode('add', functionNodeParameters)
-          break;
+          break
 
         case '*':
           functionNode = createNode('multiply', functionNodeParameters)
-          break;
+          break
 
         case '/':
           functionNode = createNode('divide', functionNodeParameters)
-          break;
+          break
 
         case '%':
           functionNode = createNode('modulo', functionNodeParameters)
-          break;
+          break
 
         default:
           throw new Error(`Unknown operator: ${operatorNodeText}`)
-          break;
       }
 
       const edge1 = createEdge(
@@ -233,7 +224,7 @@ function run() {
     Identifier(node, { next }) {
       const sourceMetadata = state.identifierToNodeMetadata[node.getText()]
 
-      console.log('sourceMetadata', sourceMetadata)
+      next()
 
       return {
         nodes: [],
@@ -280,6 +271,7 @@ function run() {
     }
 
     helpers.log('traverse: no traverser, calling next')
+
     return helpers.next() || { nodes: [], edges: [] }
   }
 

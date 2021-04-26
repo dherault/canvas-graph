@@ -1,7 +1,9 @@
-const { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLBoolean } = require('graphql')
+const { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLBoolean, GraphQLList } = require('graphql')
 
-// const db = require('../../../database')
+const db = require('../../../database')
 const createTimestampFields = require('../createTimestampFields')
+
+const File = require('./File')
 
 const Source = new GraphQLObjectType({
   name: 'Source',
@@ -18,8 +20,13 @@ const Source = new GraphQLObjectType({
     isPrivate: {
       type: GraphQLBoolean,
     },
-    data: {
-      type: GraphQLString,
+    files: {
+      type: new GraphQLList(File),
+      resolve: _ => db.File.findAll({
+        where: {
+          SourceId: _.id,
+        },
+      }),
     },
     ...createTimestampFields(),
   }),
