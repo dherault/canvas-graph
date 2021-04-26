@@ -132,6 +132,28 @@
             "args": []
           },
           {
+            "name": "publicSources",
+            "type": {
+              "kind": "LIST",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Source"
+              }
+            },
+            "args": []
+          },
+          {
+            "name": "privateSources",
+            "type": {
+              "kind": "LIST",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "Source"
+              }
+            },
+            "args": []
+          },
+          {
             "name": "createdAt",
             "type": {
               "kind": "SCALAR",

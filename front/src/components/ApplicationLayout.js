@@ -15,40 +15,70 @@ function ApplicationLayout({ children }) {
     <>
       <AppBar position="relative">
         <Toolbar>
-          <UserNavigation viewer={viewer} />
-          <RouterLink
-            to="/sign-up"
+          <Typography
+            variant="h5"
+            component="h1"
+            color="inherit"
+            className="mr-4"
           >
-            <Button color="inherit">
-              Sign up
-            </Button>
-          </RouterLink>
-          <RouterLink
-            to="/sign-in"
-          >
-            <Button color="inherit">
-              Sign in
-            </Button>
-          </RouterLink>
+            Archipel
+          </Typography>
+          {!!viewer && (
+            <RouterLink to={`/~/${viewer.pseudo}`}>
+              <Button
+                color="inherit"
+              >
+                Dashboard
+              </Button>
+            </RouterLink>
+          )}
+          <div className="flex-grow" />
+          <ViewerInformations />
         </Toolbar>
       </AppBar>
-      {children}
+      <div className="mt-2">
+        {children}
+      </div>
     </>
   )
 }
 
-function UserNavigation({ viewer }) {
-  if (!viewer) return null
+function ViewerInformations() {
+  const [viewer] = useContext(ViewerContext)
+
+  if (!viewer) {
+    return (
+      <>
+        <RouterLink
+          to="/sign-up"
+        >
+          <Button color="inherit">
+            Sign up
+          </Button>
+        </RouterLink>
+        <RouterLink
+          to="/sign-in"
+        >
+          <Button color="inherit">
+            Sign in
+          </Button>
+        </RouterLink>
+      </>
+    )
+  }
 
   return (
-    <div className="x4">
-      <img src={viewer.profileImageUrl} className="profile-image-32" />
+    <>
+      <img
+        src={viewer.profileImageUrl || 'https://storage.googleapis.com/sensual-education-images/19f4458b-f10f-4474-a950-dbfa295a28a6.png'}
+        className="profile-image-32"
+      />
       <Typography
-        className="ml-2"
+        className="ml-1"
       >
         {viewer.pseudo}
       </Typography>
-    </div>
+    </>
   )
 }
 
