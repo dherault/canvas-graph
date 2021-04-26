@@ -1,9 +1,9 @@
 const { GraphQLString, GraphQLNonNull } = require('graphql')
-const tmp = require('tmp-promise')
-const aquarelle = require('aquarelle')
+// const tmp = require('tmp-promise')
+// const aquarelle = require('aquarelle')
 
 const db = require('../../../database/models')
-const uploadFileToStorage = require('../../../database/file-storage/uploadFileToStorage')
+// const uploadFileToStorage = require('../../../database/file-storage/uploadFileToStorage')
 const { hashPassword } = require('../utils/encryption')
 const { generateToken } = require('../utils/authentication')
 const createMutationOutputType = require('../utils/createMutationOutputType')
@@ -39,19 +39,19 @@ module.exports = {
       throw new Error('SIGN_IN___EMAIL_ALREADY_EXISTS')
     }
 
-    const tmpDir = await tmp.dir()
-    const profilePictureMetadata = await aquarelle(128, 128, tmpDir.path)
-    const profileImageUrl = await uploadFileToStorage({
-      bucketName: 'sensual-education-images',
-      fileName: profilePictureMetadata.fileName,
-      filePath: profilePictureMetadata.filePath,
-    })
+    // const tmpDir = await tmp.dir()
+    // const profilePictureMetadata = await aquarelle(128, 128, tmpDir.path)
+    // const profileImageUrl = await uploadFileToStorage({
+    //   bucketName: 'sensual-education-images',
+    //   fileName: profilePictureMetadata.fileName,
+    //   filePath: profilePictureMetadata.filePath,
+    // })
 
     const passwordHash = hashPassword(password)
 
     const viewer = await db.User.create({
       email,
-      profileImageUrl,
+      profileImageUrl: '',
       passwordHash,
     })
 
