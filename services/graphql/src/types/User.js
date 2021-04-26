@@ -1,7 +1,9 @@
-const { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLBoolean } = require('graphql')
+const { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLBoolean, GraphQLList } = require('graphql')
 
-// const db = require('../../../database/models')
+const db = require('../../../database/models')
 const createTimestampFields = require('../createTimestampFields')
+
+const Source = require('./Source')
 
 const UserType = new GraphQLObjectType({
   name: 'User',
@@ -20,6 +22,28 @@ const UserType = new GraphQLObjectType({
     },
     hasCompletedOnboarding: {
       type: GraphQLBoolean,
+    },
+    publicSources: {
+      type: new GraphQLList(Source),
+      resolve: _ => db.Source.findAll({
+        where: {
+          UserId: _.id,
+          isPrivate: false,
+        },
+      }),
+    },
+    privateSources: {
+      type: new GraphQLList(Source),
+      resolve(_, args, { viewer }) {
+        if (_.id !== viewer.id) return []
+
+        return db.Source.findAll({
+          where: {
+            UserId: _.id,
+            isPrivate: true,
+          },
+        })
+      },
     },
     ...createTimestampFields(),
   }),
