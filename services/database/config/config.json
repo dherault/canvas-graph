@@ -1,0 +1,37 @@
+{
+  "development": {
+    "username": "root",
+    "password": "root",
+    "database": "archipel",
+    "host": "localhost",
+    "dialect": "mysql",
+    "logging": false
+  },
+  "test": {
+    "username": "root",
+    "password": "root",
+    "database": "archipel",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "logging": false
+  },
+  "production_proxy": {
+    "username": "root",
+    "password": "",
+    "database": "archipel",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "logging": false
+  },
+  "production": {
+    "username": "root",
+    "password": "",
+    "database": "archipel",
+    "host": "/cloudsql/archipel-app:europe-north1:archipel-production-database",
+    "dialect": "mysql",
+    "dialectOptions": {
+      "socketPath": "/cloudsql/archipel-app:europe-north1:archipel-production-database"
+    },
+    "logging": false
+  }
+}

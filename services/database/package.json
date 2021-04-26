@@ -1,0 +1,38 @@
+{
+  "name": "database",
+  "private": true,
+  "version": "0.0.0",
+  "engines": {
+    "node": ">=14"
+  },
+  "scripts": {
+    "dev": "npm run db:proxy",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "db:proxy:mac": "GOOGLE_APPLICATION_CREDENTIALS=\"./key.json\" ./cloud_sql_proxy-mac -instances=archipel-app:europe-north1:archipel-production-database=tcp:3306",
+    "db:proxy:linux": "GOOGLE_APPLICATION_CREDENTIALS=\"./key.json\" ./cloud_sql_proxy-linux -instances=archipel-app:europe-north1:archipel-production-database=tcp:3306",
+    "db:migrate": "sequelize-cli db:migrate",
+    "db:migrate:production": "NODE_ENV=production_proxy npm run db:migrate",
+    "db:seed": "sequelize-cli db:seed:all",
+    "db:drop": "node scripts/dropDatabase.js",
+    "db:create": "node scripts/createDatabase.js",
+    "db:reset": "npm run db:drop && npm run db:create && npm run db:migrate && npm run db:seed",
+    "db:reset:production": "NODE_ENV=production_proxy npm run db:reset",
+    "build": "docker build -t archipel-database-service .",
+    "tag": "docker tag archipel-database-service eu.gcr.io/archipel-app/archipel-database-service:latest",
+    "push": "docker push eu.gcr.io/archipel-app/archipel-database-service:latest",
+    "ship": "npm run build && npm run tag && npm run push"
+  },
+  "templates": {
+    "run": "docker run --name mysql$RANDOM -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=archipel -d mysql:latest",
+    "new-migration": "npx sequelize-cli migration:generate --name add-foo",
+    "new-model": "npx sequelize-cli model:generate --name User --attributes firstName:string,lastName:string,email:string",
+    "new-seeder": "npx sequelize-cli seed:generate --name demo-user"
+  },
+  "dependencies": {
+    "mysql2": "^2.2.5",
+    "sequelize": "^6.6.2"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^6.2.0"
+  }
+}

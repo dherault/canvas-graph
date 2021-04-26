@@ -1,0 +1,38 @@
+{
+  "name": "graphql",
+  "private": true,
+  "version": "0.0.0",
+  "engines": {
+    "node": ">=15"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "start:watch": "nodemon",
+    "dev": "node scripts/printSchema.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "gcloud builds submit --tag gcr.io/archipel-app/graphql-service",
+    "deploy": "gcloud run deploy graphql-service --image gcr.io/archipel-app/graphql-service --platform managed --region europe-north1 --allow-unauthenticated --timeout=15m --add-cloudsql-instances archipel-app:europe-north1:archipel-production-database --update-env-vars INSTANCE_CONNECTION_NAME=\"archipel-app:europe-north1:archipel-production-database\"",
+    "ship": "npm run build && npm run deploy"
+  },
+  "dependencies": {
+    "@urql/introspection": "^0.2.0",
+    "aquarelle": "^1.3.0",
+    "axios": "^0.21.1",
+    "bcrypt": "^5.0.1",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-graphql": "^0.12.0",
+    "graphql": "^15.5.0",
+    "graphql-upload": "^11.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "mime-types": "^2.1.30",
+    "moment": "^2.29.1",
+    "node-fetch": "^2.6.1",
+    "sequelize": "^6.6.2",
+    "tmp-promise": "^3.0.2",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}
