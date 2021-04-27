@@ -16,9 +16,6 @@ module.exports = {
       isPrivate: {
         type: Sequelize.BOOLEAN,
       },
-      hierarchy: {
-        type: Sequelize.TEXT('long'),
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

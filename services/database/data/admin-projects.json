@@ -4,9 +4,17 @@
     "slug" : "3JxOHWGV",
     "name" : "Project alpha",
     "isPrivate" : 0,
-    "hierarchy" : null,
     "createdAt" : "2021-04-27 01:11:46",
     "updatedAt" : "2021-04-27 01:11:46",
+    "UserId" : 1
+  },
+  {
+    "id" : 2,
+    "slug" : "57JHxx3K",
+    "name" : "Project beta",
+    "isPrivate" : 1,
+    "createdAt" : "2021-04-27 01:11:47",
+    "updatedAt" : "2021-04-27 01:11:47",
     "UserId" : 1
   }
 ]

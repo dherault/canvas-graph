@@ -9,10 +9,13 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate({ Project }) {
       File.belongsTo(Project)
+      File.belongsTo(File)
+      File.hasMany(File)
     }
   }
   File.init({
     name: DataTypes.STRING,
+    isDirectory: DataTypes.BOOLEAN,
     data: DataTypes.TEXT('long'),
   }, {
     sequelize,

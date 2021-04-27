@@ -10,6 +10,9 @@ module.exports = {
       name: {
         type: Sequelize.STRING,
       },
+      isDirectory: {
+        type: Sequelize.BOOLEAN,
+      },
       data: {
         type: Sequelize.TEXT('long'),
       },
