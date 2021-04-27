@@ -6,9 +6,9 @@ async function createSlug(length = slugLength) {
   const slug = generateSlug(length)
 
   while (true) {
-    const nSources = await db.Source.count({ where: { slug } })
+    const nProjects = await db.Project.count({ where: { slug } })
 
-    if (nSources === 0) break
+    if (nProjects === 0) break
   }
 
   return slug

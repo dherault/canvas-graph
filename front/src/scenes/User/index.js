@@ -9,8 +9,8 @@ import Button from '@material-ui/core/Button'
 import FullScreenSpinner from '../../components/FullScreenSpinner'
 import FullScreenError from '../../components/FullScreenError'
 
-import CreateSourceDialog from './CreateSourceDialog'
-import SourceCard from './SourceCard'
+import CreateProjectDialog from './CreateProjectDialog'
+import ProjectCard from './ProjectCard'
 
 const UserQuery = `
   query UserQuery ($pseudo: String!) {
@@ -20,12 +20,12 @@ const UserQuery = `
     user (pseudo: $pseudo) {
       id
       pseudo
-      publicSources {
+      publicProjects {
         id
         slug
         name
       }
-      privateSources {
+      privateProjects {
         id
         slug
         name
@@ -43,7 +43,7 @@ function User() {
     },
   })
 
-  const [isCreateSourceDialogOpened, setIsCreateSourceDialogOpened] = useState(false)
+  const [isCreateProjectDialogOpened, setIsCreateProjectDialogOpened] = useState(false)
 
   if (queryResults.fetching || queryResults.stale) {
     return (
@@ -75,27 +75,27 @@ function User() {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => setIsCreateSourceDialogOpened(true)}
+          onClick={() => setIsCreateProjectDialogOpened(true)}
         >
-          New source
+          New project
         </Button>
       </div>
     )
   }
 
-  function renderSources() {
-    const sources = [
-      ...user.publicSources.map(s => ({ ...s, isPrivate: false })),
-      ...user.privateSources.map(s => ({ ...s, isPrivate: true })),
+  function renderProjects() {
+    const projects = [
+      ...user.publicProjects.map(s => ({ ...s, isPrivate: false })),
+      ...user.privateProjects.map(s => ({ ...s, isPrivate: true })),
     ]
     .sort((a, b) => a.createdAt < b.createdAt ? -1 : 1)
 
     return (
       <div className="x11 mt-2 w100">
-        {sources.map(source => (
-          <SourceCard
-            key={source.id}
-            source={source}
+        {projects.map(project => (
+          <ProjectCard
+            key={project.id}
+            project={project}
           />
         ))}
       </div>
@@ -113,11 +113,11 @@ function User() {
           {user.pseudo}
         </Typography>
         {renderViewerOptions()}
-        {renderSources()}
+        {renderProjects()}
       </Container>
-      <CreateSourceDialog
-        opened={isCreateSourceDialogOpened}
-        onClose={() => setIsCreateSourceDialogOpened(false)}
+      <CreateProjectDialog
+        opened={isCreateProjectDialogOpened}
+        onClose={() => setIsCreateProjectDialogOpened(false)}
       />
     </>
   )

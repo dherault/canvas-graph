@@ -12,10 +12,10 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import Checkbox from '@material-ui/core/Checkbox'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 
-const CreateSourceMutation = `
-mutation CreateSourceMutation ($name: String!, $isPrivate: Boolean!) {
-    createSource (name: $name, isPrivate: $isPrivate) {
-      source {
+const CreateProjectMutation = `
+mutation CreateProjectMutation ($name: String!, $isPrivate: Boolean!) {
+    createProject (name: $name, isPrivate: $isPrivate) {
+      project {
         id
         slug
       }
@@ -23,8 +23,8 @@ mutation CreateSourceMutation ($name: String!, $isPrivate: Boolean!) {
   }
 `
 
-function CreateSourceDialog({ opened, onClose }) {
-  const [, createSourceMutation] = useMutation(CreateSourceMutation)
+function CreateProjectDialog({ opened, onClose }) {
+  const [, createProjectMutation] = useMutation(CreateProjectMutation)
   const [isLoading, setIsLoading] = useState(false)
   const [name, setName] = useState('')
   const [isPrivate, setIsPrivate] = useState(false)
@@ -37,7 +37,7 @@ function CreateSourceDialog({ opened, onClose }) {
 
     setIsLoading(true)
 
-    createSourceMutation({ name, isPrivate })
+    createProjectMutation({ name, isPrivate })
       .then(results => {
         setIsLoading(false)
 
@@ -45,7 +45,7 @@ function CreateSourceDialog({ opened, onClose }) {
           return console.log(results.error.message)
         }
 
-        const { slug } = results.data.createSource.source
+        const { slug } = results.data.createProject.project
 
         history.push(`/-/${slug}`)
       })
@@ -60,7 +60,7 @@ function CreateSourceDialog({ opened, onClose }) {
     >
       <form onSubmit={handleSubmit}>
         <DialogTitle>
-          New source
+          New project
         </DialogTitle>
         <DialogContent>
           <TextField
@@ -109,4 +109,4 @@ function CreateSourceDialog({ opened, onClose }) {
   )
 }
 
-export default CreateSourceDialog
+export default CreateProjectDialog

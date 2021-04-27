@@ -1,5 +1,5 @@
 const adminUsers = require('../data/admin-users.json')
-const adminSources = require('../data/admin-sources.json')
+const adminProjects = require('../data/admin-projects.json')
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
@@ -14,7 +14,7 @@ module.exports = {
     */
 
     await queryInterface.bulkInsert('Users', adminUsers, {})
-    await queryInterface.bulkInsert('Sources', adminSources, {})
+    await queryInterface.bulkInsert('Projects', adminProjects, {})
   },
 
   down: async (queryInterface, Sequelize) => {

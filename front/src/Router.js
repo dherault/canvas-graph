@@ -6,7 +6,7 @@ import ApplicationLayout from './components/ApplicationLayout'
 import BlankLayout from './components/BlankLayout'
 import Authentication from './scenes/Authentication'
 import User from './scenes/User'
-import Source from './scenes/Source'
+import Project from './scenes/Project'
 import Onboarding from './scenes/Onboarding'
 import Home from './scenes/Home'
 import Legal from './scenes/Legal'
@@ -45,7 +45,7 @@ function Router() {
           <AuthenticationBouncer>
             <OnboardingBouncer>
               <ApplicationLayout>
-                <Source />
+                <Project />
               </ApplicationLayout>
             </OnboardingBouncer>
           </AuthenticationBouncer>

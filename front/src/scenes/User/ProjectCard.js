@@ -1,4 +1,4 @@
-import './SourceCard.css'
+import './ProjectCard.css'
 
 import { Link as RouterLink } from 'react-router-dom'
 
@@ -9,23 +9,23 @@ import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
 
-function SourceCard({ source }) {
-  console.log('source', source)
+function ProjectCard({ project }) {
+  console.log('project', project)
 
   return (
-    <Card className="mr-2 mb-2 SourceCard">
+    <Card className="mr-2 mb-2 ProjectCard">
       <CardContent>
         <div className="x4">
-          {source.isPrivate && (
+          {project.isPrivate && (
             <LockOutlinedIcon className="mr-1" />
           )}
           <Typography noWrap>
-            {source.name}
+            {project.name}
           </Typography>
         </div>
       </CardContent>
       <CardActions>
-        <RouterLink to={`/-/${source.slug}`}>
+        <RouterLink to={`/-/${project.slug}`}>
           <Button>
             Open
           </Button>
@@ -35,4 +35,4 @@ function SourceCard({ source }) {
   )
 }
 
-export default SourceCard
+export default ProjectCard

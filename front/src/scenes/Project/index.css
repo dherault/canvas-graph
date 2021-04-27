@@ -1,17 +1,17 @@
-.Source-topbar {
+.Project-topbar {
   z-index: 1000;
 }
 
-.Source-content {
+.Project-content {
   min-height: calc(100vh - 64px - 64px);
 }
 
-.Source-sidebar {
+.Project-sidebar {
   width: 256px;
   z-index: 999;
 }
 
-.Source-sidebar-collapse {
+.Project-sidebar-collapse {
   position: absolute;
   top: 16px;
   z-index: 998;

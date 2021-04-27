@@ -22,23 +22,23 @@ const schema = new GraphQLSchema({
         },
         resolve: (_, { pseudo }) => db.User.findOne({ where: { pseudo } }),
       },
-      source: {
-        type: types.Source,
+      project: {
+        type: types.Project,
         args: {
           slug: {
             type: new GraphQLNonNull(GraphQLString),
           },
         },
         async resolve(_, { slug }, { viewer }) {
-          const source = await db.Source.findOne({ where: { slug } })
+          const project = await db.Project.findOne({ where: { slug } })
 
-          if (source.isPrivate && source.UserId !== viewer.id) return null
+          if (project.isPrivate && project.UserId !== viewer.id) return null
 
-          return source
+          return project
         },
       },
-      publicSources: {
-        type: new GraphQLList(types.Source),
+      publicProjects: {
+        type: new GraphQLList(types.Project),
         args: {
           first: {
             type: GraphQLInt,
@@ -50,7 +50,7 @@ const schema = new GraphQLSchema({
           },
         },
         resolve(user, { first, offset }) {
-          return db.Source.findAll({
+          return db.Project.findAll({
             where: {
               isPrivate: false,
             },

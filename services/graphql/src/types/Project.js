@@ -3,8 +3,8 @@ const { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLBoolean, GraphQLList
 const db = require('../../../database')
 const createTimestampFields = require('../createTimestampFields')
 
-const Source = new GraphQLObjectType({
-  name: 'Source',
+const Project = new GraphQLObjectType({
+  name: 'Project',
   fields: () => ({
     id: {
       type: GraphQLID,
@@ -69,7 +69,7 @@ const Source = new GraphQLObjectType({
       type: new GraphQLList(require('./File')),
       resolve: _ => db.File.findAll({
         where: {
-          SourceId: _.id,
+          ProjectId: _.id,
         },
       }),
     },
@@ -77,4 +77,4 @@ const Source = new GraphQLObjectType({
   }),
 })
 
-module.exports = Source
+module.exports = Project

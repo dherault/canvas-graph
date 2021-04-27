@@ -25,12 +25,12 @@ import FullScreenError from '../../components/FullScreenError'
 
 import FilesSidebar from './FilesSidebar'
 
-const SourceQuery = `
-  query SourceQuery ($slug: String!) {
+const ProjectQuery = `
+  query ProjectQuery ($slug: String!) {
     viewer {
       id
     }
-    source (slug: $slug) {
+    project (slug: $slug) {
       id
       name
       hierarchy
@@ -41,10 +41,10 @@ const SourceQuery = `
   }
 `
 
-function Source() {
+function Project() {
   const { slug } = useParams()
   const [queryResults] = useQuery({
-    query: SourceQuery,
+    query: ProjectQuery,
     variables: {
       slug,
     },
@@ -52,7 +52,7 @@ function Source() {
   const [menuAnchorElement, setMenuAnchorElement] = useState(null)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(null)
 
-  // const [isCreateSourceDialogOpened, setIsCreateSourceDialogOpened] = useState(false)
+  // const [isCreateProjectDialogOpened, setIsCreateProjectDialogOpened] = useState(false)
 
   if (queryResults.fetching || queryResults.stale) {
     return (
@@ -66,11 +66,11 @@ function Source() {
     )
   }
 
-  const { viewer, source } = queryResults.data
+  const { viewer, project } = queryResults.data
 
-  if (!source) {
+  if (!project) {
     return (
-      'Source not found!'
+      'Project not found!'
     )
   }
 
@@ -78,17 +78,18 @@ function Source() {
     <>
       <Paper
         square
-        className="py-1 px-2 x4 position-relative Source-topbar"
+        className="py-1 px-2 x4 position-relative Project-topbar"
       >
         <Typography
           component="h2"
         >
-          {source.name}
+          {project.name}
         </Typography>
         <div className="flex-grow" />
         <Tooltip
           title="Search ⌘ + p"
           placement="top"
+          className="ml-1"
         >
           <IconButton>
             <SearchIcon />
@@ -97,12 +98,14 @@ function Source() {
         <Tooltip
           title="Center ⌘ + ."
           placement="top"
+          className="ml-1"
         >
           <IconButton>
             <CenterFocusWeakIcon />
           </IconButton>
         </Tooltip>
         <IconButton
+          className="ml-1"
           onClick={event => setMenuAnchorElement(event.currentTarget)}
         >
           <MoreHorizIcon />
@@ -113,7 +116,7 @@ function Source() {
           open={Boolean(menuAnchorElement)}
           onClose={() => setMenuAnchorElement(null)}
         >
-          {viewer.id === source.user.id && (
+          {viewer.id === project.user.id && (
             <MenuItem onClick={() => setMenuAnchorElement(null)}>
               <SettingsOutlinedIcon className="mr-1" /> Settings
             </MenuItem>
@@ -129,16 +132,16 @@ function Source() {
           </MenuItem>
         </Menu>
       </Paper>
-      <div className="x4s Source-content position-relative">
+      <div className="x4s Project-content position-relative">
         <Paper
           square
-          className="position-relative Source-sidebar"
+          className="position-relative Project-sidebar"
           style={{
             left: isSidebarCollapsed ? -256 : 0,
           }}
         >
           <FilesSidebar
-            hierarchy={JSON.parse(source.hierarchy)}
+            hierarchy={JSON.parse(project.hierarchy)}
             files={[
               {
                 id: 1,
@@ -160,7 +163,7 @@ function Source() {
           />
         </Paper>
         <Paper
-          className="p-1 Source-sidebar-collapse"
+          className="p-1 Project-sidebar-collapse"
           style={{
             left: (isSidebarCollapsed ? 0 : 256) - 8,
           }}
@@ -177,4 +180,4 @@ function Source() {
   )
 }
 
-export default Source
+export default Project

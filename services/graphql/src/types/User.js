@@ -21,21 +21,21 @@ const UserType = new GraphQLObjectType({
     hasCompletedOnboarding: {
       type: GraphQLBoolean,
     },
-    publicSources: {
-      type: new GraphQLList(require('./Source')),
-      resolve: _ => db.Source.findAll({
+    publicProjects: {
+      type: new GraphQLList(require('./Project')),
+      resolve: _ => db.Project.findAll({
         where: {
           UserId: _.id,
           isPrivate: false,
         },
       }),
     },
-    privateSources: {
-      type: new GraphQLList(require('./Source')),
+    privateProjects: {
+      type: new GraphQLList(require('./Project')),
       resolve(_, args, { viewer }) {
         if (_.id !== viewer.id) return []
 
-        return db.Source.findAll({
+        return db.Project.findAll({
           where: {
             UserId: _.id,
             isPrivate: true,

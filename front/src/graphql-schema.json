@@ -40,10 +40,10 @@
             ]
           },
           {
-            "name": "source",
+            "name": "project",
             "type": {
               "kind": "OBJECT",
-              "name": "Source"
+              "name": "Project"
             },
             "args": [
               {
@@ -59,12 +59,12 @@
             ]
           },
           {
-            "name": "publicSources",
+            "name": "publicProjects",
             "type": {
               "kind": "LIST",
               "ofType": {
                 "kind": "OBJECT",
-                "name": "Source"
+                "name": "Project"
               }
             },
             "args": [
@@ -132,23 +132,23 @@
             "args": []
           },
           {
-            "name": "publicSources",
+            "name": "publicProjects",
             "type": {
               "kind": "LIST",
               "ofType": {
                 "kind": "OBJECT",
-                "name": "Source"
+                "name": "Project"
               }
             },
             "args": []
           },
           {
-            "name": "privateSources",
+            "name": "privateProjects",
             "type": {
               "kind": "LIST",
               "ofType": {
                 "kind": "OBJECT",
-                "name": "Source"
+                "name": "Project"
               }
             },
             "args": []
@@ -174,7 +174,7 @@
       },
       {
         "kind": "OBJECT",
-        "name": "Source",
+        "name": "Project",
         "fields": [
           {
             "name": "id",
@@ -202,6 +202,14 @@
           },
           {
             "name": "isPrivate",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
+            },
+            "args": []
+          },
+          {
+            "name": "hierarchy",
             "type": {
               "kind": "SCALAR",
               "name": "Any"
@@ -328,7 +336,7 @@
             "name": "createSource",
             "type": {
               "kind": "OBJECT",
-              "name": "CreateSourceOutput"
+              "name": "CreateProjectOutput"
             },
             "args": [
               {
@@ -473,13 +481,13 @@
       },
       {
         "kind": "OBJECT",
-        "name": "CreateSourceOutput",
+        "name": "CreateProjectOutput",
         "fields": [
           {
-            "name": "source",
+            "name": "project",
             "type": {
               "kind": "OBJECT",
-              "name": "Source"
+              "name": "Project"
             },
             "args": []
           }

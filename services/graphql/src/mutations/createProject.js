@@ -6,12 +6,12 @@ const createMutationOutputType = require('../utils/createMutationOutputType')
 const checkForViewer = require('../utils/checkForViewer')
 const createSlug = require('../utils/createSlug')
 
-const { Source } = require('../types')
+const { Project } = require('../types')
 
 module.exports = {
-  type: createMutationOutputType('CreateSource', {
-    source: {
-      type: Source,
+  type: createMutationOutputType('CreateProject', {
+    project: {
+      type: Project,
     },
   }),
   args: {
@@ -27,13 +27,13 @@ module.exports = {
 
     const slug = await createSlug()
 
-    const source = await db.Source.create({
+    const project = await db.Project.create({
       slug,
       name,
       isPrivate,
       UserId: viewer.id,
     })
 
-    return { source }
+    return { project }
   },
 }
