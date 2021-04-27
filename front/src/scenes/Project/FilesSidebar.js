@@ -68,7 +68,11 @@ const StyledTreeItem = withStyles(theme => ({
     {...props}
     TransitionComponent={TransitionComponent}
     label={(
-      <Typography variant="body2" noWrap>
+      <Typography
+        noWrap
+        variant="body2"
+        className="no-select"
+      >
         {props.label}
       </Typography>
     )}

@@ -1,4 +1,4 @@
-import { BrowserRouter, Route } from 'react-router-dom'
+import { BrowserRouter, Route, Switch } from 'react-router-dom'
 
 import AuthenticationBouncer from './components/AuthenticationBouncer'
 import OnboardingBouncer from './components/OnboardingBouncer'
@@ -16,7 +16,7 @@ import NotFound from './scenes/NotFound'
 function Router() {
   return (
     <BrowserRouter>
-      <>
+      <Switch>
         <Route exact path="/">
           <OnboardingBouncer>
             <ApplicationLayout>
@@ -69,7 +69,7 @@ function Router() {
             <NotFound />
           </ApplicationLayout>
         </Route>
-      </>
+      </Switch>
     </BrowserRouter>
   )
 }

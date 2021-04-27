@@ -111,8 +111,8 @@ function Project() {
           <MoreHorizIcon />
         </IconButton>
         <Menu
-          anchorEl={menuAnchorElement}
           keepMounted
+          anchorEl={menuAnchorElement}
           open={Boolean(menuAnchorElement)}
           onClose={() => setMenuAnchorElement(null)}
         >
@@ -163,7 +163,7 @@ function Project() {
           />
         </Paper>
         <Paper
-          className="p-1 Project-sidebar-collapse"
+          className="py-1 pr-1 pl-1h Project-sidebar-collapse x5"
           style={{
             left: (isSidebarCollapsed ? 0 : 256) - 8,
           }}
