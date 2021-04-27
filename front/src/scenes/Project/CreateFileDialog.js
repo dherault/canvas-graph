@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useMutation } from 'urql'
-import { useHistory } from 'react-router-dom'
 
 import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -9,26 +8,27 @@ import DialogActions from '@material-ui/core/DialogActions'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import Checkbox from '@material-ui/core/Checkbox'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
 
-const CreateProjectMutation = `
-mutation CreateProjectMutation ($name: String!, $isPrivate: Boolean!) {
-    createProject (name: $name, isPrivate: $isPrivate) {
+const CreateFileMutation = `
+mutation CreateFileMutation ($name: String!, $hierarchyPosition: String!, $projectId: GraphQLID!) {
+    createFile (name: $name, hierarchyPosition: $hierarchyPosition, projectId: $projectId) {
+      file {
+        id
+        name
+        data
+      }
       project {
         id
-        slug
+        hierarchy
       }
     }
   }
 `
 
-function CreateProjectDialog({ opened, onClose }) {
-  const [, createProjectMutation] = useMutation(CreateProjectMutation)
+function CreateFileDialog({ opened, onClose, hierarchyPosition, projectId }) {
+  const [, createFileMutation] = useMutation(CreateFileMutation)
   const [isLoading, setIsLoading] = useState(false)
   const [name, setName] = useState('')
-  const [isPrivate, setIsPrivate] = useState(false)
-  const history = useHistory()
 
   function handleSubmit(event) {
     event.preventDefault()
@@ -37,7 +37,11 @@ function CreateProjectDialog({ opened, onClose }) {
 
     setIsLoading(true)
 
-    createProjectMutation({ name, isPrivate })
+    createFileMutation({
+      name,
+      projectId,
+      hierarchyPosition,
+    })
       .then(results => {
         setIsLoading(false)
 
@@ -45,9 +49,7 @@ function CreateProjectDialog({ opened, onClose }) {
           return console.log(results.error.message)
         }
 
-        const { slug } = results.data.createProject.project
-
-        history.push(`/-/${slug}`)
+        onClose()
       })
   }
 
@@ -60,26 +62,16 @@ function CreateProjectDialog({ opened, onClose }) {
     >
       <form onSubmit={handleSubmit}>
         <DialogTitle>
-          New project
+          New file
         </DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             fullWidth
             label="Name"
-            placeholder="Super cool project"
+            placeholder="index.ts"
             value={name}
             onChange={event => setName(event.target.value)}
-          />
-          <FormControlLabel
-            control={(
-              <Checkbox
-                checked={isPrivate}
-                onChange={event => setIsPrivate(event.target.checked)}
-                color="primary"
-              />
-            )}
-            label="Private"
           />
         </DialogContent>
         <DialogActions>
@@ -110,4 +102,4 @@ function CreateProjectDialog({ opened, onClose }) {
   )
 }
 
-export default CreateProjectDialog
+export default CreateFileDialog

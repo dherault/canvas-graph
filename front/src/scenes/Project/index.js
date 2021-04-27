@@ -1,6 +1,7 @@
 import './index.css'
 
 import { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { useQuery } from 'urql'
 
@@ -34,6 +35,11 @@ const ProjectQuery = `
       id
       name
       hierarchy
+      files {
+        id
+        name
+        data
+      }
       user {
         id
       }
@@ -50,9 +56,8 @@ function Project() {
     },
   })
   const [menuAnchorElement, setMenuAnchorElement] = useState(null)
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(null)
-
-  // const [isCreateProjectDialogOpened, setIsCreateProjectDialogOpened] = useState(false)
+  const dispatch = useDispatch()
+  const isSidebarCollapsed = useSelector(s => (s.projectMetadata[slug] || {}).isSidebarCollapsed || false)
 
   if (queryResults.fetching || queryResults.stale) {
     return (
@@ -72,6 +77,16 @@ function Project() {
     return (
       'Project not found!'
     )
+  }
+
+  function toggleSidebar() {
+    dispatch({
+      type: 'SET_PROJECT_METADATA',
+      payload: {
+        slug,
+        isSidebarCollapsed: !isSidebarCollapsed,
+      },
+    })
   }
 
   return (
@@ -141,27 +156,10 @@ function Project() {
           }}
         >
           <FilesSidebar
-            project={{
-              ...project,
-              files: [
-                {
-                  id: 1,
-                  name: 'index.ts',
-                },
-                {
-                  id: 2,
-                  name: 'analyse.ts',
-                },
-                {
-                  id: 3,
-                  name: 'script1.ts',
-                },
-                {
-                  id: 4,
-                  name: 'script2.ts',
-                },
-              ],
-            }}
+            projectId={project.id}
+            projectSlug={slug}
+            hierarchy={JSON.parse(project.hierarchy)}
+            files={project.files}
           />
         </Paper>
         <Paper
@@ -169,7 +167,7 @@ function Project() {
           style={{
             left: (isSidebarCollapsed ? 0 : 256) - 8,
           }}
-          onClick={() => setIsSidebarCollapsed(collapsed => !collapsed)}
+          onClick={toggleSidebar}
         >
           {isSidebarCollapsed ? (
             <ChevronRightIcon />

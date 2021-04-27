@@ -8,8 +8,8 @@ const projectMetadata = createReducer({},
   {
     [setProjectMetadata]: (state, { payload }) => ({
       ...state,
-      [payload.id]: {
-        ...(state[payload.id] || {}),
+      [payload.slug]: {
+        ...(state[payload.slug] || {}),
         ...payload,
       },
     }),
