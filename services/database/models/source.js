@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
     slug: DataTypes.STRING,
     name: DataTypes.STRING,
     isPrivate: DataTypes.BOOLEAN,
+    hierarchy: DataTypes.TEXT('long'),
   }, {
     sequelize,
     modelName: 'Source',

@@ -1,0 +1,12 @@
+[
+  {
+    "id" : 1,
+    "email" : "admin@archipel.app",
+    "passwordHash" : "$2b$10$PL6TOn2MeBYzxbV\/k9DnleRP2D1g9HmPwMafF38HbWV3y2IPm5WdG",
+    "pseudo" : "Libedis",
+    "profileImageUrl" : "",
+    "hasCompletedOnboarding" : 1,
+    "createdAt" : "2021-04-27 01:11:25",
+    "updatedAt" : "2021-04-27 01:11:36"
+  }
+]
