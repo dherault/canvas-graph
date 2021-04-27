@@ -2,8 +2,11 @@ import { BrowserRouter, Route } from 'react-router-dom'
 
 import AuthenticationBouncer from './components/AuthenticationBouncer'
 import OnboardingBouncer from './components/OnboardingBouncer'
+import ApplicationLayout from './components/ApplicationLayout'
+import BlankLayout from './components/BlankLayout'
 import Authentication from './scenes/Authentication'
 import User from './scenes/User'
+import Source from './scenes/Source'
 import Onboarding from './scenes/Onboarding'
 import Home from './scenes/Home'
 import Legal from './scenes/Legal'
@@ -14,29 +17,50 @@ function Router() {
       <>
         <Route exact path="/">
           <OnboardingBouncer>
-            <Home />
+            <ApplicationLayout>
+              <Home />
+            </ApplicationLayout>
           </OnboardingBouncer>
         </Route>
         <Route exact path="/sign-up">
-          <Authentication />
+          <BlankLayout>
+            <Authentication />
+          </BlankLayout>
         </Route>
         <Route exact path="/sign-in">
-          <Authentication isSignIn />
+          <BlankLayout>
+            <Authentication isSignIn />
+          </BlankLayout>
         </Route>
         <Route exact path="/~/:pseudo">
           <AuthenticationBouncer>
             <OnboardingBouncer>
-              <User />
+              <ApplicationLayout>
+                <User />
+              </ApplicationLayout>
+            </OnboardingBouncer>
+          </AuthenticationBouncer>
+        </Route>
+        <Route exact path="/-/:slug">
+          <AuthenticationBouncer>
+            <OnboardingBouncer>
+              <ApplicationLayout>
+                <Source />
+              </ApplicationLayout>
             </OnboardingBouncer>
           </AuthenticationBouncer>
         </Route>
         <Route path="/onboarding">
           <AuthenticationBouncer>
-            <Onboarding />
+            <ApplicationLayout>
+              <Onboarding />
+            </ApplicationLayout>
           </AuthenticationBouncer>
         </Route>
         <Route exact path={['/privacy-policy', '/terms-of-service', '/legal']}>
-          <Legal />
+          <ApplicationLayout>
+            <Legal />
+          </ApplicationLayout>
         </Route>
       </>
     </BrowserRouter>

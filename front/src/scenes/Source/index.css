@@ -1,0 +1,21 @@
+.Source-topbar {
+  z-index: 1000;
+}
+
+.Source-content {
+  min-height: calc(100vh - 64px - 64px);
+}
+
+.Source-sidebar {
+  width: 256px;
+  z-index: 999;
+}
+
+.Source-sidebar-collapse {
+  position: absolute;
+  top: 16px;
+  z-index: 998;
+  border-top-right-radius: calc(45px / 2);
+  border-bottom-right-radius: calc(45px / 2);
+  cursor: pointer;
+}

@@ -31,8 +31,6 @@ function OnboardingEnd() {
   useEffect(() => {
     if (queryResults.fetching) return
 
-    console.log('queryResults', queryResults.data)
-
     if (queryResults.data && queryResults.data.viewer && queryResults.data.viewer.pseudo) {
       completeOnboardingMutation({})
       .then(results => {

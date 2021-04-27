@@ -209,6 +209,14 @@
             "args": []
           },
           {
+            "name": "user",
+            "type": {
+              "kind": "OBJECT",
+              "name": "User"
+            },
+            "args": []
+          },
+          {
             "name": "files",
             "type": {
               "kind": "LIST",
@@ -315,6 +323,35 @@
               "name": "CompleteOnboardingOutput"
             },
             "args": []
+          },
+          {
+            "name": "createSource",
+            "type": {
+              "kind": "OBJECT",
+              "name": "CreateSourceOutput"
+            },
+            "args": [
+              {
+                "name": "name",
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "Any"
+                  }
+                }
+              },
+              {
+                "name": "isPrivate",
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "Any"
+                  }
+                }
+              }
+            ]
           },
           {
             "name": "signIn",
@@ -428,6 +465,21 @@
             "type": {
               "kind": "OBJECT",
               "name": "User"
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
+        "name": "CreateSourceOutput",
+        "fields": [
+          {
+            "name": "source",
+            "type": {
+              "kind": "OBJECT",
+              "name": "Source"
             },
             "args": []
           }

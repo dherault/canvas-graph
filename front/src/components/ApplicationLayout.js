@@ -1,10 +1,11 @@
 import { useContext } from 'react'
-import { Link as RouterLink } from 'react-router-dom'
+import { Route, Link as RouterLink } from 'react-router-dom'
 
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
+import Box from '@material-ui/core/Box'
 
 import ViewerContext from '../ViewerContext'
 
@@ -12,17 +13,19 @@ function ApplicationLayout({ children }) {
   const [viewer] = useContext(ViewerContext)
 
   return (
-    <>
+    <div className="minh100vh y2s">
       <AppBar position="relative">
-        <Toolbar>
-          <Typography
-            variant="h5"
-            component="h1"
-            color="inherit"
-            className="mr-4"
-          >
-            Archipel
-          </Typography>
+        <Toolbar className="px-2">
+          <RouterLink to="/">
+            <Typography
+              variant="h5"
+              component="h1"
+              color="inherit"
+              className="mr-4"
+            >
+              Archipel
+            </Typography>
+          </RouterLink>
           {!!viewer && (
             <RouterLink to={`/~/${viewer.pseudo}`}>
               <Button
@@ -36,10 +39,13 @@ function ApplicationLayout({ children }) {
           <ViewerInformations />
         </Toolbar>
       </AppBar>
-      <div className="mt-2">
+      <Box
+        className="flex-grow"
+        bgcolor="background.default"
+      >
         {children}
-      </div>
-    </>
+      </Box>
+    </div>
   )
 }
 

@@ -6,11 +6,11 @@ import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
 import Button from '@material-ui/core/Button'
 
-import ApplicationLayout from '../../components/ApplicationLayout'
 import FullScreenSpinner from '../../components/FullScreenSpinner'
 import FullScreenError from '../../components/FullScreenError'
 
 import CreateSourceDialog from './CreateSourceDialog'
+import SourceCard from './SourceCard'
 
 const UserQuery = `
   query UserQuery ($pseudo: String!) {
@@ -21,10 +21,12 @@ const UserQuery = `
       id
       pseudo
       publicSources {
+        id
         slug
         name
       }
       privateSources {
+        id
         slug
         name
       }
@@ -40,28 +42,27 @@ function User() {
       pseudo,
     },
   })
+
   const [isCreateSourceDialogOpened, setIsCreateSourceDialogOpened] = useState(false)
 
-  if (queryResults.fetching) {
+  if (queryResults.fetching || queryResults.stale) {
     return (
-      <ApplicationLayout>
-        <FullScreenSpinner />
-      </ApplicationLayout>
+      <FullScreenSpinner />
     )
   }
 
   if (queryResults.error) {
     return (
-      <ApplicationLayout>
-        <FullScreenError />
-      </ApplicationLayout>
+      <FullScreenError />
     )
   }
 
   const { viewer, user } = queryResults.data
 
-  function handleCreateSource() {
-    setIsCreateSourceDialogOpened(true)
+  if (!user) {
+    return (
+      'User not found!'
+    )
   }
 
   function renderViewerOptions() {
@@ -74,7 +75,7 @@ function User() {
         <Button
           variant="contained"
           color="primary"
-          onClick={handleCreateSource}
+          onClick={() => setIsCreateSourceDialogOpened(true)}
         >
           New source
         </Button>
@@ -82,22 +83,43 @@ function User() {
     )
   }
 
+  function renderSources() {
+    const sources = [
+      ...user.publicSources.map(s => ({ ...s, isPrivate: false })),
+      ...user.privateSources.map(s => ({ ...s, isPrivate: true })),
+    ]
+    .sort((a, b) => a.createdAt < b.createdAt ? -1 : 1)
+
+    return (
+      <div className="x11 mt-2 w100">
+        {sources.map(source => (
+          <SourceCard
+            key={source.id}
+            source={source}
+          />
+        ))}
+      </div>
+    )
+  }
+
   return (
-    <ApplicationLayout>
-      <Container>
+    <>
+      <Container className="mt-2">
         <Typography
+          color="textPrimary"
           variant="h4"
           component="h2"
         >
           {user.pseudo}
         </Typography>
         {renderViewerOptions()}
+        {renderSources()}
       </Container>
       <CreateSourceDialog
         opened={isCreateSourceDialogOpened}
         onClose={() => setIsCreateSourceDialogOpened(false)}
       />
-    </ApplicationLayout>
+    </>
   )
 }
 

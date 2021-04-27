@@ -8,7 +8,8 @@ import { createMuiTheme } from '@material-ui/core/styles'
 
 const theme = createMuiTheme({
   palette: {
-    primary: blue,
+    type: 'dark',
+    primary: indigo,
     secondary: red,
     blue,
     indigo,
