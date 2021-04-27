@@ -376,7 +376,7 @@
                 }
               },
               {
-                "name": "projectId",
+                "name": "projectSlug",
                 "type": {
                   "kind": "NON_NULL",
                   "ofType": {

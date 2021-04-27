@@ -158,7 +158,6 @@ function Project() {
         >
           <FilesSidebar
             projectSlug={slug}
-            projectId={project.id}
             files={project.files}
           />
         </Paper>

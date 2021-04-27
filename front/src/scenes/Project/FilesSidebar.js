@@ -93,7 +93,7 @@ const StyledTreeItem = withStyles(theme => ({
   />
 ))
 
-function FilesSidebar({ projectId, projectSlug, files }) {
+function FilesSidebar({ projectSlug, files }) {
   const dispatch = useDispatch()
   const expandedFileTreeIds = useSelector(s => (s.projectMetadata[projectSlug] || {}).expandedFileTreeIds || [])
   const [isCreateFileDialogOpened, setIsCreateFileDialogOpened] = useState(false)
@@ -112,6 +112,16 @@ function FilesSidebar({ projectId, projectSlug, files }) {
     }
 
     parentToChildren[file.parentId || rootKey].push(file)
+  })
+
+
+  Object.values(parentToChildren).forEach(array => {
+    array.sort((a, b) => {
+      if (a.isDirectory && !b.isDirectory) return -1
+      if (!a.isDirectory && b.isDirectory) return 1
+
+      return a.name < b.name ? -1 : 1
+    })
   })
 
   function handleExpandedChange(_event, expandedFileTreeIds = []) {
@@ -138,7 +148,7 @@ function FilesSidebar({ projectId, projectSlug, files }) {
       <CreateFileDialog
         opened={isCreateFileDialogOpened}
         onClose={() => setIsCreateFileDialogOpened(false)}
-        projectId={projectId}
+        projectSlug={projectSlug}
         hierarchyPath={currentHierarchyPath}
         isDirectory={isCreatingDirectory}
       />
@@ -169,7 +179,7 @@ function FilesSidebar({ projectId, projectSlug, files }) {
             component="label"
             variant="contained"
             className="mt-1"
-            onClick={handleCreateFile}
+            onClick={() => handleCreateFile(false)}
           >
 
             Create file

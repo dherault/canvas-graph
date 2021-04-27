@@ -10,8 +10,8 @@ import TextField from '@material-ui/core/TextField'
 import CircularProgress from '@material-ui/core/CircularProgress'
 
 const CreateFileMutation = `
-mutation CreateFileMutation ($path: String!, $isDirectory: Boolean!, $projectId: ID!) {
-    createFile (path: $path, isDirectory: $isDirectory, projectId: $projectId) {
+mutation CreateFileMutation ($path: String!, $isDirectory: Boolean!, $projectSlug: String!) {
+    createFile (path: $path, isDirectory: $isDirectory, projectSlug: $projectSlug) {
       file {
         id
         name
@@ -22,7 +22,7 @@ mutation CreateFileMutation ($path: String!, $isDirectory: Boolean!, $projectId:
   }
 `
 
-function CreateFileDialog({ opened, onClose, hierarchyPath, projectId, isDirectory }) {
+function CreateFileDialog({ opened, onClose, hierarchyPath, projectSlug, isDirectory }) {
   const [, createFileMutation] = useMutation(CreateFileMutation)
   const [isLoading, setIsLoading] = useState(false)
   const [path, setPath] = useState('')
@@ -40,7 +40,7 @@ function CreateFileDialog({ opened, onClose, hierarchyPath, projectId, isDirecto
 
     createFileMutation({
       path,
-      projectId,
+      projectSlug,
       isDirectory,
     })
       .then(results => {
