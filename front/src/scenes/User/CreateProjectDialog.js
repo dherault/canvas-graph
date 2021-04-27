@@ -54,7 +54,7 @@ function CreateProjectDialog({ opened, onClose }) {
   return (
     <Dialog
       fullWidth
-      maxWidth="md"
+      maxWidth="sm"
       open={opened}
       onClose={onClose}
     >

@@ -9,9 +9,11 @@ function Authentication({ isSignIn }) {
   return (
     <>
       <header className="x5b px-8 pt-4">
-        <Typography variant="h3">
-          Archipel
-        </Typography>
+        <RouterLink to="/">
+          <Typography variant="h3">
+            Archipel
+          </Typography>
+        </RouterLink>
         <RouterLink
           to={isSignIn ? '/sign-up' : '/sign-in'}
         >

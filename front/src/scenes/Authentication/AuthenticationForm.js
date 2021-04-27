@@ -68,7 +68,7 @@ function AuthenticationForm({ isSignIn }) {
 
       setViewer(viewer)
 
-      history.push('/')
+      history.push(`/~/${viewer.pseudo}`)
     })
   }
 
