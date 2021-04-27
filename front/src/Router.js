@@ -4,12 +4,14 @@ import AuthenticationBouncer from './components/AuthenticationBouncer'
 import OnboardingBouncer from './components/OnboardingBouncer'
 import ApplicationLayout from './components/ApplicationLayout'
 import BlankLayout from './components/BlankLayout'
+
+import Home from './scenes/Home'
 import Authentication from './scenes/Authentication'
+import Onboarding from './scenes/Onboarding'
 import User from './scenes/User'
 import Project from './scenes/Project'
-import Onboarding from './scenes/Onboarding'
-import Home from './scenes/Home'
 import Legal from './scenes/Legal'
+import NotFound from './scenes/NotFound'
 
 function Router() {
   return (
@@ -60,6 +62,11 @@ function Router() {
         <Route exact path={['/privacy-policy', '/terms-of-service', '/legal']}>
           <ApplicationLayout>
             <Legal />
+          </ApplicationLayout>
+        </Route>
+        <Route path="*">
+          <ApplicationLayout>
+            <NotFound />
           </ApplicationLayout>
         </Route>
       </>

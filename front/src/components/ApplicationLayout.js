@@ -54,7 +54,7 @@ function ApplicationLayout({ children }) {
       >
         {/* Box to set background color */}
         <Box
-          className="flex-grow"
+          className="flex-grow y2s"
           bgcolor="background.default"
         >
           {children}
@@ -120,11 +120,9 @@ function ViewerInformations() {
         open={Boolean(menuAnchorElement)}
         onClose={() => setMenuAnchorElement(null)}
       >
-        <Route to="/account">
-          <MenuItem onClick={() => setMenuAnchorElement(null)}>
-            <AccountCircleOutlinedIcon className="mr-1" /> Account
-          </MenuItem>
-        </Route>
+        <MenuItem component={RouterLink} to="/account">
+          <AccountCircleOutlinedIcon className="mr-1" /> Account
+        </MenuItem>
         <MenuItem onClick={handleSignOut}>
           <ExitToAppOutlinedIcon className="mr-1" /> Sign out
         </MenuItem>
