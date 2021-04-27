@@ -1,4 +1,4 @@
-const { GraphQLID, GraphQLString, GraphQLNonNull, GraphQLBoolean } = require('graphql')
+const { GraphQLString, GraphQLNonNull, GraphQLBoolean } = require('graphql')
 
 const db = require('../../../database')
 
@@ -20,14 +20,18 @@ module.exports = {
     isDirectory: {
       type: new GraphQLNonNull(GraphQLBoolean),
     },
-    projectId: {
-      type: new GraphQLNonNull(GraphQLID),
+    projectSlug: {
+      type: new GraphQLNonNull(GraphQLString),
     },
   },
-  async resolve(_, { path, isDirectory, projectId }, { viewer }) {
+  async resolve(_, { path, isDirectory, projectSlug }, { viewer }) {
     checkForViewer(viewer)
 
-    const project = await db.Project.findByPk(projectId)
+    const project = await db.Project.findOne({
+      where: {
+        slug: projectSlug,
+      },
+    })
 
     if (!project) {
       throw new Error('CREATE_FILE___PROJECT_NOT_FOUND')
@@ -46,7 +50,7 @@ module.exports = {
       where: {
         name,
         FileId: parentId,
-        ProjectId: projectId,
+        ProjectId: project.id,
       },
     })
 
@@ -59,7 +63,7 @@ module.exports = {
       isDirectory,
       data: '',
       FileId: parentId,
-      ProjectId: projectId,
+      ProjectId: project.id,
     })
 
     return { file }
