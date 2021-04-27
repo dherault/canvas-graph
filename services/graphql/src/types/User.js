@@ -3,8 +3,6 @@ const { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLBoolean, GraphQLList
 const db = require('../../../database/models')
 const createTimestampFields = require('../createTimestampFields')
 
-const Source = require('./Source')
-
 const UserType = new GraphQLObjectType({
   name: 'User',
   fields: () => ({
@@ -24,7 +22,7 @@ const UserType = new GraphQLObjectType({
       type: GraphQLBoolean,
     },
     publicSources: {
-      type: new GraphQLList(Source),
+      type: new GraphQLList(require('./Source')),
       resolve: _ => db.Source.findAll({
         where: {
           UserId: _.id,
@@ -33,7 +31,7 @@ const UserType = new GraphQLObjectType({
       }),
     },
     privateSources: {
-      type: new GraphQLList(Source),
+      type: new GraphQLList(require('./Source')),
       resolve(_, args, { viewer }) {
         if (_.id !== viewer.id) return []
 

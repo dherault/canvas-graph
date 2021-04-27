@@ -11,5 +11,5 @@ module.exports = {
   appHost: isProduction ? 'https://archipel.app' : 'http://locahost:3000',
   analysisServiceHost: isProduction ? 'https://analysis.archipel.app' : 'http://localhost:5002',
 
-  sourceSlugLength: 8,
+  slugLength: 8,
 }
