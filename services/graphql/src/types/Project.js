@@ -20,42 +20,6 @@ const Project = new GraphQLObjectType({
     },
     hierarchy: {
       type: GraphQLString,
-      resolve: () => JSON.stringify({
-        id: '__root__',
-        d: '__root__',
-        _: [
-          {
-            id: 'public',
-            d: 'public',
-            _: [
-              {
-                fileId: 3,
-              },
-              {
-                fileId: 4,
-              },
-            ],
-          },
-          {
-            id: 'src',
-            d: 'src',
-            _: [
-              {
-                id: 'components',
-                d: 'components',
-                _: [
-                  {
-                    fileId: 1,
-                  },
-                  {
-                    fileId: 2,
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      }),
     },
     user: {
       type: require('./User'),
