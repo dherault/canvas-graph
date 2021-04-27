@@ -2,7 +2,7 @@ import flexpadCss from 'flexpad/dist/flexpad.css'
 
 import commonCss from './index.css'
 
-import theme from './theme'
+import { darkTheme } from './theme'
 
 export function __(...args) {
   return args.join(' ')
@@ -14,13 +14,13 @@ ${flexpadCss}
 ${commonCss}
 *::selection {
   color: white;
-  background-color: ${theme.palette.secondary.main};
+  background-color: ${darkTheme.palette.secondary.main};
 }
 .red {
-  color: ${theme.palette.red[500]};
+  color: ${darkTheme.palette.red[500]};
 }
 .green {
-  color: ${theme.palette.green[500]};
+  color: ${darkTheme.palette.green[500]};
 }
   `
 
@@ -61,7 +61,7 @@ ${commonCss}
         css += `.${mp}${xytblr}-${spacing.toString().replace(/\.5/, 'h')} {\n`
 
         xytblrKeys.forEach(key => {
-          css += `${mpKey}${key ? `-${key}` : ''}: ${spacing === 'auto' ? 'auto' : `${theme.spacing(spacing)}px`} !important;\n`
+          css += `${mpKey}${key ? `-${key}` : ''}: ${spacing === 'auto' ? 'auto' : `${darkTheme.spacing(spacing)}px`} !important;\n`
         })
 
         css += '}\n'

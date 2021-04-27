@@ -141,25 +141,27 @@ function Project() {
           }}
         >
           <FilesSidebar
-            hierarchy={JSON.parse(project.hierarchy)}
-            files={[
-              {
-                id: 1,
-                name: 'index.ts',
-              },
-              {
-                id: 2,
-                name: 'analyse.ts',
-              },
-              {
-                id: 3,
-                name: 'script1.ts',
-              },
-              {
-                id: 4,
-                name: 'script2.ts',
-              },
-            ]}
+            project={{
+              ...project,
+              files: [
+                {
+                  id: 1,
+                  name: 'index.ts',
+                },
+                {
+                  id: 2,
+                  name: 'analyse.ts',
+                },
+                {
+                  id: 3,
+                  name: 'script1.ts',
+                },
+                {
+                  id: 4,
+                  name: 'script2.ts',
+                },
+              ],
+            }}
           />
         </Paper>
         <Paper

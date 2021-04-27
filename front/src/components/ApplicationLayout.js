@@ -1,26 +1,32 @@
 import { useContext, useState } from 'react'
-import { Route, Link as RouterLink, useHistory } from 'react-router-dom'
+import { Link as RouterLink, useHistory } from 'react-router-dom'
 
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
-import Box from '@material-ui/core/Box'
-import Paper from '@material-ui/core/Paper'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
+import IconButton from '@material-ui/core/IconButton'
+import Tooltip from '@material-ui/core/Tooltip'
 import AccountCircleOutlinedIcon from '@material-ui/icons/AccountCircleOutlined'
 import ExitToAppOutlinedIcon from '@material-ui/icons/ExitToAppOutlined'
+import BrightnessHighIcon from '@material-ui/icons/BrightnessHigh'
+import Brightness4Icon from '@material-ui/icons/Brightness4'
 
 import ViewerContext from '../ViewerContext'
+import ThemeTypeContext from '../ThemeTypeContext'
 
 import { authorizationTokenLocalstorageKey } from '../configuration'
 
 function ApplicationLayout({ children }) {
   const [viewer] = useContext(ViewerContext)
+  const [themeType, toggleThemeType] = useContext(ThemeTypeContext)
+
+  const isDarkTheme = themeType === 'dark'
 
   return (
-    <div className="minh100vh y2s">
+    <>
       <AppBar position="relative">
         <Toolbar className="px-2">
           <RouterLink to="/">
@@ -43,24 +49,29 @@ function ApplicationLayout({ children }) {
             </RouterLink>
           )}
           <div className="flex-grow" />
+          <Tooltip
+            title={`Switch to ${isDarkTheme ? 'light' : 'dark'} theme`}
+            placement="bottom"
+          >
+            <IconButton
+              color="inherit"
+              onClick={toggleThemeType}
+              className="mr-2"
+            >
+              {isDarkTheme ? (
+                <BrightnessHighIcon />
+              ) : (
+                <Brightness4Icon />
+              )}
+            </IconButton>
+          </Tooltip>
           <ViewerInformations />
         </Toolbar>
       </AppBar>
-      {/* Paper to set the Typography color to textPrimary */}
-      <Paper
-        square
-        elevation={0}
-        className="flex-grow y2s"
-      >
-        {/* Box to set background color */}
-        <Box
-          className="flex-grow y2s"
-          bgcolor="background.default"
-        >
-          {children}
-        </Box>
-      </Paper>
-    </div>
+      <div className="flex-grow y2s">
+        {children}
+      </div>
+    </>
   )
 }
 

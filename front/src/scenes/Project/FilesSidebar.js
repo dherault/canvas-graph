@@ -1,5 +1,6 @@
 import './FileSidebar.css'
 
+import { useDispatch, useSelector } from 'react-redux'
 import { fade, withStyles } from '@material-ui/core/styles'
 import { animated, useSpring } from 'react-spring/web.cjs'
 
@@ -79,23 +80,37 @@ const StyledTreeItem = withStyles(theme => ({
   />
 ))
 
-function FilesSidebar({ hierarchy, files }) {
+function FilesSidebar({ project }) {
+  const dispatch = useDispatch()
+  const expanded = useSelector(s => (s.projectMetadata[project.id] || {}).expanded || [])
+
   const normalizedFiles = {}
 
-  files.forEach(file => {
+  project.files.forEach(file => {
     normalizedFiles[file.id] = file
   })
+
+  function handleExpandedChange(_event, expanded) {
+    dispatch({
+      type: 'SET_PROJECT_METADATA',
+      payload: {
+        id: project.id,
+        expanded,
+      },
+    })
+  }
 
   return (
     <div className="p-1 overflow-hidden">
       <TreeView
         className="FileSidebar-tree"
-        defaultExpanded={['root']}
+        expanded={expanded}
+        onNodeToggle={handleExpandedChange}
         defaultExpandIcon={<ChevronRightIcon />}
         defaultCollapseIcon={<ExpandMoreIcon />}
-        defaultEndIcon={<TypescriptIcon />}
+        defaultEndIcon={<TypescriptIcon color="inherit" />}
       >
-        {hierarchy._.map(h => (
+        {JSON.parse(project.hierarchy)._.map(h => (
           <File
             key={h.id || h.fileId}
             hierarchy={h}

@@ -16,60 +16,59 @@ import NotFound from './scenes/NotFound'
 function Router() {
   return (
     <BrowserRouter>
-      <Switch>
-        <Route exact path="/">
-          <OnboardingBouncer>
-            <ApplicationLayout>
-              <Home />
-            </ApplicationLayout>
-          </OnboardingBouncer>
-        </Route>
-        <Route exact path="/sign-up">
-          <BlankLayout>
+      <BlankLayout>
+
+        <Switch>
+          <Route exact path="/">
+            <OnboardingBouncer>
+              <ApplicationLayout>
+                <Home />
+              </ApplicationLayout>
+            </OnboardingBouncer>
+          </Route>
+          <Route exact path="/sign-up">
             <Authentication />
-          </BlankLayout>
-        </Route>
-        <Route exact path="/sign-in">
-          <BlankLayout>
+          </Route>
+          <Route exact path="/sign-in">
             <Authentication isSignIn />
-          </BlankLayout>
-        </Route>
-        <Route exact path="/~/:pseudo">
-          <AuthenticationBouncer>
-            <OnboardingBouncer>
+          </Route>
+          <Route exact path="/~/:pseudo">
+            <AuthenticationBouncer>
+              <OnboardingBouncer>
+                <ApplicationLayout>
+                  <User />
+                </ApplicationLayout>
+              </OnboardingBouncer>
+            </AuthenticationBouncer>
+          </Route>
+          <Route exact path="/-/:slug">
+            <AuthenticationBouncer>
+              <OnboardingBouncer>
+                <ApplicationLayout>
+                  <Project />
+                </ApplicationLayout>
+              </OnboardingBouncer>
+            </AuthenticationBouncer>
+          </Route>
+          <Route path="/onboarding">
+            <AuthenticationBouncer>
               <ApplicationLayout>
-                <User />
+                <Onboarding />
               </ApplicationLayout>
-            </OnboardingBouncer>
-          </AuthenticationBouncer>
-        </Route>
-        <Route exact path="/-/:slug">
-          <AuthenticationBouncer>
-            <OnboardingBouncer>
-              <ApplicationLayout>
-                <Project />
-              </ApplicationLayout>
-            </OnboardingBouncer>
-          </AuthenticationBouncer>
-        </Route>
-        <Route path="/onboarding">
-          <AuthenticationBouncer>
+            </AuthenticationBouncer>
+          </Route>
+          <Route exact path={['/privacy-policy', '/terms-of-service', '/legal']}>
             <ApplicationLayout>
-              <Onboarding />
+              <Legal />
             </ApplicationLayout>
-          </AuthenticationBouncer>
-        </Route>
-        <Route exact path={['/privacy-policy', '/terms-of-service', '/legal']}>
-          <ApplicationLayout>
-            <Legal />
-          </ApplicationLayout>
-        </Route>
-        <Route path="*">
-          <ApplicationLayout>
-            <NotFound />
-          </ApplicationLayout>
-        </Route>
-      </Switch>
+          </Route>
+          <Route path="*">
+            <ApplicationLayout>
+              <NotFound />
+            </ApplicationLayout>
+          </Route>
+        </Switch>
+      </BlankLayout>
     </BrowserRouter>
   )
 }
