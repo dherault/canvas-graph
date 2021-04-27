@@ -4,11 +4,11 @@ function createTimestampFields() {
   return {
     createdAt: {
       type: GraphQLString,
-      resolve: resource => new Date(resource.createdAt).toISOString(),
+      resolve: _ => new Date(_.createdAt).toISOString(),
     },
     updatedAt: {
       type: GraphQLString,
-      resolve: resource => new Date(resource.updatedAt).toISOString(),
+      resolve: _ => new Date(_.updatedAt).toISOString(),
     },
   }
 }
