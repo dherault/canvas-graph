@@ -12,8 +12,6 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
 
 function ProjectCard({ project }) {
-  console.log('project', project)
-
   return (
     <Card className="mr-2 mb-2 ProjectCard">
       <CardContent>

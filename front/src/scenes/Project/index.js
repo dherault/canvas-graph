@@ -34,11 +34,12 @@ const ProjectQuery = `
     project (slug: $slug) {
       id
       name
-      hierarchy
       files {
         id
         name
         data
+        isDirectory
+        parentId
       }
       user {
         id
@@ -156,9 +157,8 @@ function Project() {
           }}
         >
           <FilesSidebar
-            projectId={project.id}
             projectSlug={slug}
-            hierarchy={JSON.parse(project.hierarchy)}
+            projectId={project.id}
             files={project.files}
           />
         </Paper>

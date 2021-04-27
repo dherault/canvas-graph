@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 
+import AuthenticationProvider from './components/AuthenticationProvider'
 import AuthenticationBouncer from './components/AuthenticationBouncer'
 import OnboardingBouncer from './components/OnboardingBouncer'
 import ApplicationLayout from './components/ApplicationLayout'
@@ -17,57 +18,58 @@ function Router() {
   return (
     <BrowserRouter>
       <BlankLayout>
-
-        <Switch>
-          <Route exact path="/">
-            <OnboardingBouncer>
-              <ApplicationLayout>
-                <Home />
-              </ApplicationLayout>
-            </OnboardingBouncer>
-          </Route>
-          <Route exact path="/sign-up">
-            <Authentication />
-          </Route>
-          <Route exact path="/sign-in">
-            <Authentication isSignIn />
-          </Route>
-          <Route exact path="/~/:pseudo">
-            <AuthenticationBouncer>
+        <AuthenticationProvider>
+          <Switch>
+            <Route exact path="/">
               <OnboardingBouncer>
                 <ApplicationLayout>
-                  <User />
+                  <Home />
                 </ApplicationLayout>
               </OnboardingBouncer>
-            </AuthenticationBouncer>
-          </Route>
-          <Route exact path="/-/:slug">
-            <AuthenticationBouncer>
-              <OnboardingBouncer>
+            </Route>
+            <Route exact path="/sign-up">
+              <Authentication />
+            </Route>
+            <Route exact path="/sign-in">
+              <Authentication isSignIn />
+            </Route>
+            <Route exact path="/~/:pseudo">
+              <AuthenticationBouncer>
+                <OnboardingBouncer>
+                  <ApplicationLayout>
+                    <User />
+                  </ApplicationLayout>
+                </OnboardingBouncer>
+              </AuthenticationBouncer>
+            </Route>
+            <Route exact path="/-/:slug">
+              <AuthenticationBouncer>
+                <OnboardingBouncer>
+                  <ApplicationLayout>
+                    <Project />
+                  </ApplicationLayout>
+                </OnboardingBouncer>
+              </AuthenticationBouncer>
+            </Route>
+            <Route path="/onboarding">
+              <AuthenticationBouncer>
                 <ApplicationLayout>
-                  <Project />
+                  <Onboarding />
                 </ApplicationLayout>
-              </OnboardingBouncer>
-            </AuthenticationBouncer>
-          </Route>
-          <Route path="/onboarding">
-            <AuthenticationBouncer>
+              </AuthenticationBouncer>
+            </Route>
+            <Route exact path={['/privacy-policy', '/terms-of-service', '/legal']}>
               <ApplicationLayout>
-                <Onboarding />
+                <Legal />
               </ApplicationLayout>
-            </AuthenticationBouncer>
-          </Route>
-          <Route exact path={['/privacy-policy', '/terms-of-service', '/legal']}>
-            <ApplicationLayout>
-              <Legal />
-            </ApplicationLayout>
-          </Route>
-          <Route path="*">
-            <ApplicationLayout>
-              <NotFound />
-            </ApplicationLayout>
-          </Route>
-        </Switch>
+            </Route>
+            <Route path="*">
+              <ApplicationLayout>
+                <NotFound />
+              </ApplicationLayout>
+            </Route>
+          </Switch>
+        </AuthenticationProvider>
       </BlankLayout>
     </BrowserRouter>
   )

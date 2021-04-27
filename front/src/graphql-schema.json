@@ -275,7 +275,23 @@
             "args": []
           },
           {
+            "name": "isDirectory",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
+            },
+            "args": []
+          },
+          {
             "name": "data",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
+            },
+            "args": []
+          },
+          {
+            "name": "parentId",
             "type": {
               "kind": "SCALAR",
               "name": "Any"
@@ -333,7 +349,46 @@
             "args": []
           },
           {
-            "name": "createSource",
+            "name": "createFile",
+            "type": {
+              "kind": "OBJECT",
+              "name": "CreateFileOutput"
+            },
+            "args": [
+              {
+                "name": "path",
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "Any"
+                  }
+                }
+              },
+              {
+                "name": "isDirectory",
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "Any"
+                  }
+                }
+              },
+              {
+                "name": "projectId",
+                "type": {
+                  "kind": "NON_NULL",
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "Any"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "name": "createProject",
             "type": {
               "kind": "OBJECT",
               "name": "CreateProjectOutput"
@@ -473,6 +528,21 @@
             "type": {
               "kind": "OBJECT",
               "name": "User"
+            },
+            "args": []
+          }
+        ],
+        "interfaces": []
+      },
+      {
+        "kind": "OBJECT",
+        "name": "CreateFileOutput",
+        "fields": [
+          {
+            "name": "file",
+            "type": {
+              "kind": "OBJECT",
+              "name": "File"
             },
             "args": []
           }

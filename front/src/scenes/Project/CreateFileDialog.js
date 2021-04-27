@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useMutation } from 'urql'
 
 import Dialog from '@material-ui/core/Dialog'
@@ -10,37 +10,38 @@ import TextField from '@material-ui/core/TextField'
 import CircularProgress from '@material-ui/core/CircularProgress'
 
 const CreateFileMutation = `
-mutation CreateFileMutation ($name: String!, $hierarchyPosition: String!, $projectId: GraphQLID!) {
-    createFile (name: $name, hierarchyPosition: $hierarchyPosition, projectId: $projectId) {
+mutation CreateFileMutation ($path: String!, $isDirectory: Boolean!, $projectId: ID!) {
+    createFile (path: $path, isDirectory: $isDirectory, projectId: $projectId) {
       file {
         id
         name
+        isDirectory
         data
-      }
-      project {
-        id
-        hierarchy
       }
     }
   }
 `
 
-function CreateFileDialog({ opened, onClose, hierarchyPosition, projectId }) {
+function CreateFileDialog({ opened, onClose, hierarchyPath, projectId, isDirectory }) {
   const [, createFileMutation] = useMutation(CreateFileMutation)
   const [isLoading, setIsLoading] = useState(false)
-  const [name, setName] = useState('')
+  const [path, setPath] = useState('')
+
+  useEffect(() => {
+    setPath(hierarchyPath.join('/'))
+  }, [hierarchyPath])
 
   function handleSubmit(event) {
     event.preventDefault()
 
-    if (!name || isLoading) return
+    if (!path || isLoading) return
 
     setIsLoading(true)
 
     createFileMutation({
-      name,
+      path,
       projectId,
-      hierarchyPosition,
+      isDirectory,
     })
       .then(results => {
         setIsLoading(false)
@@ -49,6 +50,7 @@ function CreateFileDialog({ opened, onClose, hierarchyPosition, projectId }) {
           return console.log(results.error.message)
         }
 
+        setPath('')
         onClose()
       })
   }
@@ -62,16 +64,16 @@ function CreateFileDialog({ opened, onClose, hierarchyPosition, projectId }) {
     >
       <form onSubmit={handleSubmit}>
         <DialogTitle>
-          New file
+          New {isDirectory ? 'directory' : 'file'}
         </DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             fullWidth
-            label="Name"
+            label="Path"
             placeholder="index.ts"
-            value={name}
-            onChange={event => setName(event.target.value)}
+            value={path}
+            onChange={event => setPath(event.target.value)}
           />
         </DialogContent>
         <DialogActions>

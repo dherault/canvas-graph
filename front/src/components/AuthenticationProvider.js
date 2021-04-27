@@ -18,7 +18,7 @@ const AuthenticationProviderQuery = `
 `
 
 function AuthenticationProvider({ children }) {
-  const [{ data, fetching, error }] = useQuery({ query: AuthenticationProviderQuery })
+  const [{ data, fetching, stale, error }] = useQuery({ query: AuthenticationProviderQuery })
   const [viewer, setViewer] = useState(null)
 
   useEffect(() => {
@@ -27,7 +27,7 @@ function AuthenticationProvider({ children }) {
     }
   }, [data])
 
-  if (fetching) {
+  if (fetching || stale) {
     return (
       <FullScreenSpinner />
     )

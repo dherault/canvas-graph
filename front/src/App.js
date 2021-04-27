@@ -15,7 +15,6 @@ import { darkTheme, lightTheme } from './theme'
 import ThemeTypeContext from './ThemeTypeContext'
 
 import Router from './Router'
-import AuthenticationProvider from './components/AuthenticationProvider'
 import BlankLayout from './components/BlankLayout'
 import FullScreenSpinner from './components/FullScreenSpinner'
 
@@ -32,9 +31,7 @@ function App() {
       <PersistenceProvider loading={loadingNode} persistor={store.persistor}>
         <GraphQLProvider value={client}>
           <ThemedApp>
-            <AuthenticationProvider>
-              <Router />
-            </AuthenticationProvider>
+            <Router />
           </ThemedApp>
         </GraphQLProvider>
       </PersistenceProvider>

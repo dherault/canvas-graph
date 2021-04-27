@@ -4,7 +4,7 @@ function FullScreenSpinner() {
   return (
     <div className="x5 flex-grow">
       <Typography>
-        Error
+        Oups! Something went wrong. We have been notified.
       </Typography>
     </div>
   )

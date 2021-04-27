@@ -11,13 +11,18 @@ import Collapse from '@material-ui/core/Collapse'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
+import Tooltip from '@material-ui/core/Tooltip'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import UnfoldLessOutlinedIcon from '@material-ui/icons/UnfoldLessOutlined'
+import InsertDriveFileOutlinedIcon from '@material-ui/icons/InsertDriveFileOutlined'
+import FolderOutlinedIcon from '@material-ui/icons/FolderOutlined'
 
 import TypescriptIcon from '../../components/TypescriptIcon'
 
 import CreateFileDialog from './CreateFileDialog'
+
+const rootKey = '__root__'
 
 function TransitionComponent(props) {
   const { in: inProp } = props
@@ -40,18 +45,20 @@ function TransitionComponent(props) {
   )
 }
 
-function File({ hierarchy, normalizedFiles }) {
+function File({ file, parentToChildren }) {
+
   return (
     <StyledTreeItem
-      nodeId={(hierarchy.id || hierarchy.fileId).toString()}
-      label={hierarchy.d || normalizedFiles[hierarchy.fileId].name}
+      nodeId={file.id.toString()}
+      label={file.name}
+      endIcon={file.isDirectory ? null : <TypescriptIcon color="inherit" />}
     >
-      {!!hierarchy._ && (
-        hierarchy._.map(h => (
+      {!!parentToChildren[file.id] && (
+        parentToChildren[file.id].map(file => (
           <File
-            key={h.id || h.fileId}
-            hierarchy={h}
-            normalizedFiles={normalizedFiles}
+            key={file.id}
+            file={file}
+            parentToChildren={parentToChildren}
           />
         ))
       )}
@@ -86,19 +93,25 @@ const StyledTreeItem = withStyles(theme => ({
   />
 ))
 
-function FilesSidebar({ projectId, projectSlug, hierarchy, files }) {
+function FilesSidebar({ projectId, projectSlug, files }) {
   const dispatch = useDispatch()
   const expandedFileTreeIds = useSelector(s => (s.projectMetadata[projectSlug] || {}).expandedFileTreeIds || [])
-  const [createdFileMetadata, setCreatedFileMetadata] = useState({})
+  const [isCreateFileDialogOpened, setIsCreateFileDialogOpened] = useState(false)
+  const [currentHierarchyPath, setCurrentHierarchyPath] = useState([])
+  const [isCreatingDirectory, setIsCreatingDirectory] = useState(false)
 
   if (!files.length) {
     return renderEmpty()
   }
 
-  const normalizedFiles = {}
+  const parentToChildren = {}
 
   files.forEach(file => {
-    normalizedFiles[file.id] = file
+    if (!parentToChildren[file.parentId || rootKey]) {
+      parentToChildren[file.parentId || rootKey] = []
+    }
+
+    parentToChildren[file.parentId || rootKey].push(file)
   })
 
   function handleExpandedChange(_event, expandedFileTreeIds = []) {
@@ -115,19 +128,19 @@ function FilesSidebar({ projectId, projectSlug, hierarchy, files }) {
 
   }
 
-  function handleCreatefile() {
-    setCreatedFileMetadata({
-      hierarchyPosition: JSON.stringify(expandedFileTreeIds),
-    })
+  function handleCreateFile(isDirectory) {
+    setIsCreatingDirectory(isDirectory)
+    setIsCreateFileDialogOpened(true)
   }
 
   function renderCreateFileDialog() {
     return (
       <CreateFileDialog
-        opened={!!createdFileMetadata.hierarchyPosition}
-        onClose={() => setCreatedFileMetadata({})}
-        hierarchyPosition={createdFileMetadata.hierarchyPosition}
+        opened={isCreateFileDialogOpened}
+        onClose={() => setIsCreateFileDialogOpened(false)}
         projectId={projectId}
+        hierarchyPath={currentHierarchyPath}
+        isDirectory={isCreatingDirectory}
       />
     )
   }
@@ -141,7 +154,7 @@ function FilesSidebar({ projectId, projectSlug, hierarchy, files }) {
             color="primary"
             component="label"
             variant="contained"
-            onClikc={handleImportFiles}
+            onClick={handleImportFiles}
           >
 
             Import files
@@ -156,7 +169,7 @@ function FilesSidebar({ projectId, projectSlug, hierarchy, files }) {
             component="label"
             variant="contained"
             className="mt-1"
-            onClick={handleCreatefile}
+            onClick={handleCreateFile}
           >
 
             Create file
@@ -171,12 +184,40 @@ function FilesSidebar({ projectId, projectSlug, hierarchy, files }) {
     <>
       <div className="p-1 overflow-hidden">
         <div className="x6">
-          <IconButton
-            size="small"
-            onClick={handleExpandedChange}
+          <Tooltip
+            title="Add file"
+            className="ml-1"
           >
-            <UnfoldLessOutlinedIcon />
-          </IconButton>
+            <IconButton
+              size="small"
+              onClick={() => handleCreateFile(false)}
+            >
+              <InsertDriveFileOutlinedIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip
+            title="Add directory"
+            className="ml-1"
+          >
+            <IconButton
+              size="small"
+              className="ml-1"
+              onClick={() => handleCreateFile(true)}
+            >
+              <FolderOutlinedIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip
+            title="Collapse all"
+            className="ml-1"
+          >
+            <IconButton
+              size="small"
+              onClick={handleExpandedChange}
+            >
+              <UnfoldLessOutlinedIcon />
+            </IconButton>
+          </Tooltip>
         </div>
         <TreeView
           className="mt-1 w100"
@@ -184,13 +225,12 @@ function FilesSidebar({ projectId, projectSlug, hierarchy, files }) {
           onNodeToggle={handleExpandedChange}
           defaultExpandIcon={<ChevronRightIcon />}
           defaultCollapseIcon={<ExpandMoreIcon />}
-          defaultEndIcon={<TypescriptIcon color="inherit" />}
         >
-          {hierarchy._.map(h => (
+          {parentToChildren[rootKey].map(file => (
             <File
-              key={h.id || h.fileId}
-              hierarchy={h}
-              normalizedFiles={normalizedFiles}
+              key={file.id}
+              file={file}
+              parentToChildren={parentToChildren}
             />
           ))}
         </TreeView>
