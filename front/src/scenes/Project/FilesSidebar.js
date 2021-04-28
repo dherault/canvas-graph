@@ -17,6 +17,7 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import UnfoldLessOutlinedIcon from '@material-ui/icons/UnfoldLessOutlined'
 import InsertDriveFileOutlinedIcon from '@material-ui/icons/InsertDriveFileOutlined'
 import FolderOutlinedIcon from '@material-ui/icons/FolderOutlined'
+import CloseIcon from '@material-ui/icons/Close'
 
 import TypescriptIcon from '../../components/TypescriptIcon'
 
@@ -45,13 +46,14 @@ function TransitionComponent(props) {
   )
 }
 
-function File({ file, parentToChildren }) {
+function File({ file, parentToChildren, onClick }) {
 
   return (
     <StyledTreeItem
       nodeId={file.id.toString()}
       label={file.name}
       endIcon={file.isDirectory ? null : <TypescriptIcon color="inherit" />}
+      onClick={() => onClick(file)}
     >
       {!!parentToChildren[file.id] && (
         parentToChildren[file.id].map(file => (
@@ -59,6 +61,7 @@ function File({ file, parentToChildren }) {
             key={file.id}
             file={file}
             parentToChildren={parentToChildren}
+            onClick={onClick}
           />
         ))
       )}
@@ -93,7 +96,7 @@ const StyledTreeItem = withStyles(theme => ({
   />
 ))
 
-function FilesSidebar({ projectSlug, files }) {
+function FilesSidebar({ projectSlug, files, onFileSelect, onClose }) {
   const dispatch = useDispatch()
   const expandedFileTreeIds = useSelector(s => (s.projectMetadata[projectSlug] || {}).expandedFileTreeIds || [])
   const [isCreateFileDialogOpened, setIsCreateFileDialogOpened] = useState(false)
@@ -113,7 +116,6 @@ function FilesSidebar({ projectSlug, files }) {
 
     parentToChildren[file.parentId || rootKey].push(file)
   })
-
 
   Object.values(parentToChildren).forEach(array => {
     array.sort((a, b) => {
@@ -181,7 +183,6 @@ function FilesSidebar({ projectSlug, files }) {
             className="mt-1"
             onClick={() => handleCreateFile(false)}
           >
-
             Create file
           </Button>
         </div>
@@ -202,7 +203,7 @@ function FilesSidebar({ projectSlug, files }) {
               size="small"
               onClick={() => handleCreateFile(false)}
             >
-              <InsertDriveFileOutlinedIcon />
+              <InsertDriveFileOutlinedIcon fontSize="small" />
             </IconButton>
           </Tooltip>
           <Tooltip
@@ -214,7 +215,7 @@ function FilesSidebar({ projectSlug, files }) {
               className="ml-1"
               onClick={() => handleCreateFile(true)}
             >
-              <FolderOutlinedIcon />
+              <FolderOutlinedIcon fontSize="small" />
             </IconButton>
           </Tooltip>
           <Tooltip
@@ -225,7 +226,18 @@ function FilesSidebar({ projectSlug, files }) {
               size="small"
               onClick={handleExpandedChange}
             >
-              <UnfoldLessOutlinedIcon />
+              <UnfoldLessOutlinedIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip
+            title="Close sidebar"
+            className="ml-1"
+          >
+            <IconButton
+              size="small"
+              onClick={onClose}
+            >
+              <CloseIcon fontSize="small" />
             </IconButton>
           </Tooltip>
         </div>
@@ -241,6 +253,7 @@ function FilesSidebar({ projectSlug, files }) {
               key={file.id}
               file={file}
               parentToChildren={parentToChildren}
+              onClick={onFileSelect}
             />
           ))}
         </TreeView>

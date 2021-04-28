@@ -17,14 +17,15 @@ import ShareIcon from '@material-ui/icons/Share'
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined'
 import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined'
 import SettingsOutlinedIcon from '@material-ui/icons/SettingsOutlined'
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
-import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import SearchIcon from '@material-ui/icons/Search'
+import FolderOutlinedIcon from '@material-ui/icons/FolderOutlined'
+import EditIcon from '@material-ui/icons/Edit'
 
 import FullScreenSpinner from '../../components/FullScreenSpinner'
 import FullScreenError from '../../components/FullScreenError'
 
 import FilesSidebar from './FilesSidebar'
+import FileEditor from './FileEditor'
 
 const ProjectQuery = `
   query ProjectQuery ($slug: String!) {
@@ -48,6 +49,12 @@ const ProjectQuery = `
   }
 `
 
+const sidebarWidth = 256
+const editorWidth = 512 + 256
+const collapseButtonHeight = 36
+const collapseButtonMargin = 8
+const collapseButtonOffset = -6
+
 function Project() {
   const { slug } = useParams()
   const [queryResults] = useQuery({
@@ -56,9 +63,11 @@ function Project() {
       slug,
     },
   })
-  const [menuAnchorElement, setMenuAnchorElement] = useState(null)
   const dispatch = useDispatch()
   const isSidebarCollapsed = useSelector(s => (s.projectMetadata[slug] || {}).isSidebarCollapsed || false)
+  const isEditorCollapsed = useSelector(s => (s.projectMetadata[slug] || {}).isEditorCollapsed || false)
+  const [menuAnchorElement, setMenuAnchorElement] = useState(null)
+  const [currentFile, setCurrentFile] = useState(null)
 
   if (queryResults.fetching || queryResults.stale) {
     return (
@@ -90,8 +99,18 @@ function Project() {
     })
   }
 
-  return (
-    <>
+  function toggleEditor() {
+    dispatch({
+      type: 'SET_PROJECT_METADATA',
+      payload: {
+        slug,
+        isEditorCollapsed: !isEditorCollapsed,
+      },
+    })
+  }
+
+  function renderTopbar() {
+    return (
       <Paper
         square
         className="py-1 px-2 x4 position-relative Project-topbar"
@@ -104,7 +123,7 @@ function Project() {
         <div className="flex-grow" />
         <Tooltip
           title="Search ⌘ + p"
-          placement="top"
+          enterDelay={0}
           className="ml-1"
         >
           <IconButton>
@@ -113,7 +132,7 @@ function Project() {
         </Tooltip>
         <Tooltip
           title="Center ⌘ + ."
-          placement="top"
+          enterDelay={0}
           className="ml-1"
         >
           <IconButton>
@@ -148,32 +167,108 @@ function Project() {
           </MenuItem>
         </Menu>
       </Paper>
+    )
+  }
+
+  function renderSidebar() {
+    return (
+      <Paper
+        square
+        className="position-relative Project-sidebar"
+        style={{
+          width: sidebarWidth,
+          left: isSidebarCollapsed ? -sidebarWidth : 0,
+        }}
+      >
+        <FilesSidebar
+          projectSlug={slug}
+          files={project.files}
+          onFileSelect={setCurrentFile}
+          onClose={toggleSidebar}
+        />
+      </Paper>
+    )
+  }
+
+  function renderEditor() {
+    return (
+      <Paper
+        square
+        className="position-relative Project-editor"
+        style={{
+          width: editorWidth,
+          left: (isSidebarCollapsed ? -sidebarWidth : 0) + (isEditorCollapsed ? -editorWidth : 0),
+        }}
+      >
+        <FileEditor
+          file={currentFile}
+          onClose={toggleEditor}
+        />
+      </Paper>
+    )
+  }
+
+  function renderExpandButtons() {
+    return (
+      <>
+        {isSidebarCollapsed && (
+          <Tooltip
+            title="Explorer"
+            placement="right"
+            enterDelay={0}
+          >
+            <Paper
+              onClick={toggleSidebar}
+              className="py-1 pr-1h pl-1h Project-sidebar-collapse x5"
+              style={{
+                bottom: collapseButtonMargin + (collapseButtonHeight + collapseButtonMargin) * (isEditorCollapsed ? 1 : 0),
+                left: collapseButtonOffset,
+              }}
+            >
+              <FolderOutlinedIcon
+                fontSize="small"
+              />
+            </Paper>
+          </Tooltip>
+        )}
+        {isEditorCollapsed && (
+          <Tooltip
+            title="Editor"
+            placement="right"
+            enterDelay={0}
+          >
+            <Paper
+              onClick={toggleEditor}
+              className="py-1 pr-1h pl-1h Project-editor-collapse x5"
+              style={{
+                bottom: collapseButtonMargin,
+                left: collapseButtonOffset,
+              }}
+            >
+              <EditIcon
+                fontSize="small"
+              />
+            </Paper>
+          </Tooltip>
+        )}
+      </>
+    )
+  }
+
+  function renderGraph() {
+    return (
+      <div className="flex-grow" />
+    )
+  }
+
+  return (
+    <>
+      {renderTopbar()}
       <div className="x4s Project-content position-relative">
-        <Paper
-          square
-          className="position-relative Project-sidebar"
-          style={{
-            left: isSidebarCollapsed ? -256 : 0,
-          }}
-        >
-          <FilesSidebar
-            projectSlug={slug}
-            files={project.files}
-          />
-        </Paper>
-        <Paper
-          className="py-1 pr-1 pl-1h Project-sidebar-collapse x5"
-          style={{
-            left: (isSidebarCollapsed ? 0 : 256) - 8,
-          }}
-          onClick={toggleSidebar}
-        >
-          {isSidebarCollapsed ? (
-            <ChevronRightIcon />
-          ) : (
-            <ChevronLeftIcon />
-          )}
-        </Paper>
+        {renderExpandButtons()}
+        {renderSidebar()}
+        {renderEditor()}
+        {renderGraph()}
       </div>
     </>
   )

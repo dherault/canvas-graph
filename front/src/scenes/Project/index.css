@@ -7,15 +7,25 @@
 }
 
 .Project-sidebar {
-  width: 256px;
-  z-index: 999;
+  z-index: 998;
+}
+
+.Project-editor {
+  z-index: 997;
 }
 
 .Project-sidebar-collapse {
   position: absolute;
-  top: 16px;
-  z-index: 998;
-  border-top-right-radius: calc(45px / 2);
-  border-bottom-right-radius: calc(45px / 2);
+  z-index: 999;
+  border-top-right-radius: calc(36px / 2) !important;
+  border-bottom-right-radius: calc(36px / 2) !important;
+  cursor: pointer;
+}
+
+.Project-editor-collapse {
+  position: absolute;
+  z-index: 999;
+  border-top-right-radius: calc(36px / 2) !important;
+  border-bottom-right-radius: calc(36px / 2) !important;
   cursor: pointer;
 }
