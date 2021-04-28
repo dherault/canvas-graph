@@ -15,6 +15,9 @@ const File = new GraphQLObjectType({
     isDirectory: {
       type: GraphQLBoolean,
     },
+    text: {
+      type: GraphQLString,
+    },
     data: {
       type: GraphQLString,
     },

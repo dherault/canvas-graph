@@ -2,6 +2,8 @@ const { GraphQLString, GraphQLNonNull, GraphQLBoolean, GraphQLList } = require('
 
 const db = require('../../../database')
 
+const { emptyFileData } = require('../configuration')
+
 const createMutationOutputType = require('../utils/createMutationOutputType')
 const checkForViewer = require('../utils/checkForViewer')
 
@@ -61,7 +63,8 @@ module.exports = {
     const file = await db.File.create({
       name,
       isDirectory,
-      data: '',
+      data: emptyFileData,
+      text: '',
       FileId: parentId,
       ProjectId: project.id,
     })

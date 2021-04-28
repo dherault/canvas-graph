@@ -12,4 +12,9 @@ module.exports = {
   analysisServiceHost: isProduction ? 'https://analysis.archipel.app' : 'http://localhost:5002',
 
   slugLength: 8,
+
+  emptyFileData: JSON.stringify({
+    nodes: [],
+    edges: [],
+  }),
 }
