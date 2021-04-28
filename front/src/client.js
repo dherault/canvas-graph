@@ -19,7 +19,11 @@ const updates = {
         }
       `
 
-      cache.updateQuery({ query: FileListQuery, variables: { slug: args.projectSlug } })
+      cache.updateQuery({ query: FileListQuery, variables: { slug: args.projectSlug } }, data => {
+        data.project.files.push(result.createFile.file)
+
+        return data
+      })
     },
   },
 }

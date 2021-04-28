@@ -96,7 +96,7 @@ const StyledTreeItem = withStyles(theme => ({
   />
 ))
 
-function FilesSidebar({ projectSlug, files, onFileSelect, onClose }) {
+function FilesSidebar({ projectSlug, files, onClose }) {
   const dispatch = useDispatch()
   const expandedFileTreeIds = useSelector(s => (s.projectMetadata[projectSlug] || {}).expandedFileTreeIds || [])
   const [isCreateFileDialogOpened, setIsCreateFileDialogOpened] = useState(false)
@@ -132,6 +132,18 @@ function FilesSidebar({ projectSlug, files, onFileSelect, onClose }) {
       payload: {
         slug: projectSlug,
         expandedFileTreeIds,
+      },
+    })
+  }
+
+  function handleFileSelect(file) {
+    if (file.isDirectory) return
+
+    dispatch({
+      type: 'SET_PROJECT_METADATA',
+      payload: {
+        slug: projectSlug,
+        currentFileId: file.id,
       },
     })
   }
@@ -253,7 +265,7 @@ function FilesSidebar({ projectSlug, files, onFileSelect, onClose }) {
               key={file.id}
               file={file}
               parentToChildren={parentToChildren}
-              onClick={onFileSelect}
+              onClick={handleFileSelect}
             />
           ))}
         </TreeView>

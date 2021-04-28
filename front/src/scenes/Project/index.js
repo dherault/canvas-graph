@@ -67,7 +67,6 @@ function Project() {
   const isSidebarCollapsed = useSelector(s => (s.projectMetadata[slug] || {}).isSidebarCollapsed || false)
   const isEditorCollapsed = useSelector(s => (s.projectMetadata[slug] || {}).isEditorCollapsed || false)
   const [menuAnchorElement, setMenuAnchorElement] = useState(null)
-  const [currentFile, setCurrentFile] = useState(null)
 
   if (queryResults.fetching || queryResults.stale) {
     return (
@@ -183,7 +182,6 @@ function Project() {
         <FilesSidebar
           projectSlug={slug}
           files={project.files}
-          onFileSelect={setCurrentFile}
           onClose={toggleSidebar}
         />
       </Paper>
@@ -201,7 +199,8 @@ function Project() {
         }}
       >
         <FileEditor
-          file={currentFile}
+          projectSlug={slug}
+          files={project.files}
           onClose={toggleEditor}
         />
       </Paper>
