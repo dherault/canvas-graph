@@ -1,0 +1,35 @@
+[
+  {
+    "id" : 1,
+    "name" : "src",
+    "isDirectory" : 1,
+    "text" : null,
+    "data" : null,
+    "createdAt" : "2021-04-28 13:25:27",
+    "updatedAt" : "2021-04-28 13:25:27",
+    "ProjectId" : 1,
+    "FileId" : null
+  },
+  {
+    "id" : 2,
+    "name" : "utils",
+    "isDirectory" : 1,
+    "text" : null,
+    "data" : null,
+    "createdAt" : "2021-04-28 13:25:27",
+    "updatedAt" : "2021-04-28 13:25:27",
+    "ProjectId" : 1,
+    "FileId" : 1
+  },
+  {
+    "id" : 3,
+    "name" : "add.ts",
+    "isDirectory" : 0,
+    "text" : "function add(x, y): number {\n  return x + y\n}",
+    "data" : "{\"nodes\":{},\"edges\":{}}",
+    "createdAt" : "2021-04-28 13:25:27",
+    "updatedAt" : "2021-04-28 13:25:41",
+    "ProjectId" : 1,
+    "FileId" : 2
+  }
+]

@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
   File.init({
     name: DataTypes.STRING,
     isDirectory: DataTypes.BOOLEAN,
+    text: DataTypes.TEXT('long'),
     data: DataTypes.TEXT('long'),
   }, {
     sequelize,

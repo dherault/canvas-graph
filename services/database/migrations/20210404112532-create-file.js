@@ -13,6 +13,9 @@ module.exports = {
       isDirectory: {
         type: Sequelize.BOOLEAN,
       },
+      text: {
+        type: Sequelize.TEXT('long'),
+      },
       data: {
         type: Sequelize.TEXT('long'),
       },
