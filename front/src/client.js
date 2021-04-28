@@ -20,7 +20,11 @@ const updates = {
       `
 
       cache.updateQuery({ query: FileListQuery, variables: { slug: args.projectSlug } }, data => {
-        data.project.files.push(result.createFile.file)
+        result.createFile.files.forEach(file => {
+          if (!data.project.files.some(f => f.id === file.id)) {
+            data.project.files.push(file)
+          }
+        })
 
         return data
       })

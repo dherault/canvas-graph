@@ -539,10 +539,13 @@
         "name": "CreateFileOutput",
         "fields": [
           {
-            "name": "file",
+            "name": "files",
             "type": {
-              "kind": "OBJECT",
-              "name": "File"
+              "kind": "LIST",
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "File"
+              }
             },
             "args": []
           }

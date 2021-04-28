@@ -64,8 +64,8 @@ function Project() {
     },
   })
   const dispatch = useDispatch()
-  const isSidebarCollapsed = useSelector(s => (s.projectMetadata[slug] || {}).isSidebarCollapsed || false)
-  const isEditorCollapsed = useSelector(s => (s.projectMetadata[slug] || {}).isEditorCollapsed || false)
+  const isSidebarCollapsed = useSelector(s => (s.projectMetadata[slug] || {}).isSidebarCollapsed) || false
+  const isEditorCollapsed = useSelector(s => (s.projectMetadata[slug] || {}).isEditorCollapsed) || false
   const [menuAnchorElement, setMenuAnchorElement] = useState(null)
 
   if (queryResults.fetching || queryResults.stale) {
@@ -173,6 +173,7 @@ function Project() {
     return (
       <Paper
         square
+        elevation={2}
         className="position-relative Project-sidebar"
         style={{
           width: sidebarWidth,
@@ -192,6 +193,7 @@ function Project() {
     return (
       <Paper
         square
+        elevation={2}
         className="position-relative Project-editor"
         style={{
           width: editorWidth,

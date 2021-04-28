@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { useMutation } from 'urql'
 
 import Dialog from '@material-ui/core/Dialog'
@@ -12,17 +13,20 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 const CreateFileMutation = `
 mutation CreateFileMutation ($path: String!, $isDirectory: Boolean!, $projectSlug: String!) {
     createFile (path: $path, isDirectory: $isDirectory, projectSlug: $projectSlug) {
-      file {
+      files {
         id
         name
         isDirectory
         data
+        parentId
       }
     }
   }
 `
 
 function CreateFileDialog({ opened, onClose, hierarchyPath, projectSlug, isDirectory }) {
+  const dispatch = useDispatch()
+  const expandedFileTreeIds = useSelector(s => (s.projectMetadata[projectSlug] || {}).expandedFileTreeIds) || []
   const [, createFileMutation] = useMutation(CreateFileMutation)
   const [isLoading, setIsLoading] = useState(false)
   const [path, setPath] = useState('')
@@ -49,6 +53,25 @@ function CreateFileDialog({ opened, onClose, hierarchyPath, projectSlug, isDirec
         if (results.error) {
           return console.log(results.error.message)
         }
+
+        const { files } = results.data.createFile
+
+        const nextExpandedFileTreeIds = expandedFileTreeIds.slice()
+
+        files.forEach(file => {
+          if (!nextExpandedFileTreeIds.includes(file.id)) {
+            nextExpandedFileTreeIds.push(file.id)
+          }
+        })
+
+        dispatch({
+          type: 'SET_PROJECT_METADATA',
+          payload: {
+            slug: projectSlug,
+            currentFileId: files[files.length - 1].id,
+            expandedFileTreeIds: nextExpandedFileTreeIds,
+          },
+        })
 
         setPath('')
         onClose()

@@ -2,7 +2,7 @@ import './FileSidebar.css'
 
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { fade, withStyles } from '@material-ui/core/styles'
+import { fade, makeStyles, useTheme, withStyles } from '@material-ui/core/styles'
 import { animated, useSpring } from 'react-spring/web.cjs'
 
 import TreeView from '@material-ui/lab/TreeView'
@@ -46,12 +46,22 @@ function TransitionComponent(props) {
   )
 }
 
-function File({ file, parentToChildren, onClick }) {
+function File({ file, currentFileId, parentToChildren, onClick }) {
+  const theme = useTheme()
 
   return (
     <StyledTreeItem
       nodeId={file.id.toString()}
-      label={file.name}
+      label={(
+        <div
+          className="pl-0h"
+          style={{
+            backgroundColor: file.id === currentFileId ? theme.palette.action.disabled : null,
+          }}
+        >
+          {file.name}
+        </div>
+      )}
       endIcon={file.isDirectory ? null : <TypescriptIcon color="inherit" />}
       onClick={() => onClick(file)}
     >
@@ -60,6 +70,7 @@ function File({ file, parentToChildren, onClick }) {
           <File
             key={file.id}
             file={file}
+            currentFileId={currentFileId}
             parentToChildren={parentToChildren}
             onClick={onClick}
           />
@@ -94,11 +105,13 @@ const StyledTreeItem = withStyles(theme => ({
       </Typography>
     )}
   />
-))
+)
+)
 
 function FilesSidebar({ projectSlug, files, onClose }) {
   const dispatch = useDispatch()
-  const expandedFileTreeIds = useSelector(s => (s.projectMetadata[projectSlug] || {}).expandedFileTreeIds || [])
+  const expandedFileTreeIds = useSelector(s => (s.projectMetadata[projectSlug] || {}).expandedFileTreeIds) || []
+  const currentFileId = useSelector(s => (s.projectMetadata[projectSlug] || {}).currentFileId) || null
   const [isCreateFileDialogOpened, setIsCreateFileDialogOpened] = useState(false)
   const [currentHierarchyPath, setCurrentHierarchyPath] = useState([])
   const [isCreatingDirectory, setIsCreatingDirectory] = useState(false)
@@ -264,6 +277,7 @@ function FilesSidebar({ projectSlug, files, onClose }) {
             <File
               key={file.id}
               file={file}
+              currentFileId={currentFileId}
               parentToChildren={parentToChildren}
               onClick={handleFileSelect}
             />
