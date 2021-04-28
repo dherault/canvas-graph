@@ -38,6 +38,7 @@ const ProjectQuery = `
       files {
         id
         name
+        text
         data
         isDirectory
         parentId

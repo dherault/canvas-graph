@@ -21,10 +21,11 @@ import ThemeTypeContext from '../../ThemeTypeContext'
 import usePrevious from '../../utils/usePrevious'
 
 const FileEditorUpdateFileMutation = `
-  mutation FileEditorUpdateFileMutation ($fileId: ID!, $data: String!) {
-    updateFile (fileId: $fileId, data: $data) {
+  mutation FileEditorUpdateFileMutation ($fileId: ID!, $text: String!) {
+    updateFile (fileId: $fileId, text: $text) {
       file {
         id
+        text
         data
       }
     }
@@ -36,29 +37,28 @@ function FileEditor({ projectSlug, files, onClose }) {
   const [themeType] = useContext(ThemeTypeContext)
   const file = files.find(f => f.id === currentFileId)
   const parentFiles = lookupParents(file)
-  const [data, setData] = useState(file ? file.data : '')
+  const [text, setText] = useState(file ? file.text : '')
   const previousFile = usePrevious(file)
   const [, updateFileMutation] = useMutation(FileEditorUpdateFileMutation)
 
   useEffect(() => {
-    console.log('previousFile, file', previousFile ? previousFile.id : null, file ? file.id : null)
     if (file && !previousFile || (file && previousFile && file.id !== previousFile.id)) {
-      setData(file.data)
+      setText(file.text)
     }
   }, [previousFile, file])
 
   // eslint-disable-next-line
-  const debouncedUpdateFile = useCallback(debounce(data => {
+  const debouncedUpdateFile = useCallback(debounce(text => {
     updateFileMutation({
       fileId: file.id,
-      data,
+      text,
     })
       .then(results => {
         if (results.error) {
           console.error(results.error.message)
         }
       })
-  }, 200), [file.id])
+  }, 200), [file])
 
   function lookupParents(file, parents = []) {
     if (!(file && file.parentId)) return parents
@@ -71,7 +71,7 @@ function FileEditor({ projectSlug, files, onClose }) {
   }
 
   function handleDataChange(value) {
-    setData(value)
+    setText(value)
     debouncedUpdateFile(value)
   }
 
@@ -109,7 +109,7 @@ function FileEditor({ projectSlug, files, onClose }) {
           showPrintMargin
           showGutter
           highlightActiveLine
-          value={data}
+          value={text}
         />
       </>
     )
@@ -117,18 +117,20 @@ function FileEditor({ projectSlug, files, onClose }) {
 
   return (
     <div className="position-relative y2s flex-grow">
-      <div className="position-absolute top-0 right-0 p-1 x4">
-        <Tooltip
-          title="Copy source"
-          enterDelay={0}
-        >
-          <IconButton
-            size="small"
-            className="ml-1"
+      <div className="position-absolute top-0 right-0 p-0h x4">
+        {!!file && (
+          <Tooltip
+            title="Copy source"
+            enterDelay={0}
           >
-            <FileCopyIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
+            <IconButton
+              size="small"
+              className="ml-1"
+            >
+              <FileCopyIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        )}
         <Tooltip
           title="Close editor"
           enterDelay={0}

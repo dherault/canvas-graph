@@ -218,8 +218,8 @@ function FilesSidebar({ projectSlug, files, onClose }) {
 
   return (
     <>
-      <div className="p-1 overflow-hidden">
-        <div className="x6">
+      <div className="overflow-hidden">
+        <div className="x6 p-0h">
           <Tooltip
             title="Add file"
             className="ml-1"
@@ -266,23 +266,25 @@ function FilesSidebar({ projectSlug, files, onClose }) {
             </IconButton>
           </Tooltip>
         </div>
-        <TreeView
-          className="mt-1 w100"
-          expanded={expandedFileTreeIds}
-          onNodeToggle={handleExpandedChange}
-          defaultExpandIcon={<ChevronRightIcon />}
-          defaultCollapseIcon={<ExpandMoreIcon />}
-        >
-          {parentToChildren[rootKey].map(file => (
-            <File
-              key={file.id}
-              file={file}
-              currentFileId={currentFileId}
-              parentToChildren={parentToChildren}
-              onClick={handleFileSelect}
-            />
-          ))}
-        </TreeView>
+        <div className="px-1">
+          <TreeView
+            className="mt-1 w100"
+            expanded={expandedFileTreeIds}
+            onNodeToggle={handleExpandedChange}
+            defaultExpandIcon={<ChevronRightIcon />}
+            defaultCollapseIcon={<ExpandMoreIcon />}
+          >
+            {parentToChildren[rootKey].map(file => (
+              <File
+                key={file.id}
+                file={file}
+                currentFileId={currentFileId}
+                parentToChildren={parentToChildren}
+                onClick={handleFileSelect}
+              />
+            ))}
+          </TreeView>
+        </div>
       </div>
       {renderCreateFileDialog()}
     </>

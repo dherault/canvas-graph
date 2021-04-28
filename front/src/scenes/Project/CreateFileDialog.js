@@ -17,6 +17,7 @@ mutation CreateFileMutation ($path: String!, $isDirectory: Boolean!, $projectSlu
         id
         name
         isDirectory
+        text
         data
         parentId
       }

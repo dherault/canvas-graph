@@ -283,6 +283,14 @@
             "args": []
           },
           {
+            "name": "text",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Any"
+            },
+            "args": []
+          },
+          {
             "name": "data",
             "type": {
               "kind": "SCALAR",
@@ -493,6 +501,13 @@
               },
               {
                 "name": "name",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Any"
+                }
+              },
+              {
+                "name": "text",
                 "type": {
                   "kind": "SCALAR",
                   "name": "Any"
