@@ -1,4 +1,4 @@
-const { GraphQLString, GraphQLNonNull, GraphQLBoolean } = require('graphql')
+const { GraphQLString, GraphQLNonNull, GraphQLBoolean, GraphQLList } = require('graphql')
 
 const db = require('../../../database')
 
@@ -9,8 +9,8 @@ const { File } = require('../types')
 
 module.exports = {
   type: createMutationOutputType('CreateFile', {
-    file: {
-      type: File,
+    files: {
+      type: new GraphQLList(File),
     },
   }),
   args: {
@@ -66,7 +66,7 @@ module.exports = {
       ProjectId: project.id,
     })
 
-    return { file }
+    return { files: [...parentFiles, file] }
   },
 }
 
