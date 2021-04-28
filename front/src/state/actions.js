@@ -1,6 +1,6 @@
 import { createAction } from '@reduxjs/toolkit'
 
-// export const mouseMove = createAction('MOUSE_MOVE')
+export const mouseMove = createAction('MOUSE_MOVE')
 // export const setCurrentFunction = createAction('SET_CURRENT_FUNCTION')
 // export const addNode = createAction('CREATE_NODE')
 // export const updateNode = createAction('UPDATE_NODE')

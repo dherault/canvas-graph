@@ -26,6 +26,7 @@ import FullScreenError from '../../components/FullScreenError'
 
 import FilesSidebar from './FilesSidebar'
 import FileEditor from './FileEditor'
+import Graph from './Graph'
 
 const ProjectQuery = `
   query ProjectQuery ($slug: String!) {
@@ -50,8 +51,6 @@ const ProjectQuery = `
   }
 `
 
-const sidebarWidth = 256
-const editorWidth = 512 + 256
 const collapseButtonHeight = 36
 const collapseButtonMargin = 8
 const collapseButtonOffset = -6
@@ -172,34 +171,28 @@ function Project() {
 
   function renderSidebar() {
     return (
-      <Paper
-        square
-        elevation={2}
-        className="y2s position-relative Project-sidebar"
-        style={{
-          width: sidebarWidth,
-          left: isSidebarCollapsed ? -sidebarWidth : 0,
-        }}
-      >
-        <FilesSidebar
-          projectSlug={slug}
-          files={project.files}
-          onClose={toggleSidebar}
-        />
-      </Paper>
+      !isSidebarCollapsed && (
+        <Paper
+          square
+          elevation={2}
+          className="y2s position-relative flex-shrink-0 Project-sidebar"
+        >
+          <FilesSidebar
+            projectSlug={slug}
+            files={project.files}
+            onClose={toggleSidebar}
+          />
+        </Paper>
+      )
     )
   }
 
   function renderEditor() {
-    return (
+    return !isEditorCollapsed && (
       <Paper
         square
         elevation={2}
-        className="y2s position-relative Project-editor"
-        style={{
-          width: editorWidth,
-          left: (isSidebarCollapsed ? -sidebarWidth : 0) + (isEditorCollapsed ? -editorWidth : 0),
-        }}
+        className="y2s position-relative flex-shrink-0 Project-editor"
       >
         <FileEditor
           projectSlug={slug}
@@ -259,7 +252,7 @@ function Project() {
 
   function renderGraph() {
     return (
-      <div className="flex-grow" />
+      <Graph />
     )
   }
 

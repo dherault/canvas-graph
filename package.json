@@ -19,5 +19,8 @@
   "devDependencies": {
     "eslint": "^7.25.0",
     "eslint-config-dherault": "^1.4.0"
+  },
+  "dependencies": {
+    "react-map-interaction": "^2.0.0"
   }
 }

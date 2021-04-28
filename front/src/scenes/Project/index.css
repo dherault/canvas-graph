@@ -3,14 +3,16 @@
 }
 
 .Project-content {
-  min-height: calc(100vh - 64px - 64px);
+  height: calc(100vh - 64px - 64px);
 }
 
 .Project-sidebar {
+  width: 256px;
   z-index: 998;
 }
 
 .Project-editor {
+  width: calc(512px + 256px);
   z-index: 997;
 }
 
