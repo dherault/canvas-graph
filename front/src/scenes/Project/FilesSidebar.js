@@ -53,14 +53,14 @@ function File({ file, currentFileId, parentToChildren, onClick }) {
     <StyledTreeItem
       nodeId={file.id.toString()}
       label={(
-        <div
-          className="pl-0h"
+        <span
+          className="pl-0h display-block"
           style={{
             backgroundColor: file.id === currentFileId ? theme.palette.action.disabled : null,
           }}
         >
           {file.name}
-        </div>
+        </span>
       )}
       endIcon={file.isDirectory ? null : <TypescriptIcon color="inherit" />}
       onClick={() => onClick(file)}

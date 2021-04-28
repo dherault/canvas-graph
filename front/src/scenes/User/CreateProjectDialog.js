@@ -42,7 +42,7 @@ function CreateProjectDialog({ opened, onClose }) {
         setIsLoading(false)
 
         if (results.error) {
-          return console.log(results.error.message)
+          return console.error(results.error.message)
         }
 
         const { slug } = results.data.createProject.project

@@ -174,7 +174,7 @@ function Project() {
       <Paper
         square
         elevation={2}
-        className="position-relative Project-sidebar"
+        className="y2s position-relative Project-sidebar"
         style={{
           width: sidebarWidth,
           left: isSidebarCollapsed ? -sidebarWidth : 0,
@@ -194,7 +194,7 @@ function Project() {
       <Paper
         square
         elevation={2}
-        className="position-relative Project-editor"
+        className="y2s position-relative Project-editor"
         style={{
           width: editorWidth,
           left: (isSidebarCollapsed ? -sidebarWidth : 0) + (isEditorCollapsed ? -editorWidth : 0),

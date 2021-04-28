@@ -51,7 +51,7 @@ function CreateFileDialog({ opened, onClose, hierarchyPath, projectSlug, isDirec
         setIsLoading(false)
 
         if (results.error) {
-          return console.log(results.error.message)
+          return console.error(results.error.message)
         }
 
         const { files } = results.data.createFile

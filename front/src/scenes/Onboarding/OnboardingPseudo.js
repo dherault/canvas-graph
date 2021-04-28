@@ -40,7 +40,7 @@ function OnboardingPseudo() {
     checkPseudoMutation({ pseudo })
     .then(results => {
       if (results.error) {
-        return console.log(results.error.message)
+        return console.error(results.error.message)
       }
 
       const { result } = results.data.checkPseudo
@@ -62,7 +62,7 @@ function OnboardingPseudo() {
     updateViewerPseudoMutation({ pseudo })
     .then(results => {
       if (results.error) {
-        return console.log(results.error.message)
+        return console.error(results.error.message)
       }
 
       history.push('/onboarding/end')

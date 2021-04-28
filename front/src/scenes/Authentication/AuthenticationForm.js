@@ -59,7 +59,7 @@ function AuthenticationForm({ isSignIn }) {
       setIsLoading(false)
 
       if (results.error) {
-        return console.log(results.error.message)
+        return console.error(results.error.message)
       }
 
       const { token, viewer } = results.data[isSignIn ? 'signIn' : 'signUp']

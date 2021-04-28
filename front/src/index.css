@@ -154,11 +154,15 @@ ol {
   position: absolute;
 }
 
-.inline {
+.display-block {
+  display: block;
+}
+
+.display-inline {
   display: inline;
 }
 
-.inline-block {
+.display-inline-block {
   display: inline-block;
 }
 

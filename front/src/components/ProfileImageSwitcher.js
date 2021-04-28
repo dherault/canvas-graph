@@ -29,7 +29,7 @@ function ProfileImageSwitcher() {
       setLoading(false)
 
       if (results.error) {
-        return console.log(results.error.message)
+        return console.error(results.error.message)
       }
 
       setViewer(results.data.updateViewerProfileImage.viewer)

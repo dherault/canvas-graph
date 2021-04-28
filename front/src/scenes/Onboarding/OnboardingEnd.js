@@ -35,7 +35,7 @@ function OnboardingEnd() {
       completeOnboardingMutation({})
       .then(results => {
         if (results.error) {
-          return console.log(results.error.message)
+          return console.error(results.error.message)
         }
 
         history.push('/')
