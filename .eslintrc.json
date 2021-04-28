@@ -3,7 +3,6 @@
   "rules": {
     "no-unused-vars": "warn",
     "no-empty": "warn",
-    "no-multiple-empty-lines": "warn",
     "prefer-rest-params": "warn",
     "react/no-unescaped-entities": "off",
     "jsx-a11y/anchor-is-valid": "off",
