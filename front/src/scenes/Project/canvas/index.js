@@ -106,7 +106,6 @@ function run(canvas) {
     event.stopPropagation()
 
     const factor = 1 + event.deltaY * 0.0006
-    const nextWidth = clamp(state.currentWidth * factor, state.width, innerWidth)
     const scale = state.width / state.currentWidth
 
     const relativeMouse = {
@@ -114,20 +113,16 @@ function run(canvas) {
       y: state.translation.y + state.mouse.y / scale,
     }
 
-    // console.log('relativeMouse', relativeMouse)
-
-    state.currentWidth = nextWidth
+    state.currentWidth = clamp(state.currentWidth * factor, state.width, innerWidth)
     state.translation = clampTranslation({
       x: relativeMouse.x - (relativeMouse.x - state.translation.x) / factor,
       y: relativeMouse.y - (relativeMouse.y - state.translation.y) / factor,
     })
-
-    // console.log('state.translation', state.translation)
   }
 
   function handleDrag(event) {
-    state.translation.x += event.movementX
-    state.translation.y += event.movementY
+    state.translation.x += event.movementX / (state.width / state.currentWidth)
+    state.translation.y += event.movementY / (state.width / state.currentWidth)
   }
 
   function addEventListeners() {
@@ -154,7 +149,7 @@ function run(canvas) {
   }
 
   /* ---
-    Utils
+    Utils and helpers
   --- */
 
   function clamp(value, min, max) {
@@ -162,12 +157,14 @@ function run(canvas) {
   }
 
   function clampTranslation({ x, y }) {
-    return { x, y }
-
     return {
-      x: clamp(x, 0, innerWidth - state.currentWidth),
-      y: clamp(y, 0, innerHeight - state.height / (state.width / state.currentWidth)),
+      x: clamp(x, -(innerWidth - state.currentWidth), 0),
+      y: clamp(y, -(innerHeight - state.height / (state.width / state.currentWidth)), 0),
     }
+  }
+
+  function setCursor(cursor) {
+    canvas.style.cursor = cursor
   }
 
   /* ---
@@ -182,6 +179,7 @@ function run(canvas) {
 
   function start() {
     addEventListeners()
+    setCursor('pointer')
 
     state.running = true
 
