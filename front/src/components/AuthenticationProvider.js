@@ -27,7 +27,7 @@ function AuthenticationProvider({ children }) {
     }
   }, [data])
 
-  if (fetching || stale || !viewer) {
+  if (fetching || stale) {
     return (
       <FullScreenSpinner />
     )
