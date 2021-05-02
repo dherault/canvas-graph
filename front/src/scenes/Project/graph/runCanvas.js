@@ -1,7 +1,4 @@
-const innerWidth = 8192
-const innerHeight = 8192
-
-function run(canvas) {
+function run(canvas, innerWidth, innerHeight) {
   /* ---
     State
   --- */
@@ -21,15 +18,6 @@ function run(canvas) {
 
   const _ = canvas.getContext('2d')
 
-  const items = []
-
-  for (let i = 0; i < 256; i++) {
-    items.push({
-      x: Math.floor(Math.random() * innerWidth),
-      y: Math.floor(Math.random() * innerHeight),
-    })
-  }
-
   /* ---
     Draw
   --- */
@@ -40,8 +28,6 @@ function run(canvas) {
     _.fillStyle = state.theme.palette.background.default
     _.fillRect(0, 0, state.width, state.height)
     _.fillStyle = state.theme.palette.background.paper
-    _.shadowColor = 'rgba(0, 0, 0, 0.25)'
-    _.shadowBlur = 4
 
     const scale = state.width / state.currentWidth
 
@@ -60,11 +46,25 @@ function run(canvas) {
   function drawNodes() {
     const nodes = state.data ? Object.values(state.data.nodes) : []
 
-    drawNode(nodes[0])
+    nodes.forEach(drawNode)
   }
 
   function drawNode(node) {
+    _.shadowColor = 'rgba(0, 0, 0, 0.25)'
+    _.shadowBlur = 4
 
+    _.fillStyle = state.theme.palette.background.paper
+    _.fillRect(node.x, node.y, 128, 128)
+
+    _.shadowBlur = 0
+
+    _.font = '16px Roboto'
+    _.textBaseline = 'top'
+    _.textAlign = 'center'
+    _.fillStyle = state.theme.palette.text.primary
+
+    _.fillText(node.name, node.x + 128 / 2, node.y + 8)
+    // console.log('titleWidth', titleWidth)
   }
 
   function drawEdges() {
@@ -164,6 +164,14 @@ function run(canvas) {
     canvas.height = state.height
   }
 
+  function handleFocus(nodeIds = []) {
+    if (!state.data) return
+
+    const nodes = nodeIds.map(nodeId => state.data.nodes[nodeId])
+
+    console.log('nodes.length', nodes.length)
+  }
+
   /* ---
     Utils and helpers
   --- */
@@ -231,6 +239,7 @@ function run(canvas) {
     start,
     stop,
     updateState,
+    focus: handleFocus,
   }
 }
 

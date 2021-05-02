@@ -1,35 +1,76 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
+import { useMutation } from 'urql'
 import { useTheme } from '@material-ui/core'
+
+import Toolbar from './Toolbar'
 
 import run from './graph/runCanvas'
 import assignNodesPositions from './graph/assignNodesPositions'
 
-function Graph({ projectSlug, files }) {
+const innerWidth = 8192
+const innerHeight = 8192
+
+const GraphUpdateFileMutation = `
+  mutation GraphUpdateFileMutation ($fileId: ID!, $data: String!) {
+    updateFile (fileId: $fileId, data: $data) {
+      file {
+        id
+        text
+        data
+      }
+    }
+  }
+`
+
+function Graph({ viewer, project }) {
   const graphRef = useRef()
   const canvasRef = useRef()
-  const currentFileId = useSelector(s => (s.projectMetadata[projectSlug] || {}).currentFileId) || null
+  const currentFileId = useSelector(s => (s.projectMetadata[project.slug] || {}).currentFileId) || null
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
   const [updateState, setUpdateState] = useState(() => () => null)
+  const [focus, setFocus] = useState(() => () => null)
   const theme = useTheme()
+  const [, updateFileMutation] = useMutation(GraphUpdateFileMutation)
 
-  useEffect(() => {
-    const data = (files.find(f => f.id === currentFileId) || {}).data || null
-    const { nodes, edges } = JSON.parse(data) || {}
+  const getDataContent = useCallback(() => {
+    const data = (project.files.find(f => f.id === currentFileId) || {}).data || null
 
-    if (Object.values(nodes).every(({ x, y }) => typeof x === 'number' && typeof y === 'number')) return
+    return JSON.parse(data) || {}
+  }, [project.files, currentFileId])
 
-    assignNodesPositions(nodes, edges)
+  const updatePositions = useCallback((nodes, edges) => {
+    assignNodesPositions(nodes, edges, innerWidth, innerHeight)
+
+    updateFileMutation({
+      fileId: currentFileId,
+      data: JSON.stringify({ nodes, edges }),
+    })
+    .then(results => {
+      if (results.error) {
+        return console.error(results.error.message)
+      }
+    })
 
     console.log('nodesWithPosition', nodes, edges)
-  }, [files, currentFileId])
+  }, [currentFileId, updateFileMutation])
+
+  useEffect(() => {
+    const { nodes, edges } = getDataContent()
+
+    if (!(nodes && edges)) return
+    if (Object.values(nodes).every(({ x, y }) => typeof x === 'number' && typeof y === 'number')) return
+
+    updatePositions(nodes, edges)
+  }, [getDataContent, updatePositions])
 
   useEffect(() => {
     if (!canvasRef.current) return
 
-    const { start, stop, updateState } = run(canvasRef.current)
+    const { start, stop, updateState, focus } = run(canvasRef.current, innerWidth, innerHeight)
 
     setUpdateState(() => updateState)
+    setFocus(() => focus)
     start()
 
     return stop
@@ -39,17 +80,18 @@ function Graph({ projectSlug, files }) {
     updateState({
       theme,
       ...dimensions,
-      data: (files.find(f => f.id === currentFileId) || {}).data,
+      data: (project.files.find(f => f.id === currentFileId) || {}).data,
     })
-  }, [updateState, theme, dimensions, files, currentFileId])
+  }, [updateState, theme, dimensions, project.files, currentFileId])
 
   useEffect(() => {
     if (!graphRef.current) return
 
-    new ResizeObserver(handleGraphResize).observe(graphRef.current)
+    handleGraphResize()
 
-    // window.addEventListener('resize', handleGraphResize)
-    // return () => window.removeEventListener('resize', handleGraphResize)
+    window.addEventListener('resize', handleGraphResize)
+
+    return () => window.removeEventListener('resize', handleGraphResize)
   }, [graphRef])
 
   function handleGraphResize() {
@@ -63,12 +105,35 @@ function Graph({ projectSlug, files }) {
     })
   }
 
+  function resetPositions() {
+    const { nodes, edges } = getDataContent()
+
+    Object.values(nodes).forEach(node => {
+      delete node.x
+      delete node.y
+    })
+
+    updatePositions(nodes, edges)
+  }
+
   return (
     <div
       ref={graphRef}
-      className="flex-grow"
+      className="w100 position-relative"
     >
-      <canvas ref={canvasRef} width="100%" height="100%" />
+      <div className="position-absolute top-0 right-0 pt-1 pr-1">
+        <Toolbar
+          viewer={viewer}
+          project={project}
+          focus={focus}
+          resetPositions={resetPositions}
+        />
+      </div>
+      <canvas
+        ref={canvasRef}
+        width="100%"
+        height="100%"
+      />
     </div>
   )
 }
