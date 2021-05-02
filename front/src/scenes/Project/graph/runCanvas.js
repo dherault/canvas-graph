@@ -11,11 +11,7 @@ function run(canvas) {
     theme: null,
     width: 0,
     height: 0,
-    currentWidth: innerWidth,
-    mouse: {
-      x: 0,
-      y: 0,
-    },
+    currentWidth: 0,
     button: -1,
     translation: {
       x: 0,
@@ -53,13 +49,26 @@ function run(canvas) {
     _.scale(scale, scale)
     _.translate(state.translation.x, state.translation.y)
 
-    items.forEach(({ x, y }) => {
-      _.fillRect(x, y, 64, 64)
-    })
+    drawNodes()
+    drawEdges()
 
     _.restore()
 
     drawState()
+  }
+
+  function drawNodes() {
+    const nodes = state.data ? Object.values(state.data.nodes) : []
+
+    drawNode(nodes[0])
+  }
+
+  function drawNode(node) {
+
+  }
+
+  function drawEdges() {
+
   }
 
   function drawState() {
@@ -68,6 +77,12 @@ function run(canvas) {
     const output = { ...state }
 
     delete output.theme
+    delete output.data
+
+    if (state.data) {
+      output.nodes = Object.keys(state.data.nodes).length
+      output.edges = Object.keys(state.data.edges).length
+    }
 
     const text = JSON.stringify(output, null, 2)
 
@@ -82,14 +97,6 @@ function run(canvas) {
   --- */
 
   function handleMouseMove(event) {
-    state.mouse.x = event.offsetX
-    state.mouse.y = event.offsetY
-
-    state.relativeMouse = {
-      x: state.translation.x + state.mouse.x / (state.width / state.currentWidth),
-      y: state.translation.y + state.mouse.y / (state.width / state.currentWidth),
-    }
-
     if (state.button === 0) handleDrag(event)
   }
 
@@ -101,41 +108,50 @@ function run(canvas) {
     state.button = -1
   }
 
+  function handleMouseLeave() {
+    state.button = -1
+  }
+
   function handleWheel(event) {
-    event.preventDefault()
     event.stopPropagation()
 
     const factor = 1 + event.deltaY * 0.0006
+    const nextWidth = clamp(state.currentWidth * factor, state.width, innerWidth)
+
+    if (state.currentWidth === nextWidth) return
+
     const scale = state.width / state.currentWidth
 
-    const relativeMouse = {
-      x: state.translation.x + state.mouse.x / scale,
-      y: state.translation.y + state.mouse.y / scale,
-    }
+    const relativeMouseX = state.translation.x + event.offsetX / scale
+    const relativeMouseY = state.translation.y + event.offsetY / scale
 
-    state.currentWidth = clamp(state.currentWidth * factor, state.width, innerWidth)
+    state.currentWidth = nextWidth
     state.translation = clampTranslation({
-      x: relativeMouse.x - (relativeMouse.x - state.translation.x) / factor,
-      y: relativeMouse.y - (relativeMouse.y - state.translation.y) / factor,
+      x: relativeMouseX - (relativeMouseX - state.translation.x) / factor,
+      y: relativeMouseY - (relativeMouseY - state.translation.y) / factor,
     })
   }
 
   function handleDrag(event) {
-    state.translation.x += event.movementX / (state.width / state.currentWidth)
-    state.translation.y += event.movementY / (state.width / state.currentWidth)
+    state.translation = clampTranslation({
+      x: state.translation.x + event.movementX / (state.width / state.currentWidth),
+      y: state.translation.y + event.movementY / (state.width / state.currentWidth),
+    })
   }
 
   function addEventListeners() {
     canvas.addEventListener('mousemove', handleMouseMove)
     canvas.addEventListener('mousedown', handleMouseDown)
     canvas.addEventListener('mouseup', handleMouseUp)
-    canvas.addEventListener('wheel', handleWheel)
+    canvas.addEventListener('mouseleave', handleMouseLeave)
+    canvas.addEventListener('wheel', handleWheel, { passive: true })
   }
 
   function removeEventListeners() {
     canvas.removeEventListener('mousemove', handleMouseMove)
     canvas.removeEventListener('mousedown', handleMouseDown)
     canvas.removeEventListener('mouseup', handleMouseUp)
+    canvas.removeEventListener('mouseleave', handleMouseLeave)
     canvas.removeEventListener('wheel', handleWheel)
   }
 
@@ -194,6 +210,20 @@ function run(canvas) {
 
   function updateState(nextState) {
     Object.assign(state, nextState)
+
+    if (state.currentWidth === 0) {
+      // Prevent currentWidth === 0
+      state.currentWidth = state.width
+      // Center on start
+      state.translation.x = -(innerWidth - state.width) / 2
+      state.translation.y = -(innerHeight - state.height) / 2
+    }
+
+    // Parse data
+    if (typeof state.data === 'string') {
+      state.data = JSON.parse(state.data)
+    }
+
     handleResize()
   }
 

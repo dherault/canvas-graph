@@ -252,7 +252,10 @@ function Project() {
 
   function renderGraph() {
     return (
-      <Graph />
+      <Graph
+        projectSlug={slug}
+        files={project.files}
+      />
     )
   }
 

@@ -1,17 +1,28 @@
 import { useEffect, useRef, useState } from 'react'
+import { useSelector } from 'react-redux'
 import { useTheme } from '@material-ui/core'
 
-import run from './canvas'
+import run from './graph/runCanvas'
+import assignNodesPositions from './graph/assignNodesPositions'
 
-const graphInnerWidth = 8192
-const graphInnerHeight = 8192
-
-function Graph() {
+function Graph({ projectSlug, files }) {
   const graphRef = useRef()
   const canvasRef = useRef()
+  const currentFileId = useSelector(s => (s.projectMetadata[projectSlug] || {}).currentFileId) || null
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
   const [updateState, setUpdateState] = useState(() => () => null)
   const theme = useTheme()
+
+  useEffect(() => {
+    const data = (files.find(f => f.id === currentFileId) || {}).data || null
+    const { nodes, edges } = JSON.parse(data) || {}
+
+    if (Object.values(nodes).every(({ x, y }) => typeof x === 'number' && typeof y === 'number')) return
+
+    assignNodesPositions(nodes, edges)
+
+    console.log('nodesWithPosition', nodes, edges)
+  }, [files, currentFileId])
 
   useEffect(() => {
     if (!canvasRef.current) return
@@ -28,13 +39,17 @@ function Graph() {
     updateState({
       theme,
       ...dimensions,
+      data: (files.find(f => f.id === currentFileId) || {}).data,
     })
-  }, [updateState, dimensions, theme])
+  }, [updateState, theme, dimensions, files, currentFileId])
 
   useEffect(() => {
     if (!graphRef.current) return
 
     new ResizeObserver(handleGraphResize).observe(graphRef.current)
+
+    // window.addEventListener('resize', handleGraphResize)
+    // return () => window.removeEventListener('resize', handleGraphResize)
   }, [graphRef])
 
   function handleGraphResize() {
