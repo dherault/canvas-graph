@@ -35,6 +35,7 @@ async function analyseText(sourceText) {
       id: uuid(),
       parentId: getCurrentParentId(),
       type,
+      name: type,
       inputs: [],
       outputs: [],
       ...attributes,
