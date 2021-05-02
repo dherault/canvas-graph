@@ -2,7 +2,8 @@ import './FileSidebar.css'
 
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { fade, makeStyles, useTheme, withStyles } from '@material-ui/core/styles'
+import { useHistory, useLocation } from 'react-router-dom'
+import { fade, useTheme, withStyles } from '@material-ui/core/styles'
 import { animated, useSpring } from 'react-spring/web.cjs'
 
 import TreeView from '@material-ui/lab/TreeView'
@@ -18,6 +19,8 @@ import UnfoldLessOutlinedIcon from '@material-ui/icons/UnfoldLessOutlined'
 import InsertDriveFileOutlinedIcon from '@material-ui/icons/InsertDriveFileOutlined'
 import FolderOutlinedIcon from '@material-ui/icons/FolderOutlined'
 import CloseIcon from '@material-ui/icons/Close'
+
+import useQuery from '../../utils/useQuery'
 
 import TypescriptIcon from '../../components/TypescriptIcon'
 
@@ -111,10 +114,14 @@ const StyledTreeItem = withStyles(theme => ({
 function FilesSidebar({ projectSlug, files, onClose }) {
   const dispatch = useDispatch()
   const expandedFileTreeIds = useSelector(s => (s.projectMetadata[projectSlug] || {}).expandedFileTreeIds) || []
-  const currentFileId = useSelector(s => (s.projectMetadata[projectSlug] || {}).currentFileId) || null
   const [isCreateFileDialogOpened, setIsCreateFileDialogOpened] = useState(false)
   const [currentHierarchyPath, setCurrentHierarchyPath] = useState([])
   const [isCreatingDirectory, setIsCreatingDirectory] = useState(false)
+  const queryParams = useQuery()
+  const history = useHistory()
+  const location = useLocation()
+
+  const currentFileId = queryParams.get('fileId')
 
   if (!files.length) {
     return renderEmpty()
@@ -152,13 +159,9 @@ function FilesSidebar({ projectSlug, files, onClose }) {
   function handleFileSelect(file) {
     if (file.isDirectory) return
 
-    dispatch({
-      type: 'SET_PROJECT_METADATA',
-      payload: {
-        slug: projectSlug,
-        currentFileId: file.id,
-      },
-    })
+    queryParams.set('fileId', file.id)
+
+    history.push(`${location.pathname}?${queryParams.toString()}`)
   }
 
   function handleImportFiles() {

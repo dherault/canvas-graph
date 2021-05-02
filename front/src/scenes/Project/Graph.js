@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useSelector } from 'react-redux'
 import { useMutation } from 'urql'
 import { useTheme } from '@material-ui/core'
+
+import useQuery from '../../utils/useQuery'
 
 import Toolbar from './Toolbar'
 
@@ -26,7 +27,8 @@ const GraphUpdateFileMutation = `
 function Graph({ viewer, project }) {
   const graphRef = useRef()
   const canvasRef = useRef()
-  const currentFileId = useSelector(s => (s.projectMetadata[project.slug] || {}).currentFileId) || null
+  const queryParams = useQuery()
+  const currentFileId = queryParams.get('fileId')
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
   const [updateState, setUpdateState] = useState(() => () => null)
   const [focus, setFocus] = useState(() => () => null)

@@ -19,6 +19,7 @@ import FileCopyIcon from '@material-ui/icons/FileCopy'
 import ThemeTypeContext from '../../ThemeTypeContext'
 
 import usePrevious from '../../utils/usePrevious'
+import useQuery from '../../utils/useQuery'
 
 const FileEditorUpdateFileMutation = `
   mutation FileEditorUpdateFileMutation ($fileId: ID!, $text: String!) {
@@ -32,10 +33,11 @@ const FileEditorUpdateFileMutation = `
   }
 `
 
-function FileEditor({ projectSlug, files, onClose }) {
-  const currentFileId = useSelector(s => (s.projectMetadata[projectSlug] || {}).currentFileId) || null
+function FileEditor({ project, onClose }) {
+  const queryParams = useQuery()
+  const currentFileId = queryParams.get('fileId')
   const [themeType] = useContext(ThemeTypeContext)
-  const file = files.find(f => f.id === currentFileId)
+  const file = project.files.find(f => f.id === currentFileId)
   const parentFiles = lookupParents(file)
   const [text, setText] = useState(file ? file.text : '')
   const previousFile = usePrevious(file)
@@ -63,7 +65,7 @@ function FileEditor({ projectSlug, files, onClose }) {
   function lookupParents(file, parents = []) {
     if (!(file && file.parentId)) return parents
 
-    const parentFile = files.find(f => f.id === file.parentId)
+    const parentFile = project.files.find(f => f.id === file.parentId)
 
     parents.unshift(parentFile)
 

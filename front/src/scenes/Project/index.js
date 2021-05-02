@@ -131,8 +131,7 @@ function Project() {
         }}
       >
         <FileEditor
-          projectSlug={slug}
-          files={project.files}
+          project={project}
           onClose={toggleEditor}
         />
       </Paper>
