@@ -159,9 +159,7 @@ function FilesSidebar({ projectSlug, files, onClose }) {
   function handleFileSelect(file) {
     if (file.isDirectory) return
 
-    queryParams.set('fileId', file.id)
-
-    history.push(`${location.pathname}?${queryParams.toString()}`)
+    history.push(`${location.pathname}?fileId=${file.id}`)
   }
 
   function handleImportFiles() {

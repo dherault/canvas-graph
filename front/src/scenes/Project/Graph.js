@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useMutation } from 'urql'
+import { useHistory, useLocation } from 'react-router-dom'
 import { useTheme } from '@material-ui/core'
 
 import useQuery from '../../utils/useQuery'
@@ -24,16 +25,21 @@ const GraphUpdateFileMutation = `
   }
 `
 
+const reduceObject = (object, [key, value]) => Object.assign(object, { [key]: value })
+
 function Graph({ viewer, project }) {
   const graphRef = useRef()
   const canvasRef = useRef()
   const queryParams = useQuery()
   const currentFileId = queryParams.get('fileId')
+  const currentParentId = queryParams.get('parentId') || null
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
   const [updateState, setUpdateState] = useState(() => () => null)
   const [focus, setFocus] = useState(() => () => null)
   const theme = useTheme()
   const [, updateFileMutation] = useMutation(GraphUpdateFileMutation)
+  const location = useLocation()
+  const history = useHistory()
 
   const getDataContent = useCallback(() => {
     const data = (project.files.find(f => f.id === currentFileId) || {}).data || null
@@ -57,6 +63,13 @@ function Graph({ viewer, project }) {
     console.log('nodesWithPosition', nodes, edges)
   }, [currentFileId, updateFileMutation])
 
+  const setCurrentParentId = useCallback(nodeId => {
+    queryParams.set('parentId', nodeId)
+
+    history.push(`${location.pathname}?${queryParams.toString()}`)
+  // eslint-disable-next-line
+  }, [history, location.pathname, queryParams.toString()])
+
   useEffect(() => {
     const { nodes, edges } = getDataContent()
 
@@ -69,22 +82,35 @@ function Graph({ viewer, project }) {
   useEffect(() => {
     if (!canvasRef.current) return
 
-    const { start, stop, updateState, focus } = run(canvasRef.current, innerWidth, innerHeight)
+    const { start, stop, updateState, focus } = run(canvasRef.current, innerWidth, innerHeight, setCurrentParentId)
 
     setUpdateState(() => updateState)
     setFocus(() => focus)
     start()
 
     return stop
-  }, [canvasRef])
+  }, [canvasRef, setCurrentParentId])
 
   useEffect(() => {
+    const { data } = (project.files.find(f => f.id === currentFileId) || {})
+    const parsedData = JSON.parse(data) || { nodes: {}, edges: {} }
+
+    const nodes = Object.entries(parsedData.nodes)
+      .filter(([, value]) => value.parentId === currentParentId)
+      .reduce(reduceObject, {})
+    const nodeIds = Object.keys(nodes)
+
     updateState({
       theme,
       ...dimensions,
-      data: (project.files.find(f => f.id === currentFileId) || {}).data,
+      data: {
+        nodes,
+        edges: Object.entries(parsedData.edges)
+        .filter(([, value]) => nodeIds.includes(value.inputNodeId) || nodeIds.includes(value.outputNodeId))
+        .reduce(reduceObject, {}),
+      },
     })
-  }, [updateState, theme, dimensions, project.files, currentFileId])
+  }, [updateState, theme, dimensions, project.files, currentFileId, currentParentId])
 
   useEffect(() => {
     if (!graphRef.current) return

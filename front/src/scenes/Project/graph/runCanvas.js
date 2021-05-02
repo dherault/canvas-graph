@@ -1,4 +1,7 @@
-function run(canvas, innerWidth, innerHeight) {
+const expandButtonWidth = 32
+const expandButtonHeight = 16
+
+function run(canvas, innerWidth, innerHeight, setCurrentParentId) {
   /* ---
     State
   --- */
@@ -14,6 +17,7 @@ function run(canvas, innerWidth, innerHeight) {
       x: 0,
       y: 0,
     },
+    clickables: {},
   }
 
   const _ = canvas.getContext('2d')
@@ -37,6 +41,7 @@ function run(canvas, innerWidth, innerHeight) {
 
     drawNodes()
     drawEdges()
+    drawButtons()
 
     _.restore()
 
@@ -64,11 +69,24 @@ function run(canvas, innerWidth, innerHeight) {
     _.fillStyle = state.theme.palette.text.primary
 
     _.fillText(node.name, node.x + 128 / 2, node.y + 8)
+
+    // TODO use kind
+    if (node.type === 'file' || node.type === 'function') {
+      _.fillStyle = state.theme.palette.primary.main
+      _.fillRect(node.x + (128 - expandButtonWidth) / 2, node.y + 32, expandButtonWidth, expandButtonHeight)
+    }
     // console.log('titleWidth', titleWidth)
   }
 
   function drawEdges() {
 
+  }
+
+  function drawButtons() {
+    Object.values(state.clickables).forEach(({ x, y, width, height }) => {
+      _.fillStyle = state.theme.palette.primary.main
+      _.fillRect(x, y, width, height)
+    })
   }
 
   function drawState() {
@@ -112,6 +130,21 @@ function run(canvas, innerWidth, innerHeight) {
     state.button = -1
   }
 
+  function handleClick(event) {
+    const relativeMouse = getRelativeMouse2(event)
+
+    const clickable = Object.values(state.clickables).find(({ x, y, width, height }) => (
+      x <= relativeMouse.x
+      && x + width >= relativeMouse.x
+      && y <= relativeMouse.y
+      && y + height >= relativeMouse.y
+    ))
+
+    if (clickable) {
+      clickable.onClick()
+    }
+  }
+
   function handleWheel(event) {
     event.stopPropagation()
 
@@ -120,15 +153,12 @@ function run(canvas, innerWidth, innerHeight) {
 
     if (state.currentWidth === nextWidth) return
 
-    const scale = state.width / state.currentWidth
-
-    const relativeMouseX = state.translation.x + event.offsetX / scale
-    const relativeMouseY = state.translation.y + event.offsetY / scale
+    const relativeMouse = getRelativeMouse(event)
 
     state.currentWidth = nextWidth
     state.translation = clampTranslation({
-      x: relativeMouseX - (relativeMouseX - state.translation.x) / factor,
-      y: relativeMouseY - (relativeMouseY - state.translation.y) / factor,
+      x: relativeMouse.x - (relativeMouse.x - state.translation.x) / factor,
+      y: relativeMouse.y - (relativeMouse.y - state.translation.y) / factor,
     })
   }
 
@@ -144,6 +174,7 @@ function run(canvas, innerWidth, innerHeight) {
     canvas.addEventListener('mousedown', handleMouseDown)
     canvas.addEventListener('mouseup', handleMouseUp)
     canvas.addEventListener('mouseleave', handleMouseLeave)
+    canvas.addEventListener('click', handleClick)
     canvas.addEventListener('wheel', handleWheel, { passive: true })
   }
 
@@ -152,7 +183,45 @@ function run(canvas, innerWidth, innerHeight) {
     canvas.removeEventListener('mousedown', handleMouseDown)
     canvas.removeEventListener('mouseup', handleMouseUp)
     canvas.removeEventListener('mouseleave', handleMouseLeave)
+    canvas.removeEventListener('click', handleClick)
     canvas.removeEventListener('wheel', handleWheel)
+  }
+
+  /* ---
+    Logic
+  --- */
+
+  function getRelativeMouse(event) {
+    const scale = state.width / state.currentWidth
+
+    return {
+      x: state.translation.x + event.offsetX / scale,
+      y: state.translation.y + event.offsetY / scale,
+    }
+  }
+
+  function getRelativeMouse2(event) {
+    const scale = state.width / state.currentWidth
+
+    return {
+      x: -state.translation.x + event.offsetX / scale,
+      y: -state.translation.y + event.offsetY / scale,
+    }
+  }
+
+  function computeButtonsPositions() {
+    Object.values(state.data.nodes).forEach(node => {
+      if (node.type === 'file' || node.type === 'function') {
+        state.clickables[node.id] = {
+          type: 'expand',
+          x: node.x + (128 - expandButtonWidth) / 2,
+          y: node.y + 32,
+          width: expandButtonWidth,
+          height: expandButtonHeight,
+          onClick: () => setCurrentParentId(node.id),
+        }
+      }
+    })
   }
 
   /* ---
@@ -227,9 +296,8 @@ function run(canvas, innerWidth, innerHeight) {
       state.translation.y = -(innerHeight - state.height) / 2
     }
 
-    // Parse data
-    if (typeof state.data === 'string') {
-      state.data = JSON.parse(state.data)
+    if (state.data) {
+      computeButtonsPositions()
     }
 
     handleResize()
