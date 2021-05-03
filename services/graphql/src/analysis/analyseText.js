@@ -4,7 +4,13 @@ const tmp = require('tmp-promise')
 const uuid = require('uuid').v4
 const { Project } = require('ts-morph')
 
-async function analyseText(sourceText) {
+async function analyseText(sourceText, previousData) {
+  const pathToNodeId = {}
+
+  Object.values(previousData.nodes).forEach(node => {
+    pathToNodeId[node.path] = node.id
+  })
+
   const project = new Project()
 
   const dir = await tmp.dir()
@@ -23,6 +29,7 @@ async function analyseText(sourceText) {
   }
 
   function setParentId(parentId) {
+    console.log('parentId', parentId)
     state.parentIds.push(parentId)
   }
 
@@ -30,12 +37,13 @@ async function analyseText(sourceText) {
     state.parentIds.pop()
   }
 
-  function createNode(type, attributes = {}) {
+  function createNode(path, type, attributes = {}) {
     const node = {
-      id: uuid(),
+      id: pathToNodeId[path] || uuid(),
       parentId: getCurrentParentId(),
       type,
       name: type,
+      path,
       inputs: [],
       outputs: [],
       ...attributes,
@@ -70,22 +78,22 @@ async function analyseText(sourceText) {
   }
 
   const traversers = {
-    SourceFile(node, { next }) {
-      const fileNode = createNode('file')
+    SourceFile(node, { path, next }) {
+      const fileNode = createNode(path, 'file')
 
       setParentId(fileNode.id)
-
       next()
+      unsetParentId()
 
       return createData(fileNode)
     },
-    FunctionDeclaration(node, { next }) {
+    FunctionDeclaration(node, { path, next }) {
       const returnIo = {
         name: 'return',
         type: node.getReturnType().getText(),
       }
 
-      const functionNode = createNode('function', {
+      const functionNode = createNode(path, 'function', {
         name: node.getSymbol().getName(),
         outputs: [returnIo],
       })
@@ -93,23 +101,27 @@ async function analyseText(sourceText) {
       setParentId(functionNode.id)
       state.identifierToNodeMetadata = {}
 
-      const argumentsNode = createNode('arguments', {
+      const argumentsNode = createNode(`${path}[arguments]`, 'arguments', {
         functionId: functionNode.id,
       })
-      const returnNode = createNode('return', {
+      const returnNode = createNode(`${path}[return]`, 'return', {
         functionId: functionNode.id,
         inputs: [returnIo],
       })
 
       next()
+      unsetParentId()
 
       functionNode.inputs = argumentsNode.outputs
 
       return createData([functionNode, argumentsNode, returnNode])
     },
-    Parameter(node, { next }) {
+    Parameter(node, { path, next }) {
+      console.log('getCurrentParentId()', getCurrentParentId())
       const functionNode = state.nodes[getCurrentParentId()]
+      console.log('functionNode', functionNode)
       const argumentNode = Object.values(state.nodes).find(n => n.functionId === functionNode.id && n.type === 'arguments')
+      console.log('argumentNode', argumentNode)
 
       const argument = {
         name: node.getSymbol().getName(),
@@ -128,7 +140,7 @@ async function analyseText(sourceText) {
 
       return createData()
     },
-    ReturnStatement(node, { next }) {
+    ReturnStatement(node, { path, next }) {
       const functionNode = state.nodes[getCurrentParentId()]
       const returnNode = Object.values(state.nodes).find(n => n.functionId === functionNode.id && n.type === 'return')
 
@@ -149,7 +161,7 @@ async function analyseText(sourceText) {
         edges: [edge],
       }
     },
-    BinaryExpression(node, { next }) {
+    BinaryExpression(node, { path }) {
       const children = node.forEachChildAsArray()
 
       const child1Metadata = traverse(children[0]).metadata // TODO, use next
@@ -179,19 +191,19 @@ async function analyseText(sourceText) {
 
       switch (operatorNodeText) {
         case '+':
-          functionNode = createNode('add', functionNodeParameters)
+          functionNode = createNode(path, 'add', functionNodeParameters)
           break
 
         case '*':
-          functionNode = createNode('multiply', functionNodeParameters)
+          functionNode = createNode(path, 'multiply', functionNodeParameters)
           break
 
         case '/':
-          functionNode = createNode('divide', functionNodeParameters)
+          functionNode = createNode(path, 'divide', functionNodeParameters)
           break
 
         case '%':
-          functionNode = createNode('modulo', functionNodeParameters)
+          functionNode = createNode(path, 'modulo', functionNodeParameters)
           break
 
         default:
@@ -229,8 +241,19 @@ async function analyseText(sourceText) {
   }
 
   function getPrefix(node, prefix = '') {
-    const nextPrefix = `${node.getKindName()}.${prefix}`
     const parent = node.getParent()
+    const kindName = node.getKindName()
+
+    let index = 0
+
+    if (kindName === 'FunctionDeclaration') {
+      index = node.getSymbol().getName()
+    }
+    else if (parent) {
+      index = parent.forEachChildAsArray().indexOf(node)
+    }
+
+    const nextPrefix = `${kindName}[${index}].${prefix}`
 
     if (parent) {
       return getPrefix(parent, nextPrefix)
@@ -241,9 +264,14 @@ async function analyseText(sourceText) {
 
   function traverse(node) {
     const kindName = node.getKindName()
+    const prefix = getPrefix(node)
+
+    console.log('prefix', prefix, pathToNodeId[prefix])
+
     const traverser = traversers[kindName]
 
     const helpers = {
+      path: prefix,
       next: () => {
         const data = createData()
 
@@ -256,8 +284,8 @@ async function analyseText(sourceText) {
 
         return data
       },
-      log: (...x) => console.log(`[${getPrefix(node)}]`, ...x),
-      logError: (...x) => console.error(`[${getPrefix(node)}]`, ...x),
+      log: (...x) => console.log(`[${prefix}]`, ...x),
+      logError: (...x) => console.error(`[${prefix}]`, ...x),
     }
 
     if (typeof traverser === 'function') {

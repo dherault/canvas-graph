@@ -46,7 +46,7 @@ module.exports = {
       updatedFile.text = text
 
       try {
-        const data = await analyseText(text)
+        const data = await analyseText(text, JSON.parse(file.data))
 
         updatedFile.data = JSON.stringify(data)
       }
