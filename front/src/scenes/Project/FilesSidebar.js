@@ -111,9 +111,9 @@ const StyledTreeItem = withStyles(theme => ({
 )
 )
 
-function FilesSidebar({ projectSlug, files, onClose }) {
+function FilesSidebar({ opened, project, onClose }) {
   const dispatch = useDispatch()
-  const expandedFileTreeIds = useSelector(s => (s.projectMetadata[projectSlug] || {}).expandedFileTreeIds) || []
+  const expandedFileTreeIds = useSelector(s => (s.projectMetadata[project.slug] || {}).expandedFileTreeIds) || []
   const [isCreateFileDialogOpened, setIsCreateFileDialogOpened] = useState(false)
   const [currentHierarchyPath, setCurrentHierarchyPath] = useState([])
   const [isCreatingDirectory, setIsCreatingDirectory] = useState(false)
@@ -123,13 +123,13 @@ function FilesSidebar({ projectSlug, files, onClose }) {
 
   const currentFileId = queryParams.get('fileId')
 
-  if (!files.length) {
+  if (!project.files.length) {
     return renderEmpty()
   }
 
   const parentToChildren = {}
 
-  files.forEach(file => {
+  project.files.forEach(file => {
     if (!parentToChildren[file.parentId || rootKey]) {
       parentToChildren[file.parentId || rootKey] = []
     }
@@ -150,7 +150,7 @@ function FilesSidebar({ projectSlug, files, onClose }) {
     dispatch({
       type: 'SET_PROJECT_METADATA',
       payload: {
-        slug: projectSlug,
+        slug: project.slug,
         expandedFileTreeIds,
       },
     })
@@ -176,7 +176,7 @@ function FilesSidebar({ projectSlug, files, onClose }) {
       <CreateFileDialog
         opened={isCreateFileDialogOpened}
         onClose={() => setIsCreateFileDialogOpened(false)}
-        projectSlug={projectSlug}
+        projectSlug={project.slug}
         hierarchyPath={currentHierarchyPath}
         isDirectory={isCreatingDirectory}
       />
@@ -217,56 +217,65 @@ function FilesSidebar({ projectSlug, files, onClose }) {
     )
   }
 
+  function renderToolbar() {
+    // Prevent "close sidebar" tooltip when closed
+    if (!opened) return null
+
+    return (
+      <div className="x6 p-0h">
+        <Tooltip
+          title="Add file"
+          className="ml-1"
+        >
+          <IconButton
+            size="small"
+            onClick={() => handleCreateFile(false)}
+          >
+            <InsertDriveFileOutlinedIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+        <Tooltip
+          title="Add directory"
+          className="ml-1"
+        >
+          <IconButton
+            size="small"
+            className="ml-1"
+            onClick={() => handleCreateFile(true)}
+          >
+            <FolderOutlinedIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+        <Tooltip
+          title="Collapse all"
+          className="ml-1"
+        >
+          <IconButton
+            size="small"
+            onClick={handleExpandedChange}
+          >
+            <UnfoldLessOutlinedIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+        <Tooltip
+          title="Close sidebar"
+          className="ml-1"
+        >
+          <IconButton
+            size="small"
+            onClick={onClose}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </div>
+    )
+  }
+
   return (
     <>
       <div className="overflow-hidden">
-        <div className="x6 p-0h">
-          <Tooltip
-            title="Add file"
-            className="ml-1"
-          >
-            <IconButton
-              size="small"
-              onClick={() => handleCreateFile(false)}
-            >
-              <InsertDriveFileOutlinedIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip
-            title="Add directory"
-            className="ml-1"
-          >
-            <IconButton
-              size="small"
-              className="ml-1"
-              onClick={() => handleCreateFile(true)}
-            >
-              <FolderOutlinedIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip
-            title="Collapse all"
-            className="ml-1"
-          >
-            <IconButton
-              size="small"
-              onClick={handleExpandedChange}
-            >
-              <UnfoldLessOutlinedIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip
-            title="Close sidebar"
-            className="ml-1"
-          >
-            <IconButton
-              size="small"
-              onClick={onClose}
-            >
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </div>
+        {renderToolbar()}
         <div className="px-1">
           <TreeView
             className="mt-1 w100"

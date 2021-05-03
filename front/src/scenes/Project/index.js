@@ -56,7 +56,8 @@ function Project() {
   })
   const dispatch = useDispatch()
   const isSidebarCollapsed = useSelector(s => (s.projectMetadata[slug] || {}).isSidebarCollapsed) || false
-  const isEditorCollapsed = useSelector(s => (s.projectMetadata[slug] || {}).isEditorCollapsed) || false
+  const isEditorCollapsedFromStore = useSelector(s => (s.projectMetadata[slug] || {}).isEditorCollapsed)
+  const isEditorCollapsed = typeof isEditorCollapsedFromStore === 'undefined' ? true : isEditorCollapsedFromStore
 
   if (queryResults.fetching || queryResults.stale) {
     return (
@@ -100,37 +101,37 @@ function Project() {
 
   function renderSidebar() {
     return (
-      !isSidebarCollapsed && (
-        <Paper
-          square
-          elevation={2}
-          className="y2s position-absolute top-0 bottom-0 left-0 Project-sidebar"
-          style={{
-            width: sidebarWidth,
-          }}
-        >
-          <FilesSidebar
-            projectSlug={slug}
-            files={project.files}
-            onClose={toggleSidebar}
-          />
-        </Paper>
-      )
+      <Paper
+        square
+        elevation={2}
+        className="y2s position-absolute top-0 bottom-0 left-0 Project-sidebar"
+        style={{
+          width: sidebarWidth,
+          left: isSidebarCollapsed ? -sidebarWidth : 0,
+        }}
+      >
+        <FilesSidebar
+          opened={!isSidebarCollapsed}
+          project={project}
+          onClose={toggleSidebar}
+        />
+      </Paper>
     )
   }
 
   function renderEditor() {
-    return !isEditorCollapsed && (
+    return (
       <Paper
         square
         elevation={2}
         className="y2s position-absolute top-0 bottom-0 Project-editor"
         style={{
           width: editorWidth,
-          left: isSidebarCollapsed ? 0 : sidebarWidth,
+          left: isEditorCollapsed ? -editorWidth + (isSidebarCollapsed ? 0 : sidebarWidth - 4) : isSidebarCollapsed ? 0 : sidebarWidth,
         }}
       >
         <FileEditor
+          opened={!isEditorCollapsed}
           project={project}
           onClose={toggleEditor}
         />

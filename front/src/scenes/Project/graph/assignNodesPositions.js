@@ -14,6 +14,7 @@ function assignNodesPositions(nodes, edges, width, height) {
     // springCoefficient: 0.8,
     // dragCoefficient: 0.9,
   })
+  const nodesWithPositions = {}
 
   Object.values(nodes).forEach(node => {
     const graphNode = graph.addNode(node.id)
@@ -32,17 +33,17 @@ function assignNodesPositions(nodes, edges, width, height) {
   graph.forEachNode(node => {
     const { x, y } = layout.getNodePosition(node.id)
 
-    Object.assign(nodes[node.id], {
+    nodesWithPositions[node.id] = {
+      ...nodes[node.id],
       x: Math.round(x + width / 2),
       y: Math.round(y + height / 2),
-    })
+    }
   })
 
   const rect = layout.getGraphRect()
 
   return {
-    nodes,
-    edges,
+    nodes: nodesWithPositions,
     minX: Math.round(rect.min_x + width / 2),
     maxX: Math.round(rect.max_x + width / 2),
     minY: Math.round(rect.min_y + height / 2),

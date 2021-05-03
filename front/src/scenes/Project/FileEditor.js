@@ -1,5 +1,4 @@
 import { useCallback, useContext, useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
 import { useMutation } from 'urql'
 import debounce from 'lodash.debounce'
 
@@ -33,7 +32,7 @@ const FileEditorUpdateFileMutation = `
   }
 `
 
-function FileEditor({ project, onClose }) {
+function FileEditor({ opened, project, onClose }) {
   const queryParams = useQuery()
   const currentFileId = queryParams.get('fileId')
   const [themeType] = useContext(ThemeTypeContext)
@@ -60,7 +59,7 @@ function FileEditor({ project, onClose }) {
           console.error(results.error.message)
         }
       })
-  }, 200), [file])
+  }, 666), [file])
 
   function lookupParents(file, parents = []) {
     if (!(file && file.parentId)) return parents
@@ -75,6 +74,41 @@ function FileEditor({ project, onClose }) {
   function handleDataChange(value) {
     setText(value)
     debouncedUpdateFile(value)
+  }
+
+  function renderToolbar() {
+    // Prevent "close editor" tooltip when closed
+    if (!opened) return null
+
+    return (
+      <div className="position-absolute top-0 right-0 p-0h x4">
+        {!!file && (
+          <Tooltip
+            title="Copy source"
+            enterDelay={0}
+          >
+            <IconButton
+              size="small"
+              className="ml-1"
+            >
+              <FileCopyIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        )}
+        <Tooltip
+          title="Close editor"
+          enterDelay={0}
+        >
+          <IconButton
+            size="small"
+            className="ml-1"
+            onClick={onClose}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </div>
+    )
   }
 
   function renderEmpty() {
@@ -119,33 +153,7 @@ function FileEditor({ project, onClose }) {
 
   return (
     <div className="position-relative y2s flex-grow">
-      <div className="position-absolute top-0 right-0 p-0h x4">
-        {!!file && (
-          <Tooltip
-            title="Copy source"
-            enterDelay={0}
-          >
-            <IconButton
-              size="small"
-              className="ml-1"
-            >
-              <FileCopyIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        )}
-        <Tooltip
-          title="Close editor"
-          enterDelay={0}
-        >
-          <IconButton
-            size="small"
-            className="ml-1"
-            onClick={onClose}
-          >
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-      </div>
+      {renderToolbar()}
       {file ? renderFile() : renderEmpty()}
     </div>
   )

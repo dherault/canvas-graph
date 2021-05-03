@@ -14,8 +14,8 @@ const innerWidth = 8192
 const innerHeight = 8192
 
 const GraphUpdateFileMutation = `
-  mutation GraphUpdateFileMutation ($fileId: ID!, $data: String!) {
-    updateFile (fileId: $fileId, data: $data) {
+  mutation GraphUpdateFileMutation ($fileId: ID!, $data: String, $text: String) {
+    updateFile (fileId: $fileId, data: $data, text: $text) {
       file {
         id
         text
@@ -41,27 +41,48 @@ function Graph({ viewer, project }) {
   const location = useLocation()
   const history = useHistory()
 
-  const getDataContent = useCallback(() => {
-    const data = (project.files.find(f => f.id === currentFileId) || {}).data || null
+  const getDataContent = useCallback(returnAllData => {
+    const file = project.files.find(f => f.id === currentFileId)
+    const { data } = file || {}
 
-    return JSON.parse(data) || {}
-  }, [project.files, currentFileId])
+    if (!data) return { nodes: {}, edges: {}, file }
+
+    const parsedData = JSON.parse(data)
+
+    if (returnAllData) return { ...parsedData, file }
+
+    const nodes = Object.entries(parsedData.nodes)
+      .filter(([, value]) => value.parentId === currentParentId)
+      .reduce(reduceObject, {})
+    const nodeIds = Object.keys(nodes)
+
+    const edges = Object.entries(parsedData.edges)
+      .filter(([, value]) => nodeIds.includes(value.inputNodeId) || nodeIds.includes(value.outputNodeId))
+      .reduce(reduceObject, {})
+
+    return { nodes, edges, file }
+  }, [project.files, currentFileId, currentParentId])
 
   const updatePositions = useCallback((nodes, edges) => {
-    assignNodesPositions(nodes, edges, innerWidth, innerHeight)
+    const { nodes: nodesWithPositions } = assignNodesPositions(nodes, edges, innerWidth, innerHeight)
+    const allData = getDataContent(true)
 
     updateFileMutation({
       fileId: currentFileId,
-      data: JSON.stringify({ nodes, edges }),
+      data: JSON.stringify({
+        nodes: {
+          ...allData.nodes,
+          ...nodesWithPositions,
+        },
+        edges: allData.edges,
+      }),
     })
     .then(results => {
       if (results.error) {
         return console.error(results.error.message)
       }
     })
-
-    console.log('nodesWithPosition', nodes, edges)
-  }, [currentFileId, updateFileMutation])
+  }, [currentFileId, updateFileMutation, getDataContent])
 
   const setCurrentParentId = useCallback(nodeId => {
     queryParams.set('parentId', nodeId)
@@ -71,15 +92,34 @@ function Graph({ viewer, project }) {
   }, [history, location.pathname, queryParams.toString()])
 
   useEffect(() => {
+    // console.log('effect text')
+    const { nodes, edges, file } = getDataContent(true)
+
+    // If the file has not been processed yet
+    if (!(file && file.text.length > 0 && Object.keys(nodes).length === 0 && Object.keys(edges).length === 0)) return
+
+    updateFileMutation({
+      fileId: currentFileId,
+      text: file.text,
+    })
+      .then(results => {
+        if (results.error) {
+          return console.error(results.error.message)
+        }
+      })
+  }, [currentFileId, getDataContent, updateFileMutation])
+
+  useEffect(() => {
+    // console.log('effect data')
     const { nodes, edges } = getDataContent()
 
-    if (!(nodes && edges)) return
     if (Object.values(nodes).every(({ x, y }) => typeof x === 'number' && typeof y === 'number')) return
 
     updatePositions(nodes, edges)
-  }, [getDataContent, updatePositions])
+  }, [getDataContent, updatePositions, currentParentId])
 
   useEffect(() => {
+    // console.log('effect run')
     if (!canvasRef.current) return
 
     const { start, stop, updateState, focus } = run(canvasRef.current, innerWidth, innerHeight, setCurrentParentId)
@@ -92,27 +132,18 @@ function Graph({ viewer, project }) {
   }, [canvasRef, setCurrentParentId])
 
   useEffect(() => {
-    const { data } = (project.files.find(f => f.id === currentFileId) || {})
-    const parsedData = JSON.parse(data) || { nodes: {}, edges: {} }
-
-    const nodes = Object.entries(parsedData.nodes)
-      .filter(([, value]) => value.parentId === currentParentId)
-      .reduce(reduceObject, {})
-    const nodeIds = Object.keys(nodes)
+    // console.log('effect updateState')
+    const data = getDataContent()
 
     updateState({
       theme,
+      data,
       ...dimensions,
-      data: {
-        nodes,
-        edges: Object.entries(parsedData.edges)
-        .filter(([, value]) => nodeIds.includes(value.inputNodeId) || nodeIds.includes(value.outputNodeId))
-        .reduce(reduceObject, {}),
-      },
     })
-  }, [updateState, theme, dimensions, project.files, currentFileId, currentParentId])
+  }, [updateState, theme, dimensions, getDataContent])
 
   useEffect(() => {
+    // console.log('effect resize')
     if (!graphRef.current) return
 
     handleGraphResize()
