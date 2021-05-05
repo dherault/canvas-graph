@@ -11,6 +11,8 @@ const outputConnectorMarginLeft = 16
 const connectorsMarginBottom = 1
 const connectorDotDiameter = 8
 const connectorDotMarginHorizontal = 4
+const edgeLineWidth = 4
+const edgeBezierCurveOffset = 64
 
 function run(canvas, innerWidth, innerHeight, setCurrentParentId, onUpdateData) {
   /* ---
@@ -29,6 +31,7 @@ function run(canvas, innerWidth, innerHeight, setCurrentParentId, onUpdateData) 
       x: 0,
       y: 0,
     },
+    dimensions: {},
     clickables: {},
     dragables: {},
   }
@@ -74,7 +77,7 @@ function run(canvas, innerWidth, innerHeight, setCurrentParentId, onUpdateData) 
 
     _.restore()
 
-    drawState()
+    // drawState()
 
     _.restore()
   }
@@ -83,10 +86,11 @@ function run(canvas, innerWidth, innerHeight, setCurrentParentId, onUpdateData) 
     const nodes = state.data ? Object.values(state.data.nodes) : []
 
     nodes.forEach(drawNode)
+    // drawNode(nodes[0])
   }
 
   function drawNode(node) {
-    const dimensions = computeNodeDimensions(node)
+    const dimensions = state.dimensions[node.id]
 
     _.shadowColor = 'rgba(0, 0, 0, 0.25)'
     _.shadowBlur = 4
@@ -126,7 +130,7 @@ function run(canvas, innerWidth, innerHeight, setCurrentParentId, onUpdateData) 
 
       if (alignRight) _.textAlign = 'right'
 
-      const ascendHeight = dimensions.connectors.reduce((acc, { height }, j) => i < j ? acc + height : acc, 0)
+      const ascendHeight = dimensions.connectors.reduce((acc, { height }, j) => j < i ? acc + height : acc, 0)
 
       _.fillText(type, x + currentConnectorMarginHorizontal, y + ascendHeight)
 
@@ -157,7 +161,29 @@ function run(canvas, innerWidth, innerHeight, setCurrentParentId, onUpdateData) 
   }
 
   function drawEdges() {
+    const edges = state.data ? Object.values(state.data.edges) : []
 
+    edges.forEach(drawEdge)
+    // drawEdge(edges[0])
+  }
+
+  function drawEdge(edge) {
+    const [a, b, c, d] = computeEdgeBezierCurvePoints(edge)
+
+    _.strokeStyle = state.theme.palette.primary.main
+    _.lineWidth = edgeLineWidth
+
+    _.beginPath()
+    _.moveTo(a.x, a.y)
+    _.bezierCurveTo(b.x, b.y, c.x, c.y, d.x, d.y)
+    _.stroke()
+    // ;[a, b, c, d].forEach(({ x, y }, i) => {
+    //   _.fillStyle = i === 0 ? 'red' : i === bezierCurvePoints.length - 1 ? 'blue' : 'green'
+    //   _.beginPath()
+    //   _.arc(x, y, 4, 0, 2 * Math.PI)
+    //   _.closePath()
+    //   _.fill()
+    // })
   }
 
   function drawButtons() {
@@ -300,6 +326,70 @@ function run(canvas, innerWidth, innerHeight, setCurrentParentId, onUpdateData) 
   }
 
   /* ---
+    Edges
+  --- */
+
+  function computeEdgeBezierCurvePoints(edge) {
+    const inputNode = state.data.nodes[edge.inputNodeId]
+    const outputNode = state.data.nodes[edge.outputNodeId]
+    const inputNodeDimensions = state.dimensions[edge.inputNodeId]
+    const outputNodeDimensions = state.dimensions[edge.outputNodeId]
+
+    const startPointAccumulatedConnectorHeight = inputNodeDimensions.outputs.connectors.reduce((acc, { height }, j) => j < edge.inputNodeOutputIndex ? acc + height : acc, 0)
+    const startPoint = {
+      x: inputNode.x
+        + inputNodeDimensions.width
+        - connectorMarginHorizontal
+        - connectorDotDiameter / 2,
+      y: inputNode.y
+        + nodeNameMarginTop
+        + inputNodeDimensions.name.height
+        + nodeNameMarginBottom
+        + startPointAccumulatedConnectorHeight
+        + inputNodeDimensions.outputs.connectors[edge.inputNodeOutputIndex].type.height
+        + connectorTypeMarginBottom
+        + inputNodeDimensions.outputs.connectors[edge.inputNodeOutputIndex].name.height / 2,
+    }
+
+    const endPointAccumulatedConnectorHeight = outputNodeDimensions.inputs.connectors.reduce((acc, { height }, j) => j < edge.outputNodeInputIndex ? acc + height : acc, 0)
+    const endPoint = {
+      x: outputNode.x
+        + connectorMarginHorizontal
+        + connectorDotDiameter / 2,
+      y: outputNode.y
+        + nodeNameMarginTop
+        + outputNodeDimensions.name.height
+        + nodeNameMarginBottom
+        + endPointAccumulatedConnectorHeight
+        + outputNodeDimensions.inputs.connectors[edge.outputNodeInputIndex].type.height
+        + connectorTypeMarginBottom
+        + outputNodeDimensions.inputs.connectors[edge.outputNodeInputIndex].name.height / 2,
+    }
+
+    const midPoints = []
+
+    const nodesDiff = outputNode.x - (inputNode.x + inputNodeDimensions.width) + 2 * connectorMarginHorizontal + connectorDotDiameter
+
+      // console.log('nodeDiff', nodesDiff)
+    const offset = nodesDiff > 0
+      ? nodesDiff < 2 * edgeBezierCurveOffset ? nodesDiff / 2 : edgeBezierCurveOffset
+      : -nodesDiff < 2 * edgeBezierCurveOffset ? nodesDiff / 2 : -edgeBezierCurveOffset
+
+    midPoints.push(
+      {
+        x: startPoint.x + offset,
+        y: startPoint.y,
+      },
+      {
+        x: endPoint.x - offset,
+        y: endPoint.y,
+      }
+    )
+
+    return [startPoint, ...midPoints, endPoint]
+  }
+
+  /* ---
     Event listners
   --- */
 
@@ -437,7 +527,7 @@ function run(canvas, innerWidth, innerHeight, setCurrentParentId, onUpdateData) 
 
   function computeDragablesPositions() {
     Object.values(state.data.nodes).forEach(node => {
-      const { width, height } = computeNodeDimensions(node)
+      const { width, height } = state.dimensions[node.id]
 
       state.dragables[node.id] = {
         id: node.id,
@@ -447,6 +537,12 @@ function run(canvas, innerWidth, innerHeight, setCurrentParentId, onUpdateData) 
         width,
         height,
       }
+    })
+  }
+
+  function computeNodesDimensions() {
+    Object.values(state.data.nodes).forEach(node => {
+      state.dimensions[node.id] = computeNodeDimensions(node)
     })
   }
 
@@ -542,6 +638,7 @@ function run(canvas, innerWidth, innerHeight, setCurrentParentId, onUpdateData) 
     }
 
     if (state.data) {
+      computeNodesDimensions()
       computeClickablesPositions()
       computeDragablesPositions()
     }

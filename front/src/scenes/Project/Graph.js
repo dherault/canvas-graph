@@ -155,8 +155,6 @@ function Graph({ viewer, project }) {
 
     delete data.file
 
-    console.log('data.nodes', data.nodes)
-
     updateState({
       theme,
       data,
