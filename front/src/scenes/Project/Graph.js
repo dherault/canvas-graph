@@ -41,18 +41,6 @@ function Graph({ viewer, project }) {
   const location = useLocation()
   const history = useHistory()
 
-  const updateData = useCallback(data => {
-    updateFileMutation({
-      fileId: currentFileId,
-      data: JSON.stringify(data),
-    })
-    .then(results => {
-      if (results.error) {
-        return console.error(results.error.message)
-      }
-    })
-  }, [currentFileId, updateFileMutation])
-
   const getDataContent = useCallback(returnAllData => {
     const file = project.files.find(f => f.id === currentFileId)
     const { data } = file || {}
@@ -75,18 +63,34 @@ function Graph({ viewer, project }) {
     return { nodes, edges, file }
   }, [project.files, currentFileId, currentParentId])
 
-  const updatePositions = useCallback((nodes, edges) => {
-    const { nodes: nodesWithPositions } = assignNodesPositions(nodes, edges, innerWidth, innerHeight)
+  const updateData = useCallback(data => {
     const allData = getDataContent(true)
 
-    updateData({
-      nodes: {
-        ...allData.nodes,
-        ...nodesWithPositions,
-      },
-      edges: allData.edges,
+    updateFileMutation({
+      fileId: currentFileId,
+      data: JSON.stringify({
+        nodes: {
+          ...allData.nodes,
+          ...data.nodes,
+        },
+        edges: {
+          ...allData.edges,
+          ...data.edges,
+        },
+      }),
     })
-  }, [getDataContent, updateData])
+    .then(results => {
+      if (results.error) {
+        return console.error(results.error.message)
+      }
+    })
+  }, [currentFileId, updateFileMutation, getDataContent])
+
+  const updatePositions = useCallback((nodes, edges) => {
+    const { nodes: nodesWithPositions } = assignNodesPositions(nodes, edges, innerWidth, innerHeight)
+
+    updateData({ nodes: nodesWithPositions })
+  }, [updateData])
 
   const setCurrentParentId = useCallback(nodeId => {
     queryParams.set('parentId', nodeId)
@@ -94,6 +98,16 @@ function Graph({ viewer, project }) {
     history.push(`${location.pathname}?${queryParams.toString()}`)
   // eslint-disable-next-line
   }, [history, location.pathname, queryParams.toString()])
+
+  useEffect(() => {
+    if (!currentParentId) {
+      const { nodes } = getDataContent(true)
+
+      const fileNode = Object.values(nodes).find(node => node.parentId === null)
+
+      setCurrentParentId(fileNode.id)
+    }
+  }, [currentParentId, getDataContent, setCurrentParentId])
 
   useEffect(() => {
     // console.log('effect text')
@@ -140,6 +154,8 @@ function Graph({ viewer, project }) {
     const data = getDataContent()
 
     delete data.file
+
+    console.log('data.nodes', data.nodes)
 
     updateState({
       theme,
