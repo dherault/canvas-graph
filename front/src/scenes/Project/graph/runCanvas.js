@@ -4,8 +4,13 @@ const nodeNameMarginTop = 8
 const nodeNameMarginBottom = 8
 const nodeNameMarginLeft = 12
 const nodeNameMarginRight = 12
-const connectorTypeMarginBottom = 2
-const outputConnectorMarginLeft = 4
+const connectorMarginHorizontal = 4
+const connectorTypeMarginBottom = 4
+const connectorNameMarginBottom = 6
+const outputConnectorMarginLeft = 16
+const connectorsMarginBottom = 1
+const connectorDotDiameter = 8
+const connectorDotMarginHorizontal = 4
 
 function run(canvas, innerWidth, innerHeight, setCurrentParentId, onUpdateData) {
   /* ---
@@ -30,12 +35,27 @@ function run(canvas, innerWidth, innerHeight, setCurrentParentId, onUpdateData) 
 
   const _ = canvas.getContext('2d')
 
+  const devicePixelRatio = window.devicePixelRatio || 1
+
+  const canvasPixelRatio = (
+    _.webkitBackingStorePixelRatio
+    || _.mozBackingStorePixelRatio
+    || _.msBackingStorePixelRatio
+    || _.oBackingStorePixelRatio
+    || _.backingStorePixelRatio
+    || 1
+  )
+
+  const pixelRatio = devicePixelRatio / canvasPixelRatio
+
   /* ---
     Draw
   --- */
 
   function draw() {
     if (!state.theme) return
+    _.save()
+    _.scale(pixelRatio, pixelRatio)
 
     _.fillStyle = state.theme.palette.background.default
     _.fillRect(0, 0, state.width, state.height)
@@ -44,6 +64,7 @@ function run(canvas, innerWidth, innerHeight, setCurrentParentId, onUpdateData) 
     const scale = getScale()
 
     _.save()
+
     _.scale(scale, scale)
     _.translate(state.translation.x, state.translation.y)
 
@@ -54,6 +75,8 @@ function run(canvas, innerWidth, innerHeight, setCurrentParentId, onUpdateData) 
     _.restore()
 
     drawState()
+
+    _.restore()
   }
 
   function drawNodes() {
@@ -76,6 +99,61 @@ function run(canvas, innerWidth, innerHeight, setCurrentParentId, onUpdateData) 
     setNodeNameFont()
 
     _.fillText(node.name, node.x + dimensions.width / 2, node.y + nodeNameMarginTop)
+
+    drawConnectors(
+      node.inputs,
+      dimensions.inputs,
+      node.x,
+      node.y + nodeNameMarginTop + dimensions.name.height + nodeNameMarginBottom
+    )
+
+    drawConnectors(
+      node.outputs,
+      dimensions.outputs,
+      node.x + dimensions.width,
+      node.y + nodeNameMarginTop + dimensions.name.height + nodeNameMarginBottom,
+      true
+    )
+  }
+
+  function drawConnectors(io, dimensions, x, y, alignRight) {
+    const currentConnectorMarginHorizontal = alignRight ? -connectorMarginHorizontal : connectorMarginHorizontal
+    const currentConnectorDotDiameter = alignRight ? -connectorDotDiameter : connectorDotDiameter
+    const currentConnectorDotMarginHorizontal = alignRight ? -connectorDotMarginHorizontal : connectorDotMarginHorizontal
+
+    io.forEach(({ name, type }, i) => {
+      setConnectionTypeFont()
+
+      if (alignRight) _.textAlign = 'right'
+
+      const ascendHeight = dimensions.connectors.reduce((acc, { height }, j) => i < j ? acc + height : acc, 0)
+
+      _.fillText(type, x + currentConnectorMarginHorizontal, y + ascendHeight)
+
+      setConnectionNameFont()
+
+      if (alignRight) _.textAlign = 'right'
+
+      _.fillText(
+        name,
+        x + currentConnectorMarginHorizontal + currentConnectorDotDiameter + currentConnectorDotMarginHorizontal,
+        y + ascendHeight + dimensions.connectors[i].type.height + connectorTypeMarginBottom
+      )
+
+      _.fillStyle = state.theme.palette.primary.main
+
+      // console.log('dimensions.connectors[i].name.height - connectorNameMarginBottom', dimensions.connectors[i].name.height - connectorNameMarginBottom)
+      _.beginPath()
+      _.arc(
+        x + currentConnectorMarginHorizontal + currentConnectorDotDiameter / 2,
+        y + ascendHeight + dimensions.connectors[i].type.height + connectorTypeMarginBottom + dimensions.connectors[i].name.height / 2,
+        connectorDotDiameter / 2,
+        0,
+        2 * Math.PI
+      )
+      _.closePath()
+      _.fill()
+    })
   }
 
   function drawEdges() {
@@ -92,6 +170,7 @@ function run(canvas, innerWidth, innerHeight, setCurrentParentId, onUpdateData) 
 
   function drawState() {
     _.fillStyle = 'white'
+    _.font = '12px Roboto'
 
     const output = { ...state }
 
@@ -110,7 +189,114 @@ function run(canvas, innerWidth, innerHeight, setCurrentParentId, onUpdateData) 
     text.split('\n').forEach((x, i) => {
       _.fillText(x, 16, 16 + i * 14)
     })
+  }
 
+  /* ---
+    Fonts
+  --- */
+
+  function setNodeNameFont() {
+    _.font = '16px Roboto'
+    _.fillStyle = state.theme.palette.text.primary
+    _.textBaseline = 'top'
+    _.textAlign = 'center'
+  }
+
+  function setConnectionTypeFont() {
+    _.font = '12px Roboto'
+    // eslint-disable-next-line
+    _.fillStyle = state.theme.palette.grey[500]
+    _.textBaseline = 'top'
+    _.textAlign = 'start'
+  }
+
+  function setConnectionNameFont() {
+    _.font = '12px Roboto'
+    _.fillStyle = state.theme.palette.text.primary
+    _.textBaseline = 'top'
+    _.textAlign = 'start'
+  }
+
+  /* ---
+    Dimensions
+  --- */
+
+  function reduceMaxWidth(max, { width }) {
+    return Math.max(max, width)
+  }
+
+  function reduceSumHeight(sum, { height }) {
+    return sum + height
+  }
+
+  function computeNodeDimensions(node) {
+    const inputDimensions = node.inputs.map(computeConnectorDimensions)
+    const outputDimensions = node.outputs.map(computeConnectorDimensions)
+
+    setNodeNameFont()
+
+    const { width: nameWidth, actualBoundingBoxDescent: nameHeight } = _.measureText(node.name)
+
+    // Width
+    const totalNameWidth = nodeNameMarginLeft + nameWidth + nodeNameMarginRight
+
+    const maxInputWidth = inputDimensions.reduce(reduceMaxWidth, 0)
+    const maxOutputWidth = outputDimensions.reduce(reduceMaxWidth, 0)
+
+    const maxWidth = Math.max(totalNameWidth, maxInputWidth + outputConnectorMarginLeft + maxOutputWidth)
+
+    // Height
+    const totalNameHeight = nodeNameMarginTop + nameHeight + nodeNameMarginBottom
+
+    const inputHeight = inputDimensions.reduce(reduceSumHeight, 0)
+    const outputHeight = outputDimensions.reduce(reduceSumHeight, 0)
+
+    const totalHeight = totalNameHeight + Math.max(inputHeight, outputHeight) + connectorsMarginBottom
+
+    return {
+      width: maxWidth,
+      height: totalHeight,
+      name: {
+        width: nameWidth,
+        height: nameHeight,
+      },
+      inputs: {
+        width: maxInputWidth,
+        height: inputHeight,
+        connectors: inputDimensions,
+      },
+      outputs: {
+        width: maxOutputWidth,
+        height: outputHeight,
+        connectors: outputDimensions,
+      },
+    }
+  }
+
+  function computeConnectorDimensions(connector) {
+    setConnectionTypeFont()
+
+    const { width: typeWidth, actualBoundingBoxDescent: typeHeight } = _.measureText(connector.type)
+
+    setConnectionNameFont()
+
+    const { width: nameWidth, actualBoundingBoxDescent: nameHeight } = _.measureText(connector.name)
+
+    const bottomWidth = connectorDotDiameter + connectorDotMarginHorizontal + nameWidth
+    const bottomHeight = Math.max(connectorDotDiameter, nameHeight)
+
+    return {
+      width: Math.max(typeWidth, bottomWidth) + connectorMarginHorizontal,
+      height: typeHeight + connectorTypeMarginBottom + bottomHeight + connectorNameMarginBottom,
+      type: {
+        width: typeWidth,
+        height: typeHeight,
+      },
+      name: {
+        width: bottomWidth,
+        height: bottomHeight,
+      },
+    }
   }
 
   /* ---
@@ -130,8 +316,6 @@ function run(canvas, innerWidth, innerHeight, setCurrentParentId, onUpdateData) 
     const dragable = Object.values(state.dragables).find(square => isInSquare(square, relativeMouse))
 
     state.dragableId = dragable ? dragable.id : null
-
-    console.log('state.dragableId', state.dragableId)
   }
 
   function handleMouseUp() {
@@ -267,108 +451,22 @@ function run(canvas, innerWidth, innerHeight, setCurrentParentId, onUpdateData) 
   }
 
   /* ---
-    Fonts
-  --- */
-
-  function setNodeNameFont() {
-    _.font = '16px Roboto'
-    _.fillStyle = state.theme.palette.text.primary
-    _.textBaseline = 'top'
-    _.textAlign = 'center'
-  }
-
-  function setConnectionTypeFont() {
-    _.font = 'Roboto 10px'
-    _.fillStyle = 'aliceblue'
-    _.textBaseline = 'top'
-    _.textAlign = 'start'
-  }
-
-  function setConnectionNameFont() {
-    _.font = 'Roboto 10px'
-    _.fillStyle = state.theme.palette.text.primary
-    _.textBaseline = 'top'
-    _.textAlign = 'start'
-  }
-
-  /* ---
-    Dimensions
-  --- */
-
-  function reduceMaxWidth(max, { width }) {
-    return Math.max(max, width)
-  }
-
-  function reduceSumHeight(sum, { height }) {
-    return sum + height
-  }
-
-  function computeNodeDimensions(node) {
-    const inputDimensions = node.inputs.map(computeConnectorDimensions)
-    const outputDimensions = node.outputs.map(computeConnectorDimensions)
-
-    setNodeNameFont()
-
-    const { width: nameWidth, actualBoundingBoxDescent: nameHeight } = _.measureText(node.name)
-
-    // Width
-    const totalNameWidth = nodeNameMarginLeft + nameWidth + nodeNameMarginRight
-
-    const maxInputWidth = inputDimensions.reduce(reduceMaxWidth, 0)
-    const maxOutputWidth = outputConnectorMarginLeft + outputDimensions.reduce(reduceMaxWidth, 0)
-
-    const maxWidth = Math.max(totalNameWidth, maxInputWidth + maxOutputWidth)
-
-    // Height
-    const totalNameHeight = nodeNameMarginTop + nameHeight + nodeNameMarginBottom
-
-    const inputHeight = inputDimensions.reduce(reduceSumHeight, 0)
-    const outputHeight = outputDimensions.reduce(reduceSumHeight, 0)
-
-    const totalHeight = totalNameHeight + Math.max(inputHeight, outputHeight)
-
-    return {
-      width: maxWidth,
-      height: totalHeight,
-      name: {
-        width: nameWidth,
-        height: nameHeight,
-      },
-      inputs: inputDimensions,
-      outputs: outputDimensions,
-    }
-  }
-
-  function computeConnectorDimensions(connector) {
-    setConnectionTypeFont()
-
-    const { width: typeWidth, actualBoundingBoxDescent: typeHeight } = _.measureText(connector.type)
-
-    setConnectionNameFont()
-
-    const { width: nameWidth, actualBoundingBoxDescent: nameHeight } = _.measureText(connector.name)
-
-    return {
-      width: typeWidth + connectorTypeMarginBottom + nameWidth,
-      height: typeHeight + connectorTypeMarginBottom + nameHeight,
-      type: {
-        width: typeWidth,
-        height: typeHeight,
-      },
-      name: {
-        width: nameWidth,
-        height: nameHeight,
-      },
-    }
-  }
-
-  /* ---
     Handlers
   --- */
 
   function handleResize() {
-    canvas.width = state.width
-    canvas.height = state.height
+    if (devicePixelRatio !== canvasPixelRatio) {
+      canvas.width = state.width * pixelRatio
+      canvas.height = state.height * pixelRatio
+      canvas.style.width = `${state.width}px`
+      canvas.style.height = `${state.height}px`
+    }
+    else {
+      canvas.width = state.width
+      canvas.height = state.height
+      canvas.style.width = ''
+      canvas.style.height = ''
+    }
   }
 
   function handleFocus(nodeIds = []) {
