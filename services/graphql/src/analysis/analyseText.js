@@ -29,7 +29,7 @@ async function analyseText(sourceText, previousData) {
   }
 
   function setParentId(parentId) {
-    console.log('parentId', parentId)
+    // console.log('parentId', parentId)
     state.parentIds.push(parentId)
   }
 
