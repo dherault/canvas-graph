@@ -41,6 +41,18 @@ function Graph({ viewer, project }) {
   const location = useLocation()
   const history = useHistory()
 
+  const updateData = useCallback(data => {
+    updateFileMutation({
+      fileId: currentFileId,
+      data: JSON.stringify(data),
+    })
+    .then(results => {
+      if (results.error) {
+        return console.error(results.error.message)
+      }
+    })
+  }, [currentFileId, updateFileMutation])
+
   const getDataContent = useCallback(returnAllData => {
     const file = project.files.find(f => f.id === currentFileId)
     const { data } = file || {}
@@ -67,22 +79,14 @@ function Graph({ viewer, project }) {
     const { nodes: nodesWithPositions } = assignNodesPositions(nodes, edges, innerWidth, innerHeight)
     const allData = getDataContent(true)
 
-    updateFileMutation({
-      fileId: currentFileId,
-      data: JSON.stringify({
-        nodes: {
-          ...allData.nodes,
-          ...nodesWithPositions,
-        },
-        edges: allData.edges,
-      }),
+    updateData({
+      nodes: {
+        ...allData.nodes,
+        ...nodesWithPositions,
+      },
+      edges: allData.edges,
     })
-    .then(results => {
-      if (results.error) {
-        return console.error(results.error.message)
-      }
-    })
-  }, [currentFileId, updateFileMutation, getDataContent])
+  }, [getDataContent, updateData])
 
   const setCurrentParentId = useCallback(nodeId => {
     queryParams.set('parentId', nodeId)
@@ -122,18 +126,20 @@ function Graph({ viewer, project }) {
     // console.log('effect run')
     if (!canvasRef.current) return
 
-    const { start, stop, updateState, focus } = run(canvasRef.current, innerWidth, innerHeight, setCurrentParentId)
+    const { start, stop, updateState, focus } = run(canvasRef.current, innerWidth, innerHeight, setCurrentParentId, updateData)
 
     setUpdateState(() => updateState)
     setFocus(() => focus)
     start()
 
     return stop
-  }, [canvasRef, setCurrentParentId])
+  }, [canvasRef, setCurrentParentId, updateData])
 
   useEffect(() => {
     // console.log('effect updateState')
     const data = getDataContent()
+
+    delete data.file
 
     updateState({
       theme,
