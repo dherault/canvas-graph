@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-max-props-per-line */
 import './index.css'
 
 import Container from '@material-ui/core/Container'

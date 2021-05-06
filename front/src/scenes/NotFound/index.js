@@ -9,7 +9,10 @@ function NotFound() {
       <Typography>
         Page not found.
       </Typography>
-      <RouterLink className="mt-2" to="/">
+      <RouterLink
+        className="mt-2"
+        to="/"
+      >
         <Button variant="contained">
           Home
         </Button>

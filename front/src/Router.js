@@ -20,20 +20,32 @@ function Router() {
       <BlankLayout>
         <AuthenticationProvider>
           <Switch>
-            <Route exact path="/">
+            <Route
+              exact
+              path="/"
+            >
               <OnboardingBouncer>
                 <ApplicationLayout>
                   <Home />
                 </ApplicationLayout>
               </OnboardingBouncer>
             </Route>
-            <Route exact path="/sign-up">
+            <Route
+              exact
+              path="/sign-up"
+            >
               <Authentication />
             </Route>
-            <Route exact path="/sign-in">
+            <Route
+              exact
+              path="/sign-in"
+            >
               <Authentication isSignIn />
             </Route>
-            <Route exact path="/~/:pseudo">
+            <Route
+              exact
+              path="/~/:pseudo"
+            >
               <AuthenticationBouncer>
                 <OnboardingBouncer>
                   <ApplicationLayout>
@@ -42,7 +54,10 @@ function Router() {
                 </OnboardingBouncer>
               </AuthenticationBouncer>
             </Route>
-            <Route exact path="/-/:slug">
+            <Route
+              exact
+              path="/-/:slug"
+            >
               <AuthenticationBouncer>
                 <OnboardingBouncer>
                   <ApplicationLayout>
@@ -58,7 +73,10 @@ function Router() {
                 </ApplicationLayout>
               </AuthenticationBouncer>
             </Route>
-            <Route exact path={['/privacy-policy', '/terms-of-service', '/legal']}>
+            <Route
+              exact
+              path={['/privacy-policy', '/terms-of-service', '/legal']}
+            >
               <ApplicationLayout>
                 <Legal />
               </ApplicationLayout>

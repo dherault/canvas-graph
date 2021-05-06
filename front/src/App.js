@@ -28,7 +28,10 @@ function App() {
 
   return (
     <StateProvider store={store}>
-      <PersistenceProvider loading={loadingNode} persistor={store.persistor}>
+      <PersistenceProvider
+        loading={loadingNode}
+        persistor={store.persistor}
+      >
         <GraphQLProvider value={client}>
           <ThemedApp>
             <Router />

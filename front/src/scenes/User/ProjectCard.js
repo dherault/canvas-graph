@@ -25,7 +25,10 @@ function ProjectCard({ project }) {
         </div>
       </CardContent>
       <CardActions>
-        <RouterLink to={`/-/${project.slug}`} className="mr-1">
+        <RouterLink
+          to={`/-/${project.slug}`}
+          className="mr-1"
+        >
           <Button>
             Open
           </Button>

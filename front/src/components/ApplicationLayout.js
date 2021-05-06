@@ -131,7 +131,10 @@ function ViewerInformations() {
         open={Boolean(menuAnchorElement)}
         onClose={() => setMenuAnchorElement(null)}
       >
-        <MenuItem component={RouterLink} to="/account">
+        <MenuItem
+          component={RouterLink}
+          to="/account"
+        >
           <AccountCircleOutlinedIcon className="mr-1" /> Account
         </MenuItem>
         <MenuItem onClick={handleSignOut}>

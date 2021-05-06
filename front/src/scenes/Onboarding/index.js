@@ -14,7 +14,10 @@ function Onboarding() {
       <Route path="/onboarding/end">
         <OnboardingEnd />
       </Route>
-      <Redirect from="/onboarding" to="/onboarding/pseudo" />
+      <Redirect
+        from="/onboarding"
+        to="/onboarding/pseudo"
+      />
     </Container>
   )
 

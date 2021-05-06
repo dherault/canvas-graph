@@ -124,7 +124,10 @@ function FileEditor({ opened, project, onClose }) {
   function renderFile() {
     return (
       <>
-        <Typography variant="body2" className="py-1 px-2">
+        <Typography
+          variant="body2"
+          className="py-1 px-2"
+        >
           /{parentFiles.map(f => f.name).join('/')}{parentFiles.length > 0 ? '/' : ''}{file.name}
         </Typography>
         <AceEditor
